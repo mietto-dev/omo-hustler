@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "allowArbitraryExtensions": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "lib": ["ESNext"],
+    "types": ["bun-types"],
+    "noEmit": true
+  },
+  "include": ["src/**/*", "../omo-opencode/src/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -6,21 +6,11 @@ const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 // inner relative requires survive bundling and crash under plain node, while the
 // published payloads ship no node_modules for an external to resolve from
 // (lazycodex#47 review). Bundle the ESM entry inline instead.
-const jsoncParserEsmEntry = fileURLToPath(new URL("../node_modules/jsonc-parser/lib/esm/main.js", import.meta.url));
-
 const result = await Bun.build({
-  entrypoints: [`${repoRoot}packages/omo-opencode/src/cli/index.ts`],
+  entrypoints: [`${repoRoot}packages/hustler/src/cli/index.ts`],
   outdir: `${repoRoot}dist/cli-node`,
   target: "node",
   format: "esm",
-  plugins: [
-    {
-      name: "jsonc-parser-esm",
-      setup(build) {
-        build.onResolve({ filter: /^jsonc-parser$/ }, () => ({ path: jsoncParserEsmEntry }));
-      },
-    },
-  ],
 });
 
 if (!result.success) {

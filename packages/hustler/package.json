@@ -1,0 +1,25 @@
+{
+  "name": "@oh-my-opencode/hustler",
+  "version": "0.0.0-private",
+  "private": true,
+  "description": "OpenCode-only Hustler package boundary.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cli": "./dist/cli.js"
+  },
+  "files": ["dist", "package.json", "tsconfig.json"],
+  "scripts": {
+    "build": "rm -rf dist && bun run build:index && bun run build:cli && bun run build:types",
+    "build:index": "bun build src/index.ts --outdir dist --target node --format esm --external zod",
+    "build:cli": "bun build src/cli/index.ts --outfile dist/cli.js --target node --format esm",
+    "build:types": "mkdir -p dist && cp src/index.d.ts dist/index.d.ts",
+    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "test": "bun test"
+  }
+}
