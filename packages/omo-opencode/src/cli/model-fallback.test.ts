@@ -269,8 +269,8 @@ describe("generateModelConfig", () => {
       const result = generateModelConfig(config)
 
       // #then
-      expect(result.agents?.metis?.model).toBe("opencode/gpt-5-nano")
-      expect(result.agents?.metis?.variant).toBeUndefined()
+      expect(result.agents?.metis?.model).toBe("openai/gpt-5.6-luna")
+      expect(result.agents?.metis?.variant).toBe("high")
     })
 
     test("Sisyphus-Junior resolves to gpt-5.6-sol medium when only OpenAI is available", () => {
