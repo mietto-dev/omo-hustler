@@ -99,8 +99,8 @@ export const AGENT_MODEL_REQUIREMENTS: Record<string, ModelRequirement> = {
   metis: {
     fallbackChain: [
       {
-        providers: ["anthropic", "github-copilot", "opencode"],
-        model: "claude-opus-5",
+        providers: ["openai", "openai-codex"],
+        model: "gpt-5.6-luna",
         variant: "high",
       },
       {

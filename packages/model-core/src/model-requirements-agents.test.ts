@@ -170,7 +170,7 @@ describe("AGENT_MODEL_REQUIREMENTS", () => {
         })
   })
 
-  test("metis uses Opus 5 high before Kimi K3 low", () => {
+  test("metis uses GPT-5.6 Luna high before Kimi K3 low during migration", () => {
     // given
     const metis = AGENT_MODEL_REQUIREMENTS["metis"]
 
@@ -180,8 +180,8 @@ describe("AGENT_MODEL_REQUIREMENTS", () => {
     // then
     expect(metis.fallbackChain).toHaveLength(2)
     expect(primary).toEqual({
-          providers: ["anthropic", "github-copilot", "opencode"],
-          model: "claude-opus-5",
+          providers: ["openai", "openai-codex"],
+          model: "gpt-5.6-luna",
           variant: "high",
         })
     expect(kimiFallback).toEqual({
@@ -189,6 +189,7 @@ describe("AGENT_MODEL_REQUIREMENTS", () => {
           model: "kimi-k3",
           variant: "low",
         })
+    expect(metis.fallbackChain.every((entry) => !entry.model.startsWith("claude-"))).toBe(true)
   })
 
   test("momus leads with native gpt-6-astra xhigh before the Copilot and opencode Astra rungs", () => {
