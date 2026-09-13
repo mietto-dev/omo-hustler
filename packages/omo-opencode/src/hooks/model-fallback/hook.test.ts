@@ -43,7 +43,7 @@ describe("model fallback hook", () => {
     const set = setPendingModelFallback(
       modelFallback,
       "ses_model_fallback_main",
-      "Sisyphus - Ultraworker",
+      "orchestrator",
       "anthropic",
       "claude-opus-4-8-thinking",
     )
@@ -78,7 +78,7 @@ describe("model fallback hook", () => {
     const sessionID = "ses_model_fallback_main"
 
     expect(
-      setPendingModelFallback(modelFallback, sessionID, "Sisyphus - Ultraworker", "anthropic", "claude-opus-4-8-thinking"),
+      setPendingModelFallback(modelFallback, sessionID, "orchestrator", "anthropic", "claude-opus-4-8-thinking"),
     ).toBe(true)
 
     const firstOutput = {
@@ -97,7 +97,7 @@ describe("model fallback hook", () => {
     })
 
     expect(
-      setPendingModelFallback(modelFallback, sessionID, "Sisyphus - Ultraworker", "anthropic", "claude-opus-4-8"),
+      setPendingModelFallback(modelFallback, sessionID, "orchestrator", "anthropic", "claude-opus-4-8"),
     ).toBe(true)
 
     const secondOutput: ChatMessageOutput = {
@@ -122,14 +122,14 @@ describe("model fallback hook", () => {
     const firstSet = setPendingModelFallback(
       modelFallback,
       sessionID,
-      "Sisyphus - Ultraworker",
+      "orchestrator",
       "anthropic",
       "claude-opus-4-7-thinking",
     )
     const secondSet = setPendingModelFallback(
       modelFallback,
       sessionID,
-      "Sisyphus - Ultraworker",
+      "orchestrator",
       "anthropic",
       "claude-opus-4-7-thinking",
     )
@@ -175,7 +175,7 @@ describe("model fallback hook", () => {
       setPendingModelFallback(
         modelFallback,
         sessionID,
-        "Sisyphus - Ultraworker",
+        "orchestrator",
         "anthropic",
         "claude-opus-4-7",
       ),
@@ -217,7 +217,7 @@ describe("model fallback hook", () => {
       setPendingModelFallback(
         modelFallback,
         sessionID,
-        "Sisyphus - Ultraworker",
+        "orchestrator",
         "quotio",
         "claude-opus-4-7",
       ),
@@ -270,7 +270,7 @@ describe("model fallback hook", () => {
       setPendingModelFallback(
         modelFallback,
         sessionID,
-        "Sisyphus - Ultraworker",
+        "orchestrator",
         "provider-x",
         "current-model",
       ),
@@ -300,7 +300,7 @@ describe("model fallback hook", () => {
     const set = setPendingModelFallback(
       modelFallback,
       sessionID,
-      "Sisyphus - Junior",
+      "developer",
       "anthropic",
       "claude-sonnet-4-6",
     )
@@ -325,7 +325,7 @@ describe("model fallback hook", () => {
     const set = setPendingModelFallback(
       hook,
       "ses_model_fallback_toast",
-      "Sisyphus - Ultraworker",
+      "orchestrator",
       "anthropic",
       "claude-opus-4-7-thinking",
     )
