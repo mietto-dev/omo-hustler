@@ -61,7 +61,7 @@ export function createDelegateTaskPresentation(options: DelegateTaskPresentation
 
   **CORRECT - Using subagent_type with parallel exploration:**
   \`\`\`
-  task(subagent_type="explore", description="Find patterns", prompt="...", run_in_background=true)
+  task(subagent_type="librarian", description="Find repository patterns", prompt="...", run_in_background=true)
   \`\`\`
 
   REQUIRED: Provide ONE of:
