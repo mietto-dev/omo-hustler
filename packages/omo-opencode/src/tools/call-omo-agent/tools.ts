@@ -40,12 +40,16 @@ function resolveModelAndFallbackChain(args: {
   userCategories?: CategoriesConfig
 }): { model: DelegatedModelConfig | undefined; fallbackChain: FallbackEntry[] | undefined } {
   const { subagentType, agentOverrides, userCategories } = args
-  const agentConfigKey = getAgentConfigKey(subagentType)
+  const normalizedAgentConfigKey = getAgentConfigKey(subagentType)
+  const agentConfigKey = normalizedAgentConfigKey === "explore" ? "librarian" : normalizedAgentConfigKey
   const agentRequirement = AGENT_MODEL_REQUIREMENTS[agentConfigKey]
 
-  const agentOverride = agentOverrides?.[agentConfigKey as keyof AgentOverrides]
+  const agentOverride = agentOverrides?.[normalizedAgentConfigKey as keyof AgentOverrides]
+    ?? agentOverrides?.[agentConfigKey as keyof AgentOverrides]
     ?? (agentOverrides
-      ? Object.entries(agentOverrides).find(([key]) => key.toLowerCase() === agentConfigKey)?.[1]
+      ? Object.entries(agentOverrides).find(([key]) =>
+        key.toLowerCase() === normalizedAgentConfigKey || key.toLowerCase() === agentConfigKey,
+      )?.[1]
       : undefined)
   const agentCategoryModel = agentOverride?.category
     ? userCategories?.[agentOverride.category]?.model
@@ -221,4 +225,3 @@ export function createCallOmoAgent(
     },
   });
 }
-
