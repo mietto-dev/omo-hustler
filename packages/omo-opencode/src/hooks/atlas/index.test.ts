@@ -28,7 +28,7 @@ type MockAtlasInput = Parameters<typeof createAtlasHook>[0] & {
   _sessionGetMock: ReturnType<typeof mock>
 }
 
-describe("atlas hook", () => {
+describe("approver hook", () => {
   let TEST_DIR: string
   let OMO_DIR: string
 
@@ -77,7 +77,7 @@ describe("atlas hook", () => {
     const resolvedOptions: AtlasHookOptions = {
       directory: TEST_DIR,
       idleSettleMs: 0,
-      isCallerOrchestrator: async (sessionID) => callerAgentBySession.get(sessionID ?? "") === "atlas",
+      isCallerOrchestrator: async (sessionID) => callerAgentBySession.get(sessionID ?? "") === "approver",
       ...options,
     }
     return createAtlasHook(input, resolvedOptions)
@@ -86,8 +86,8 @@ describe("atlas hook", () => {
   beforeEach(() => {
     _resetForTesting()
     releaseAllPromptAsyncReservationsForTesting()
-    registerAgentName("atlas")
-    registerAgentName("sisyphus")
+    registerAgentName("approver")
+    registerAgentName("orchestrator")
     TEST_DIR = join(tmpdir(), `atlas-test-${randomUUID()}`)
     OMO_DIR = join(TEST_DIR, ".omo")
     if (!existsSync(TEST_DIR)) {
@@ -183,7 +183,7 @@ describe("atlas hook", () => {
      test("should append standalone verification when no boulder state but caller is Atlas", async () => {
        // given - no boulder state, but caller is Atlas
        const sessionID = "session-no-boulder-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
       
       const hook = createTestAtlasHook(createMockPluginInput())
       const originalOutput = "Task completed successfully"
@@ -209,7 +209,7 @@ describe("atlas hook", () => {
      test("should transform output when caller is Atlas with boulder state", async () => {
        // given - Atlas caller with boulder state
        const sessionID = "session-transform-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
       
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1\n- [x] Task 2")
@@ -247,7 +247,7 @@ describe("atlas hook", () => {
     test("should preserve metadata when transforming output for boulder orchestrator", async () => {
       // given - Atlas caller with boulder state and metadata containing sessionId
       const sessionID = "session-metadata-preserve-test"
-      setupMessageStorage(sessionID, "atlas")
+      setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "metadata-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1")
@@ -270,7 +270,7 @@ session_id: ses_subagent_abc
 </task_metadata>`,
         metadata: {
           sessionId: "ses_subagent_abc",
-          agent: "sisyphus-junior",
+          agent: "developer",
           category: "quick",
           truncated: false,
         } as Record<string, unknown>,
@@ -284,7 +284,7 @@ session_id: ses_subagent_abc
 
       // then - output is transformed but metadata is preserved
       expect(output.metadata.sessionId).toBe("ses_subagent_abc")
-      expect(output.metadata.agent).toBe("sisyphus-junior")
+      expect(output.metadata.agent).toBe("developer")
       expect(output.metadata.category).toBe("quick")
       expect(output.metadata.truncated).toBe(false)
 
@@ -294,7 +294,7 @@ session_id: ses_subagent_abc
     test("should preserve metadata when appending standalone verification reminder", async () => {
       // given - Atlas caller without boulder state, metadata containing sessionId
       const sessionID = "session-standalone-metadata-test"
-      setupMessageStorage(sessionID, "atlas")
+      setupMessageStorage(sessionID, "approver")
 
       const hook = createTestAtlasHook(createMockPluginInput())
       const output = {
@@ -306,7 +306,7 @@ session_id: ses_standalone_def
 </task_metadata>`,
         metadata: {
           sessionId: "ses_standalone_def",
-          agent: "sisyphus-junior",
+          agent: "developer",
           model: { providerID: "openai", modelID: "gpt-5.4" },
           truncated: false,
         } as Record<string, unknown>,
@@ -320,7 +320,7 @@ session_id: ses_standalone_def
 
       // then - standalone verification appended but metadata preserved
       expect(output.metadata.sessionId).toBe("ses_standalone_def")
-      expect(output.metadata.agent).toBe("sisyphus-junior")
+      expect(output.metadata.agent).toBe("developer")
       expect(output.metadata.model).toEqual({ providerID: "openai", modelID: "gpt-5.4" })
       expect(output.metadata.truncated).toBe(false)
 
@@ -330,7 +330,7 @@ session_id: ses_standalone_def
      test("should still transform when plan is complete (shows progress)", async () => {
        // given - boulder state with complete plan, Atlas caller
        const sessionID = "session-complete-plan-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
       
       const planPath = join(TEST_DIR, "complete-plan.md")
       writeFileSync(planPath, "# Plan\n- [x] Task 1\n- [x] Task 2")
@@ -366,7 +366,7 @@ session_id: ses_standalone_def
      test("should not append unrelated current session to boulder state if not already tracked", async () => {
        // given - boulder state without session-append-test, Atlas caller
        const sessionID = "session-append-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
       
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1")
@@ -402,7 +402,7 @@ session_id: ses_standalone_def
      test("should not append current session when session lookup fails during append decision", async () => {
        // given - boulder state without session-get-failure-test, Atlas caller, and session lookup failure
        const sessionID = "session-get-failure-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1")
@@ -442,7 +442,7 @@ session_id: ses_standalone_def
      test("should not duplicate existing session ID", async () => {
        // given - boulder state already has session-dup-test, Atlas caller
        const sessionID = "session-dup-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
       
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1")
@@ -479,7 +479,7 @@ session_id: ses_standalone_def
      test("should include boulder.json path and notepad path in transformed output", async () => {
        // given - boulder state, Atlas caller
        const sessionID = "session-path-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
       
       const planPath = join(TEST_DIR, "my-feature.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1\n- [ ] Task 2\n- [x] Task 3")
@@ -516,7 +516,7 @@ session_id: ses_standalone_def
      test("should include task_id and checkbox instructions in reminder", async () => {
        // given - boulder state, Atlas caller
        const sessionID = "session-resume-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
       
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1")
@@ -551,7 +551,7 @@ session_id: ses_standalone_def
     test("should clean pending task refs when a task returns background launch output", async () => {
       // given - direct handlers with shared pending maps
       const sessionID = "session-bg-launch-cleanup-test"
-      setupMessageStorage(sessionID, "atlas")
+      setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "background-cleanup-plan.md")
       writeFileSync(planPath, `# Plan
@@ -572,7 +572,7 @@ session_id: ses_standalone_def
         ctx: createMockPluginInput(),
         pendingFilePaths,
         pendingTaskRefs,
-        isCallerOrchestrator: async (id) => callerAgentBySession.get(id ?? "") === "atlas",
+        isCallerOrchestrator: async (id) => callerAgentBySession.get(id ?? "") === "approver",
       })
       const afterHandler = createToolExecuteAfterHandler({
         ctx: createMockPluginInput(),
@@ -580,7 +580,7 @@ session_id: ses_standalone_def
         pendingTaskRefs,
         autoCommit: true,
         getState: () => ({ promptFailureCount: 0 }),
-        isCallerOrchestrator: async (id) => callerAgentBySession.get(id ?? "") === "atlas",
+        isCallerOrchestrator: async (id) => callerAgentBySession.get(id ?? "") === "approver",
       })
 
       // when - the task is captured before execution
@@ -609,7 +609,7 @@ session_id: ses_standalone_def
      test("should persist preferred subagent session for the current top-level task", async () => {
        // given - boulder state with a current top-level task, Atlas caller
        const sessionID = "session-task-session-track-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "task-session-plan.md")
       writeFileSync(planPath, `# Plan
@@ -636,7 +636,7 @@ session_id: ses_standalone_def
 session_id: ses_auth_flow_123
 </task_metadata>`,
         metadata: {
-          agent: "sisyphus-junior",
+          agent: "developer",
           category: "deep",
         },
       }
@@ -651,7 +651,7 @@ session_id: ses_auth_flow_123
      const updatedState = readBoulderState(TEST_DIR)
       expect(updatedState?.task_sessions?.["todo:1"]?.session_id).toBe("opencode:ses_auth_flow_123")
       expect(updatedState?.task_sessions?.["todo:1"]?.task_title).toBe("Implement auth flow")
-      expect(updatedState?.task_sessions?.["todo:1"]?.agent).toBe("sisyphus-junior")
+      expect(updatedState?.task_sessions?.["todo:1"]?.agent).toBe("developer")
       expect(updatedState?.task_sessions?.["todo:1"]?.category).toBe("deep")
 
       cleanupMessageStorage(sessionID)
@@ -660,7 +660,7 @@ session_id: ses_auth_flow_123
      test("should preserve the delegated task key even after the plan advances to the next task", async () => {
        // given - Atlas caller starts task 1, then the plan advances before task output is processed
        const sessionID = "session-stable-task-key-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "stable-task-key-plan.md")
       writeFileSync(planPath, `# Plan
@@ -703,7 +703,7 @@ session_id: ses_auth_flow_123
 session_id: ses_auth_flow_123
 </task_metadata>`,
           metadata: {
-            agent: "sisyphus-junior",
+            agent: "developer",
             category: "deep",
           },
         }
@@ -720,7 +720,7 @@ session_id: ses_auth_flow_123
      test("should not overwrite the current task mapping when task() explicitly resumes an older session", async () => {
        // given - current plan is on task 2, but Atlas explicitly resumes an older session for a previous task
        const sessionID = "session-cross-task-resume-test"
-       setupMessageStorage(sessionID, "atlas")
+       setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "cross-task-resume-plan.md")
       writeFileSync(planPath, `# Plan
@@ -753,7 +753,7 @@ session_id: ses_auth_flow_123
 session_id: ses_old_task_111
 </task_metadata>`,
         metadata: {
-          agent: "sisyphus-junior",
+          agent: "developer",
           category: "deep",
         },
       }
@@ -773,7 +773,7 @@ session_id: ses_old_task_111
     test("should not reuse an explicitly resumed session id in completion reminders", async () => {
       // given - current plan is on task 2 with an existing tracked session
       const sessionID = "session-explicit-resume-reminder-test"
-      setupMessageStorage(sessionID, "atlas")
+      setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "explicit-resume-reminder-plan.md")
       writeFileSync(planPath, `# Plan
@@ -830,7 +830,7 @@ session_id: ses_old_task_111
     test("should skip persistence when multiple in-flight task calls claim the same top-level task", async () => {
       // given
       const sessionID = "session-parallel-task-collision-test"
-      setupMessageStorage(sessionID, "atlas")
+      setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "parallel-task-collision-plan.md")
       writeFileSync(planPath, `# Plan
@@ -853,7 +853,7 @@ session_id: ses_old_task_111
         ctx: createMockPluginInput(),
         pendingFilePaths,
         pendingTaskRefs,
-        isCallerOrchestrator: async (id) => callerAgentBySession.get(id ?? "") === "atlas",
+        isCallerOrchestrator: async (id) => callerAgentBySession.get(id ?? "") === "approver",
       })
       const afterHandler = createToolExecuteAfterHandler({
         ctx: createMockPluginInput(),
@@ -861,7 +861,7 @@ session_id: ses_old_task_111
         pendingTaskRefs,
         autoCommit: true,
         getState: () => ({ promptFailureCount: 0 }),
-        isCallerOrchestrator: async (id) => callerAgentBySession.get(id ?? "") === "atlas",
+        isCallerOrchestrator: async (id) => callerAgentBySession.get(id ?? "") === "approver",
       })
 
       // when - two task() calls start before either one completes
@@ -908,7 +908,7 @@ session_id: ses_parallel_collision_222
     test("should ignore extracted session ids that are outside the active boulder lineage", async () => {
       // given
       const sessionID = "session-untrusted-session-id-test"
-      setupMessageStorage(sessionID, "atlas")
+      setupMessageStorage(sessionID, "approver")
 
       const planPath = join(TEST_DIR, "untrusted-session-id-plan.md")
       writeFileSync(planPath, `# Plan
@@ -962,7 +962,7 @@ session_id: ses_untrusted_999
       const ORCHESTRATOR_SESSION = "orchestrator-write-test"
 
        beforeEach(() => {
-         setupMessageStorage(ORCHESTRATOR_SESSION, "atlas")
+         setupMessageStorage(ORCHESTRATOR_SESSION, "approver")
        })
 
       afterEach(() => {
@@ -1031,7 +1031,7 @@ session_id: ses_untrusted_999
       test("should NOT append reminder when non-orchestrator writes outside .omo/", async () => {
         // given
         const nonOrchestratorSession = "non-orchestrator-session"
-        setupMessageStorage(nonOrchestratorSession, "sisyphus-junior")
+        setupMessageStorage(nonOrchestratorSession, "developer")
         
         const hook = createTestAtlasHook(createMockPluginInput())
         const originalOutput = "File written successfully"
@@ -1190,10 +1190,10 @@ session_id: ses_untrusted_999
 
      beforeEach(() => {
        _resetForTesting()
-       registerAgentName("atlas")
-       registerAgentName("sisyphus")
+       registerAgentName("approver")
+       registerAgentName("orchestrator")
         subagentSessions.clear()
-        setupMessageStorage(MAIN_SESSION_ID, "atlas")
+        setupMessageStorage(MAIN_SESSION_ID, "approver")
       })
 
     afterEach(() => {
@@ -1354,7 +1354,7 @@ session_id: ses_untrusted_999
       }
       writeBoulderState(TEST_DIR, state)
       subagentSessions.add(subagentSessionID)
-      updateSessionAgent(subagentSessionID, "atlas")
+      updateSessionAgent(subagentSessionID, "approver")
 
       const mockInput = createMockPluginInput()
       const hook = createTestAtlasHook(mockInput)
@@ -1374,7 +1374,7 @@ session_id: ses_untrusted_999
 
     test("should inject when registered boulder session has incomplete tasks even if last agent differs", async () => {
       cleanupMessageStorage(MAIN_SESSION_ID)
-      setupMessageStorage(MAIN_SESSION_ID, "hephaestus")
+      setupMessageStorage(MAIN_SESSION_ID, "developer")
 
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1\n- [ ] Task 2")
@@ -1384,7 +1384,7 @@ session_id: ses_untrusted_999
         started_at: "2026-01-02T10:00:00Z",
         session_ids: [MAIN_SESSION_ID],
         plan_name: "test-plan",
-        agent: "atlas",
+        agent: "approver",
       }
       writeBoulderState(TEST_DIR, state)
 
@@ -1921,8 +1921,8 @@ session_id: ses_untrusted_999
       }
     })
 
-    test("should inject when last agent is sisyphus and boulder targets atlas explicitly", async () => {
-       // given - boulder explicitly set to atlas, but last agent is sisyphus (initial state after /ulw-execute)
+    test("should inject when last agent is orchestrator and boulder targets approver explicitly", async () => {
+       // given - boulder explicitly set to approver, but last agent is orchestrator (initial state after /ulw-execute)
        const planPath = join(TEST_DIR, "test-plan.md")
        writeFileSync(planPath, "# Plan\n- [ ] Task 1\n- [ ] Task 2")
 
@@ -1931,13 +1931,13 @@ session_id: ses_untrusted_999
          started_at: "2026-01-02T10:00:00Z",
          session_ids: [MAIN_SESSION_ID],
          plan_name: "test-plan",
-         agent: "atlas",
+         agent: "approver",
        }
        writeBoulderState(TEST_DIR, state)
 
-       // given - last agent is sisyphus (typical state right after /ulw-execute)
+       // given - last agent is orchestrator (typical state right after /ulw-execute)
        cleanupMessageStorage(MAIN_SESSION_ID)
-       setupMessageStorage(MAIN_SESSION_ID, "sisyphus")
+       setupMessageStorage(MAIN_SESSION_ID, "orchestrator")
 
        const mockInput = createMockPluginInput()
        const hook = createTestAtlasHook(mockInput)
@@ -1950,11 +1950,11 @@ session_id: ses_untrusted_999
          },
        })
 
-       // then - should call prompt because sisyphus is always allowed for atlas boulders
+       // then - should call prompt because orchestrator is always allowed for approver boulders
        expect(mockInput._promptMock).toHaveBeenCalled()
      })
 
-    test("should inject when registered atlas boulder session last agent does not match", async () => {
+    test("should inject when registered approver boulder session last agent does not match", async () => {
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1\n- [ ] Task 2")
 
@@ -1963,12 +1963,12 @@ session_id: ses_untrusted_999
          started_at: "2026-01-02T10:00:00Z",
          session_ids: [MAIN_SESSION_ID],
          plan_name: "test-plan",
-         agent: "atlas",
+         agent: "approver",
        }
        writeBoulderState(TEST_DIR, state)
 
        cleanupMessageStorage(MAIN_SESSION_ID)
-       setupMessageStorage(MAIN_SESSION_ID, "hephaestus")
+       setupMessageStorage(MAIN_SESSION_ID, "developer")
 
        const mockInput = createMockPluginInput()
        const hook = createTestAtlasHook(mockInput)
@@ -1984,7 +1984,7 @@ session_id: ses_untrusted_999
     })
 
      test("should inject when last agent matches boulder agent even if non-Atlas", async () => {
-       // given - boulder state expects sisyphus and last agent is sisyphus
+       // given - boulder state expects orchestrator and last agent is orchestrator
        const planPath = join(TEST_DIR, "test-plan.md")
        writeFileSync(planPath, "# Plan\n- [ ] Task 1\n- [ ] Task 2")
 
@@ -1993,12 +1993,12 @@ session_id: ses_untrusted_999
          started_at: "2026-01-02T10:00:00Z",
          session_ids: [MAIN_SESSION_ID],
          plan_name: "test-plan",
-         agent: "sisyphus",
+         agent: "orchestrator",
        }
        writeBoulderState(TEST_DIR, state)
 
        cleanupMessageStorage(MAIN_SESSION_ID)
-       setupMessageStorage(MAIN_SESSION_ID, "sisyphus")
+       setupMessageStorage(MAIN_SESSION_ID, "orchestrator")
 
        const mockInput = createMockPluginInput()
        const hook = createTestAtlasHook(mockInput)
@@ -2011,10 +2011,10 @@ session_id: ses_untrusted_999
          },
        })
 
-       // then - should call prompt for sisyphus
+       // then - should call prompt for orchestrator
        expect(mockInput._promptMock).toHaveBeenCalled()
        const callArgs = mockInput._promptMock.mock.calls[0][0]
-       expect(callArgs.body.agent).toBe("sisyphus")
+       expect(callArgs.body.agent).toBe("orchestrator")
      })
 
     test("should preserve display-name agent in continuation prompt when boulder agent uses display form", async () => {
@@ -2027,10 +2027,10 @@ session_id: ses_untrusted_999
         started_at: "2026-01-02T10:00:00Z",
         session_ids: [MAIN_SESSION_ID],
         plan_name: "test-plan",
-        agent: "Atlas - Plan Executor",
+         agent: "Approver",
       }
       writeBoulderState(TEST_DIR, state)
-      registerAgentName("Atlas - Plan Executor")
+       registerAgentName("Approver")
 
       const mockInput = createMockPluginInput()
       const hook = createTestAtlasHook(mockInput)
@@ -2046,12 +2046,11 @@ session_id: ses_untrusted_999
       // then
       expect(mockInput._promptMock).toHaveBeenCalled()
       const callArgs = mockInput._promptMock.mock.calls[0][0]
-      expect(callArgs.body.agent).toBe("Atlas - Plan Executor")
-      expect(callArgs.body.agent).not.toBe("atlas")
+       expect(callArgs.body.agent).toBe("approver")
     })
 
     test("#given boulder agent registered with ZWSP sort prefix #when continuation injects #then promptAsync receives display name without ZWSP", async () => {
-      // given - OpenCode TUI registers agent names with leading ZWSP for sort ordering
+       // given - OpenCode TUI registers canonical agent names with leading ZWSP for sort ordering
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1\n- [ ] Task 2")
 
@@ -2060,10 +2059,10 @@ session_id: ses_untrusted_999
         started_at: "2026-01-02T10:00:00Z",
         session_ids: [MAIN_SESSION_ID],
         plan_name: "test-plan",
-        agent: "\u200B\u200BAtlas - Plan Executor",
+         agent: "\u200B\u200BApprover",
       }
       writeBoulderState(TEST_DIR, state)
-      registerAgentName("\u200B\u200BAtlas - Plan Executor")
+       registerAgentName("\u200B\u200BApprover")
 
       const mockInput = createMockPluginInput()
       const hook = createTestAtlasHook(mockInput)
@@ -2079,7 +2078,7 @@ session_id: ses_untrusted_999
       // then
       expect(mockInput._promptMock).toHaveBeenCalled()
       const callArgs = mockInput._promptMock.mock.calls[0][0]
-      expect(callArgs.body.agent).toBe("Atlas - Plan Executor")
+       expect(callArgs.body.agent).toBe("approver")
       expect(callArgs.body.agent).not.toContain("\u200B")
     })
 
@@ -2431,8 +2430,8 @@ session_id: ses_untrusted_999
       expect(mockInput._promptMock).toHaveBeenCalled()
     })
 
-    test("should inject when session agent was updated to atlas by ulw-execute even if message storage agent differs", async () => {
-      // given - boulder targets atlas, but nearest stored message still says hephaestus
+    test("should inject when session agent was updated to approver by ulw-execute even if message storage agent differs", async () => {
+      // given - boulder targets approver, but nearest stored message still says developer
       const planPath = join(TEST_DIR, "test-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1\n- [ ] Task 2")
 
@@ -2441,13 +2440,13 @@ session_id: ses_untrusted_999
         started_at: "2026-01-02T10:00:00Z",
         session_ids: [MAIN_SESSION_ID],
         plan_name: "test-plan",
-        agent: "atlas",
+        agent: "approver",
       }
       writeBoulderState(TEST_DIR, state)
 
       cleanupMessageStorage(MAIN_SESSION_ID)
-      setupMessageStorage(MAIN_SESSION_ID, "hephaestus")
-      updateSessionAgent(MAIN_SESSION_ID, "atlas")
+      setupMessageStorage(MAIN_SESSION_ID, "developer")
+      updateSessionAgent(MAIN_SESSION_ID, "approver")
 
       const mockInput = createMockPluginInput()
       const hook = createTestAtlasHook(mockInput)
@@ -2460,7 +2459,7 @@ session_id: ses_untrusted_999
         },
       })
 
-      // then - should continue because ulw-execute updated session agent to atlas
+      // then - should continue because ulw-execute updated session agent to approver
       expect(mockInput._promptMock).toHaveBeenCalled()
     })
 
