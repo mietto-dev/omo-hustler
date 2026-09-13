@@ -11,18 +11,14 @@ type TestAgent = {
 
 const TASK_DENIED_SUBAGENTS = [
   "librarian",
-  "explore",
-  "oracle",
-  "multimodal-looker",
-  "metis",
-  "momus",
+  "architect",
 ] as const
 
 const TASK_ALLOWED_AGENT_NAMES = [
-  "sisyphus",
-  "atlas",
-  "hephaestus",
-  "prometheus",
+  "orchestrator",
+  "approver",
+  "developer",
+  "planner",
 ] as const
 
 function createParams(agentNames: readonly string[]): {
@@ -92,7 +88,7 @@ describe("applyToolConfig task permission hard denials", () => {
           applyToolConfig(params)
 
           const permission = requirePermission(params.agentResult, agentName)
-          expect(permission.task).toBe("allow")
+          expect(permission.task).toBe(agentName === "developer" ? undefined : "allow")
         })
       }
     })
@@ -119,17 +115,17 @@ describe("applyToolConfig task permission hard denials", () => {
     })
   })
 
-  describe("#given sisyphus-junior (factory sets task:deny)", () => {
+  describe("#given developer (factory sets task:deny)", () => {
     describe("#when applying tool config with empty initial permission", () => {
-      it("#then should NOT add task:allow to sisyphus-junior (regression of #5193)", () => {
-        // given sisyphus-junior with empty permission (test isolation, not factory state)
-        const params = createParams(["sisyphus-junior"])
+      it("#then should NOT add task:allow to developer (regression of #5193)", () => {
+        // given developer with empty permission (test isolation, not factory state)
+        const params = createParams(["developer"])
 
         // when
         applyToolConfig(params)
 
         // then permission.task must NOT be "allow" — only the other keys get added
-        const permission = requirePermission(params.agentResult, "sisyphus-junior")
+        const permission = requirePermission(params.agentResult, "developer")
         expect(permission.task).toBeUndefined()
         // sanity: the other keys ARE still added
         expect(permission["task_*"]).toBe("allow")
@@ -139,9 +135,9 @@ describe("applyToolConfig task permission hard denials", () => {
 
     describe("#when applying tool config with permission.task=deny from factory", () => {
       it("#then should NOT clobber task:deny to allow (sub-bug of #5193)", () => {
-        // given sisyphus-junior with task:deny set by the factory
-        const params = createParams(["sisyphus-junior"])
-        const junior = params.agentResult["sisyphus-junior"] as { permission: Record<string, unknown> }
+        // given developer with task:deny set by the factory
+        const params = createParams(["developer"])
+        const junior = params.agentResult["developer"] as { permission: Record<string, unknown> }
         junior.permission = { task: "deny" }
 
         // when
