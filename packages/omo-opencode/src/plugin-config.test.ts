@@ -26,17 +26,17 @@ afterEach(() => {
 describe("plugin config", () => {
   it("#given compatible plugin config sections #when merging #then keyed sections merge and disabled lists union", () => {
     const base = OhMyOpenCodeConfigSchema.parse({
-      agents: { oracle: { model: "base/model" } },
+      agents: { architect: { model: "base/model" } },
       disabled_hooks: ["comment-checker"],
     })
     const override = OhMyOpenCodeConfigSchema.parse({
-      agents: { oracle: { temperature: 0.4 } },
+      agents: { architect: { temperature: 0.4 } },
       disabled_hooks: ["model-fallback"],
     })
 
     const result = mergeConfigs(base, override)
 
-    expect(result.agents?.oracle).toMatchObject({ model: "base/model", temperature: 0.4 })
+    expect(result.agents?.architect).toMatchObject({ model: "base/model", temperature: 0.4 })
     expect(result.disabled_hooks).toEqual(["comment-checker", "model-fallback"])
   })
 
@@ -47,14 +47,14 @@ describe("plugin config", () => {
     homeDirectory = process.env.HOME
     process.env.HOME = root
     writeOmoConfig(join(root, ".omo", "omo.jsonc"), {
-      "[opencode]": { agents: { oracle: { model: "user/model", prompt: "user prompt" } } },
+      "[opencode]": { agents: { architect: { model: "user/model", prompt: "user prompt" } } },
     })
     writeOmoConfig(join(project, ".omo", "omo.jsonc"), {
-      "[opencode]": { agents: { oracle: { temperature: 0.4 } } },
+      "[opencode]": { agents: { architect: { temperature: 0.4 } } },
     })
 
     const config = loadPluginConfig(project, { command: "run" })
 
-    expect(config.agents?.oracle).toMatchObject({ model: "user/model", prompt: "user prompt", temperature: 0.4 })
+    expect(config.agents?.architect).toMatchObject({ model: "user/model", prompt: "user prompt", temperature: 0.4 })
   })
 })
