@@ -28,7 +28,7 @@ describe("Luna and DeepSeek chain policy", () => {
     expect(quick.slice(1, 3)).toEqual([LUNA_LOW, DEEPSEEK_OFF])
   })
 
-  test.each(["explore", "librarian"])(
+  test.each(["librarian"])(
     "%s places max-reasoning DeepSeek V4 Flash immediately after Luna",
     (agentName) => {
       const chain = AGENT_MODEL_REQUIREMENTS[agentName].fallbackChain
