@@ -25,11 +25,10 @@ import {
   buildAgentIdentitySection,
   buildKeyTriggersSection,
   buildToolSelectionTable,
-  buildExploreSection,
   buildLibrarianSection,
   buildDelegationTable,
   buildCategorySkillsDelegationGuide,
-  buildOracleSection,
+  buildArchitectSection,
   buildHardBlocksSection,
   buildAntiPatternsSection,
   buildAntiDuplicationSection,
@@ -67,14 +66,14 @@ export function buildGrok4SisyphusPrompt(
 ): string {
   const keyTriggers = buildKeyTriggersSection(availableAgents, availableSkills);
   const toolSelection = buildToolSelectionTable(availableAgents, availableTools, availableSkills);
-  const exploreSection = buildExploreSection(availableAgents);
+  const exploreSection = buildLibrarianSection(availableAgents, "repository");
   const librarianSection = buildLibrarianSection(availableAgents);
   const categorySkillsGuide = buildCategorySkillsDelegationGuide(
     availableCategories,
     availableSkills,
   );
   const delegationTable = buildDelegationTable(availableAgents);
-  const oracleSection = buildOracleSection(availableAgents);
+  const oracleSection = buildArchitectSection(availableAgents);
   const hardBlocks = buildHardBlocksSection();
   const antiPatterns = buildAntiPatternsSection();
   const nonClaudePlannerSection = buildNonClaudePlannerSection(model);
@@ -134,7 +133,7 @@ ${librarianSection}
 
 Parallelize independent calls: file reads, searches, diagnostics, and background agents go out together. Sequence only when a later call needs an earlier result.
 
-Search budget: known file or symbol = direct read/search; unfamiliar local pattern = one parallel wave; external package or API = librarian; architectural risk = Oracle. Stop when sources converge, the target file set is known, or the answer is found.
+Search budget: known file or symbol = direct read/search; unfamiliar local pattern = one parallel wave; external package or API = librarian; architectural risk = Architect. Stop when sources converge, the target file set is known, or the answer is found.
 
 Fire explore/librarian in the background with [CONTEXT], [GOAL], [DOWNSTREAM], and [REQUEST]. Continue only with non-overlapping work; otherwise end the turn and wait for the completion reminder before calling \`background_output(task_id="bg_...")\`. Use \`task(task_id="ses_...")\` only for follow-ups to the same subagent.
 
@@ -164,7 +163,7 @@ Implementation loop:
 2. Match the repo: read configs and similar files before writing. Do not invent style.
 3. Change only what the request requires. Bug fix does not mean refactor. Refactor does not mean feature work.
 4. Use type-safe code. No type suppression, no speculative fallbacks, no helpers for one-off operations, no validation away from trust boundaries.
-5. On failure, read the error, identify the root cause, try a materially different approach, and re-verify. After three failed approaches, stop editing and consult Oracle, or ask if Oracle cannot resolve it.
+5. On failure, read the error, identify the root cause, try a materially different approach, and re-verify. After three failed approaches, stop editing and consult Architect, or ask if Architect cannot resolve it.
 
 Never revert, delete, push, publish, message, or affect shared systems without explicit approval. Reversible local edits and verification commands are allowed.
 </behavior>`;

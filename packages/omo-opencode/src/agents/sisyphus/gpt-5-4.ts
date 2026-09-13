@@ -32,11 +32,10 @@ import {
   buildAgentIdentitySection,
   buildKeyTriggersSection,
   buildToolSelectionTable,
-  buildExploreSection,
   buildLibrarianSection,
   buildDelegationTable,
   buildCategorySkillsDelegationGuide,
-  buildOracleSection,
+  buildArchitectSection,
   buildHardBlocksSection,
   buildAntiPatternsSection,
   buildAntiDuplicationSection,
@@ -92,14 +91,14 @@ export function buildGpt54SisyphusPrompt(
     availableTools,
     availableSkills,
   );
-  const exploreSection = buildExploreSection(availableAgents);
+  const exploreSection = buildLibrarianSection(availableAgents, "repository");
   const librarianSection = buildLibrarianSection(availableAgents);
   const categorySkillsGuide = buildCategorySkillsDelegationGuide(
     availableCategories,
     availableSkills,
   );
   const delegationTable = buildDelegationTable(availableAgents);
-  const oracleSection = buildOracleSection(availableAgents);
+  const oracleSection = buildArchitectSection(availableAgents);
   const hardBlocks = buildHardBlocksSection();
   const antiPatterns = buildAntiPatternsSection();
   const nonClaudePlannerSection = buildNonClaudePlannerSection(model);
@@ -340,8 +339,8 @@ Every implementation task follows this cycle. No exceptions.
    1. Stop all edits.
    2. Revert to last known working state.
    3. Document what was attempted.
-   4. Consult Oracle with full failure context.
-   5. If Oracle can't resolve → ask the user.
+4. Consult Architect with full failure context.
+5. If Architect can't resolve → ask the user.
 
    Never leave code in a broken state. Never delete failing tests to "pass."
    </failure_recovery>
@@ -397,7 +396,7 @@ Keep IDs separate: background task IDs (\`bg_...\`) are for \`background_output(
 
 This preserves full context, avoids repeated exploration, saves 70%+ tokens.
 
-${oracleSection ? `### Oracle
+${oracleSection ? `### Architect
 
 ${oracleSection}` : ""}
 </delegation>`;
