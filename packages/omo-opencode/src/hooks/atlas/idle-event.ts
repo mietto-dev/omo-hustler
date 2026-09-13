@@ -74,7 +74,7 @@ export async function handleAtlasSessionIdle(input: {
   if (!canContinueSession) {
     log(`[${HOOK_NAME}] Skipped: tracked descendant agent does not match boulder agent`, {
       sessionID,
-      requiredAgent: boulderState.agent ?? "atlas",
+      requiredAgent: boulderState.agent ?? "approver",
     })
     return
   }

@@ -39,8 +39,8 @@ export async function canContinueTrackedBoulderSession(input: {
     return false
   }
 
-  const requiredAgentKey = getAgentConfigKey(input.requiredAgent ?? "atlas")
+  const requiredAgentKey = getAgentConfigKey(input.requiredAgent ?? "approver")
   const sessionAgentKey = getAgentConfigKey(sessionAgent)
   return sessionAgentKey === requiredAgentKey
-    || (requiredAgentKey === getAgentConfigKey("atlas") && sessionAgentKey === getAgentConfigKey("sisyphus"))
+    || (requiredAgentKey === getAgentConfigKey("approver") && sessionAgentKey === getAgentConfigKey("orchestrator"))
 }
