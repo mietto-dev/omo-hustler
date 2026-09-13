@@ -2,7 +2,12 @@ import type { FallbackEntry } from "../../shared/model-requirements"
 import { AGENT_MODEL_REQUIREMENTS } from "../../shared/model-requirements"
 import type { VisionCapableModel } from "../../plugin-state"
 
-const MULTIMODAL_LOOKER_REQUIREMENT = AGENT_MODEL_REQUIREMENTS["multimodal-looker"]
+const MULTIMODAL_LOOKER_FALLBACK_CHAIN: FallbackEntry[] = [
+  { providers: ["openai", "openai-codex", "github-copilot", "opencode"], model: "gpt-5.6-sol", variant: "low" },
+  { providers: ["opencode-go", "kimi-for-coding", "moonshotai", "opencode"], model: "kimi-k3" },
+  { providers: ["zai-coding-plan", "zai", "opencode"], model: "glm-4.6v" },
+  { providers: ["openai", "openai-codex", "opencode"], model: "gpt-5-nano" },
+]
 
 function getFullModelKey(providerID: string, modelID: string): string {
   return `${providerID}/${modelID}`
@@ -12,13 +17,13 @@ function findHardcodedFallbackEntry(
   providerID: string,
   modelID: string,
 ): FallbackEntry | undefined {
-  return MULTIMODAL_LOOKER_REQUIREMENT.fallbackChain.find((entry) =>
+  return MULTIMODAL_LOOKER_FALLBACK_CHAIN.find((entry) =>
     entry.model === modelID && entry.providers.includes(providerID),
   )
 }
 
 export function isHardcodedMultimodalFallbackModel(model: VisionCapableModel): boolean {
-  return MULTIMODAL_LOOKER_REQUIREMENT.fallbackChain.some((entry) =>
+  return MULTIMODAL_LOOKER_FALLBACK_CHAIN.some((entry) =>
     entry.providers.some((providerID) =>
       getFullModelKey(providerID, entry.model) === getFullModelKey(model.providerID, model.modelID),
     ),
@@ -48,7 +53,7 @@ export function buildMultimodalLookerFallbackChain(
     })
   }
 
-  for (const entry of MULTIMODAL_LOOKER_REQUIREMENT.fallbackChain) {
+  for (const entry of MULTIMODAL_LOOKER_FALLBACK_CHAIN) {
     const providerModelKeys = entry.providers.map((providerID) =>
       getFullModelKey(providerID, entry.model),
     )
