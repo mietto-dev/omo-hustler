@@ -8,9 +8,9 @@ import { resolveSessionEventID } from "../../shared/event-session-id"
 import { buildReminderMessage } from "./formatter"
 
 const TARGET_AGENTS = new Set([
-  "sisyphus",
-  "sisyphus-junior",
-  "atlas",
+  "orchestrator",
+  "developer",
+  "approver",
 ])
 
 const DELEGATABLE_WORK_TOOLS = new Set([
@@ -107,8 +107,8 @@ export function createCategorySkillReminderHook(
     const agentKey = getAgentConfigKey(agent)
     return (
       TARGET_AGENTS.has(agentKey) ||
-      agentKey.includes("sisyphus") ||
-      agentKey.includes("atlas")
+      agentKey.includes("orchestrator") ||
+      agentKey.includes("approver")
     )
   }
 

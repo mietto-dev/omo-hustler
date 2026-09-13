@@ -39,7 +39,7 @@ function createUserTurn(
       sessionID,
       role: "user",
       time: { created: 1 },
-      agent: "sisyphus",
+      agent: "orchestrator",
       model: { providerID: "test", modelID: "test" },
     },
     parts: [{
@@ -93,7 +93,7 @@ afterEach(() => {
 })
 
 describe("category-skill-reminder hook", () => {
-  test.each(["Sisyphus", "Atlas", "sisyphus-junior"])(
+  test.each(["orchestrator", "approver", "developer"])(
     "#given target agent %s #when three delegatable tools finish #then one reminder is injected before the user text",
     async (agent) => {
       const hook = createHook()
@@ -128,7 +128,7 @@ describe("category-skill-reminder hook", () => {
     const hook = createHook()
     const targetSessionID = "target-session"
     const otherSessionID = "other-session"
-    updateSessionAgent(targetSessionID, "Sisyphus")
+    updateSessionAgent(targetSessionID, "orchestrator")
     await useTools({ hook, sessionID: targetSessionID, tools: ["read", "grep", "glob"] })
     const targetMessage = createUserTurn(targetSessionID, "target request")
     const otherMessage = createUserTurn(otherSessionID, "other request")
@@ -139,7 +139,7 @@ describe("category-skill-reminder hook", () => {
     expect(findReminderParts([otherMessage])).toHaveLength(0)
   })
 
-  test("#given no tracked agent #when the tool input identifies Sisyphus #then the reminder is injected", async () => {
+  test("#given no tracked agent #when the tool input identifies orchestrator #then the reminder is injected", async () => {
     const hook = createHook()
     const sessionID = "input-agent-session"
 
@@ -147,7 +147,7 @@ describe("category-skill-reminder hook", () => {
       hook,
       sessionID,
       tools: ["edit", "edit", "edit"],
-      agent: "Sisyphus",
+      agent: "orchestrator",
     })
     const messages = [createUserTurn(sessionID, "continue")]
     await transformMessages(hook, messages)
@@ -166,7 +166,7 @@ describe("category-skill-reminder hook", () => {
     async ({ tools }) => {
       const hook = createHook()
       const sessionID = "delegation-session"
-      updateSessionAgent(sessionID, "Sisyphus")
+       updateSessionAgent(sessionID, "orchestrator")
 
       const output = await useTools({
         hook,
@@ -184,7 +184,7 @@ describe("category-skill-reminder hook", () => {
   test("#given mixed tools #when fewer than three delegatable tools finish #then no reminder is injected", async () => {
     const hook = createHook()
     const sessionID = "mixed-tools-session"
-    updateSessionAgent(sessionID, "Sisyphus")
+     updateSessionAgent(sessionID, "orchestrator")
 
     const output = await useTools({
       hook,
@@ -203,7 +203,7 @@ describe("category-skill-reminder hook", () => {
     const sessionID = "byte-identical-session"
     const original = "stdout\r\nwith trailing bytes\u0000\n"
     const output = createOutput(original)
-    updateSessionAgent(sessionID, "Sisyphus")
+     updateSessionAgent(sessionID, "orchestrator")
 
     await useTools({ hook, sessionID, tools: ["read", "grep", "bash"], output })
 
@@ -213,7 +213,7 @@ describe("category-skill-reminder hook", () => {
   test("#given a queued reminder and no real user text #when messages transform retries #then pending is retained", async () => {
     const hook = createHook()
     const sessionID = "pending-without-text"
-    updateSessionAgent(sessionID, "Sisyphus")
+     updateSessionAgent(sessionID, "orchestrator")
     await useTools({ hook, sessionID, tools: ["read", "grep", "glob"] })
 
     const noText = createUserTurn(sessionID, "unused")
@@ -230,7 +230,7 @@ describe("category-skill-reminder hook", () => {
   test("#given multiple real and synthetic user texts #when a reminder is pending #then exactly one is inserted before the latest real text", async () => {
     const hook = createHook()
     const sessionID = "latest-real-text"
-    updateSessionAgent(sessionID, "Sisyphus")
+     updateSessionAgent(sessionID, "orchestrator")
     await useTools({ hook, sessionID, tools: ["edit", "write", "bash"] })
 
     const latestTurn = createUserTurn(sessionID, "earlier text in latest turn", { id: "msg_latest" })
@@ -280,7 +280,7 @@ describe("category-skill-reminder hook", () => {
   test("#given a reminder is inserted #when transforms and tools repeat without assistant completion #then the same bytes appear only once", async () => {
     const hook = createHook()
     const sessionID = "once-session"
-    updateSessionAgent(sessionID, "Sisyphus")
+     updateSessionAgent(sessionID, "orchestrator")
     const firstOutput = await useTools({ hook, sessionID, tools: ["edit", "edit", "edit"] })
     const firstMessages = [createUserTurn(sessionID, "first continuation")]
     await transformMessages(hook, firstMessages)
@@ -301,7 +301,7 @@ describe("category-skill-reminder hook", () => {
   test("#given a reminder is pending #when the session is deleted #then pending state and counts are cleared", async () => {
     const hook = createHook()
     const sessionID = "delete-session"
-    updateSessionAgent(sessionID, "Sisyphus")
+     updateSessionAgent(sessionID, "orchestrator")
     await useTools({ hook, sessionID, tools: ["edit", "edit", "edit"] })
 
     await hook.event({ event: { type: "session.deleted", properties: { info: { id: sessionID } } } })
@@ -318,8 +318,8 @@ describe("category-skill-reminder hook", () => {
 
   test("#given mixed-case tool names #when the threshold is reached #then counting and delegation remain case-insensitive", async () => {
     const hook = createHook()
-    updateSessionAgent("case-count", "Sisyphus")
-    updateSessionAgent("case-delegate", "Sisyphus")
+    updateSessionAgent("case-count", "orchestrator")
+    updateSessionAgent("case-delegate", "orchestrator")
 
     const counted = await useTools({ hook, sessionID: "case-count", tools: ["EDIT", "Edit", "edit"] })
     const delegated = await useTools({ hook, sessionID: "case-delegate", tools: ["TASK", "edit", "edit", "edit"] })
@@ -359,7 +359,7 @@ describe("category-skill-reminder hook", () => {
   ])("#given $name #when the reminder fires #then it formats the available skills", async ({ skills, expected }) => {
     const hook = createHook(skills)
     const sessionID = `skills-${skills.length}`
-    updateSessionAgent(sessionID, "Sisyphus")
+     updateSessionAgent(sessionID, "orchestrator")
 
     const output = await useTools({ hook, sessionID, tools: ["read", "read", "read"] })
     const messages = [createUserTurn(sessionID, "continue")]
