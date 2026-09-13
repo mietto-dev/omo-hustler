@@ -51,16 +51,16 @@ export function createNoHephaestusNonGptHook(
       const modelID = input.model?.modelID
       const allowNonGptModel = options?.allowNonGptModel === true
 
-      if (agentKey === "hephaestus" && modelID && !isGptModel(modelID)) {
+      if (agentKey === "developer" && modelID && !isGptModel(modelID)) {
         showToast(ctx, input.sessionID, allowNonGptModel ? "warning" : "error")
         if (allowNonGptModel) {
           return
         }
-        input.agent = resolveRegisteredAgentName("sisyphus") ?? "sisyphus"
+        input.agent = resolveRegisteredAgentName("orchestrator") ?? "orchestrator"
         if (output?.message) {
-          output.message.agent = resolveRegisteredAgentName("sisyphus") ?? "sisyphus"
+          output.message.agent = resolveRegisteredAgentName("orchestrator") ?? "orchestrator"
         }
-        updateSessionAgent(input.sessionID, "sisyphus")
+        updateSessionAgent(input.sessionID, "orchestrator")
       }
     },
   }
