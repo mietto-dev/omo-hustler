@@ -1,7 +1,7 @@
 import type { PluginInput } from "@opencode-ai/plugin"
 import { clearSessionAgent, handedBackSyncSessions, setSessionAgent, subagentSessions, syncSubagentSessions } from "../../features/claude-code-session-state"
 import { dispatchInternalPrompt, isInternalPromptDispatchAccepted } from "../../hooks/shared/prompt-async-gate"
-import { getAgentToolRestrictions, isAmbiguousPostDispatchPromptFailure, log } from "../../shared"
+import { buildAgentPromptTools, isAmbiguousPostDispatchPromptFailure, log } from "../../shared"
 import { normalizeAgentForPrompt, stripAgentListSortPrefix } from "../../shared/agent-display-names"
 import {
   clearDelegatedChildSessionBootstrap,
@@ -64,11 +64,7 @@ function buildPromptGenerationParams(model: DelegatedModelConfig | undefined): R
 }
 
 function buildSyncPromptTools(agent: string): Record<string, boolean> {
-  return {
-    ...getAgentToolRestrictions(agent),
-    task: false,
-    question: false,
-  }
+  return buildAgentPromptTools(agent)
 }
 
 export async function executeSync(
