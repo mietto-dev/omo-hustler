@@ -173,7 +173,7 @@ export function generateModelConfig(config: InstallConfig): GeneratedOmoConfig {
       $schema: SCHEMA_URL,
       agents: Object.fromEntries(
         Object.entries(CLI_AGENT_MODEL_REQUIREMENTS)
-          .filter(([role, req]) => !(role === "sisyphus" && req.requiresAnyModel))
+          .filter(([role, req]) => !(role === "orchestrator" && req.requiresAnyModel))
           .map(([role]) => [role, { model: ULTIMATE_FALLBACK }])
       ),
       categories: Object.fromEntries(
@@ -195,32 +195,7 @@ export function generateModelConfig(config: InstallConfig): GeneratedOmoConfig {
       continue
     }
 
-    if (role === "explore") {
-      let agentConfig: AgentConfig
-      if (avail.native.openai) {
-        agentConfig = { model: "openai/gpt-5.6-luna-fast", variant: "low" }
-      } else if (avail.native.claude) {
-        agentConfig = { model: "anthropic/claude-haiku-4-5" }
-      } else if (avail.opencodeZen) {
-        agentConfig = { model: "opencode/gpt-5-nano" }
-      } else if (avail.opencodeGo) {
-        agentConfig = { model: "opencode-go/qwen3.7-plus" }
-      } else if (avail.copilot) {
-        agentConfig = { model: "github-copilot/gpt-5-mini" }
-      } else {
-        const resolved = resolveModelFromChain(req.fallbackChain, avail)
-        if (resolved) {
-          const variant = resolved.variant ?? req.variant
-          agentConfig = toCompatibleModelConfig(resolved.model, { variant })
-        } else {
-          agentConfig = { model: "opencode/gpt-5-nano" }
-        }
-      }
-      agents[role] = attachAllFallbackModels(agentConfig, req.fallbackChain, avail)
-      continue
-    }
-
-    if (role === "sisyphus") {
+    if (role === "orchestrator") {
       const fallbackChain = getSisyphusFallbackChain()
       if (req.requiresAnyModel && !isAnyFallbackEntryAvailable(fallbackChain, avail)) {
         continue
