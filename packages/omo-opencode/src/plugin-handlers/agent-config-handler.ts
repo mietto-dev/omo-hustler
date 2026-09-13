@@ -1,7 +1,6 @@
 import { createBuiltinAgents } from "../agents";
 import { collectDisabledSkillAliases } from "../plugin/skill-context";
 import { isTaskSystemEnabled } from "../shared";
-import { AGENT_NAME_MAP } from "../shared/migration";
 import { assembleAgentConfig } from "./agent-config-assembly";
 import { finalizeAgentConfig } from "./agent-config-finalizer";
 import { discoverAgentSkills } from "./agent-skill-discovery";
@@ -11,9 +10,7 @@ import type { ApplyAgentConfigParams } from "./agent-config-types";
 export async function applyAgentConfig(
   params: ApplyAgentConfigParams,
 ): Promise<Record<string, unknown>> {
-  const migratedDisabledAgents = (params.pluginConfig.disabled_agents ?? []).map(
-    (agent: string) => AGENT_NAME_MAP[agent.toLowerCase()] ?? AGENT_NAME_MAP[agent] ?? agent,
-  ) as typeof params.pluginConfig.disabled_agents;
+  const disabledAgents = params.pluginConfig.disabled_agents;
   const allDiscoveredSkills = await discoverAgentSkills(params);
   const sources = loadAgentSources(params);
   const browserProvider =
@@ -23,7 +20,7 @@ export async function applyAgentConfig(
   const useTaskSystem = isTaskSystemEnabled(params.pluginConfig);
   const disableOmoEnv = params.pluginConfig.experimental?.disable_omo_env ?? false;
   const builtinAgents = await createBuiltinAgents(
-    migratedDisabledAgents,
+    disabledAgents,
     params.pluginConfig.agents,
     params.ctx.directory,
     currentModel,
@@ -39,7 +36,7 @@ export async function applyAgentConfig(
     params.pluginConfig.team_mode?.enabled ?? false,
   );
   const disabledAgentNames = new Set(
-    (migratedDisabledAgents ?? []).map((agent: string) => agent.toLowerCase()),
+    (disabledAgents ?? []).map((agent: string) => agent.toLowerCase()),
   );
   const { configuredDefaultAgent } = await assembleAgentConfig({
     config: params.config,

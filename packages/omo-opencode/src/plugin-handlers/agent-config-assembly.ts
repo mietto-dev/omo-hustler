@@ -105,17 +105,17 @@ async function createCoreAgentConfig(
 ): Promise<Record<string, unknown>> {
   const { builtinAgents, pluginConfig, sources, currentModel, useTaskSystem } = params;
   const agentConfig: Record<string, unknown> = {
-    sisyphus: builtinAgents.sisyphus,
+    orchestrator: builtinAgents.orchestrator,
   };
 
-  if (builtinAgents.hephaestus) {
-    agentConfig.hephaestus = builtinAgents.hephaestus;
+  if (builtinAgents.developer) {
+    agentConfig.developer = builtinAgents.developer;
   }
 
   if (pluginConfig.sisyphus_agent?.planner_enabled ?? true) {
-    agentConfig.prometheus = await buildPrometheusAgentConfig({
+    agentConfig.planner = await buildPrometheusAgentConfig({
       configAgentPlan: sources.configAgent?.plan,
-      pluginPrometheusOverride: pluginConfig.agents?.prometheus as
+      pluginPrometheusOverride: pluginConfig.agents?.planner as
         | (Record<string, unknown> & { prompt_append?: string })
         | undefined,
       userCategories: pluginConfig.categories,
@@ -124,15 +124,9 @@ async function createCoreAgentConfig(
     });
   }
 
-  if (builtinAgents.atlas) {
-    agentConfig.atlas = builtinAgents.atlas;
+  if (builtinAgents.approver) {
+    agentConfig.approver = builtinAgents.approver;
   }
-
-  agentConfig["sisyphus-junior"] = createSisyphusJuniorAgentWithOverrides(
-    pluginConfig.agents?.["sisyphus-junior"],
-    (builtinAgents.atlas as { model?: string } | undefined)?.model,
-    useTaskSystem,
-  );
 
   return agentConfig;
 }
@@ -149,7 +143,7 @@ function applyDefaultAgent(
     return;
   }
 
-  config.default_agent = getAgentDisplayName("sisyphus", pluginConfig?.agents);
+  config.default_agent = getAgentDisplayName("orchestrator", pluginConfig?.agents);
 }
 
 async function assembleSisyphusEnabledConfig(params: AssembleAgentConfigParams): Promise<void> {
@@ -176,7 +170,7 @@ async function assembleSisyphusEnabledConfig(params: AssembleAgentConfigParams):
   const migratedBuild = configAgent?.build ? migrateAgentConfig(configAgent.build) : {};
   const planDemoteConfig = shouldDemotePlan
     ? buildPlanDemoteConfig(
-        agentConfig.prometheus as Record<string, unknown> | undefined,
+        agentConfig.planner as Record<string, unknown> | undefined,
         params.pluginConfig.agents?.plan as Record<string, unknown> | undefined,
       )
     : undefined;
@@ -204,7 +198,7 @@ async function assembleSisyphusEnabledConfig(params: AssembleAgentConfigParams):
     ...agentConfig,
     ...Object.fromEntries(
       Object.entries(params.builtinAgents).filter(
-        ([key]) => key !== "sisyphus" && key !== "hephaestus" && key !== "atlas",
+        ([key]) => !["orchestrator", "developer", "approver", "planner"].includes(key),
       ),
     ),
     ...orderedCustomAgentSources(filteredSources, params.disabledAgentNames),
@@ -234,7 +228,7 @@ export async function assembleAgentConfig(params: AssembleAgentConfigParams): Pr
   const configuredDefaultAgent = getConfiguredDefaultAgent(params.config);
   const isSisyphusEnabled = params.pluginConfig.sisyphus_agent?.disabled !== true;
 
-  if (isSisyphusEnabled && params.builtinAgents.sisyphus) {
+  if (isSisyphusEnabled && params.builtinAgents.orchestrator) {
     await assembleSisyphusEnabledConfig(params);
   } else {
     assembleSisyphusDisabledConfig(params);
