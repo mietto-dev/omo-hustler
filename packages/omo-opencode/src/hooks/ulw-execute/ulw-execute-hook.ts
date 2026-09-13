@@ -175,9 +175,9 @@ export function createUlwExecuteHook(ctx: PluginInput) {
     }
 
     log(`[${HOOK_NAME}] Processing ulw-execute command`, { sessionID: input.sessionID })
-    const activeAgent = isAgentRegistered("atlas")
-      ? "atlas"
-      : "sisyphus"
+    const activeAgent = isAgentRegistered("approver")
+      ? "approver"
+      : "orchestrator"
     updateSessionAgent(input.sessionID, activeAgent)
     if (output.message) {
       output.message["agent"] = resolveRegisteredAgentName(activeAgent) ?? activeAgent

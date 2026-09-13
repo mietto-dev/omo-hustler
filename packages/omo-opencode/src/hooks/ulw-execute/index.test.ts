@@ -50,8 +50,8 @@ You are starting an Atlas work session.
 
   beforeEach(() => {
     sessionState._resetForTesting()
-    sessionState.registerAgentName("atlas")
-    sessionState.registerAgentName("sisyphus")
+    sessionState.registerAgentName("approver")
+    sessionState.registerAgentName("orchestrator")
     testDir = join(tmpdir(), `ulw-execute-test-${randomUUID()}`)
     omoDir = join(testDir, ".omo")
     if (!existsSync(testDir)) {
@@ -160,7 +160,7 @@ You are starting an Atlas work session.
 
     test("should prefer the plan most recently referenced in the current session", async () => {
       // given - two incomplete plans and current session recently referenced plan-b
-      const plansDir = join(testDir, ".sisyphus", "plans")
+      const plansDir = join(testDir, ".omo", "plans")
       mkdirSync(plansDir, { recursive: true })
 
       const planAPath = join(plansDir, "plan-a.md")
@@ -205,7 +205,7 @@ You are starting an Atlas work session.
 
     test("should ignore unrelated active boulder state when current session references another plan", async () => {
       // given - active boulder points to old plan, current session most recently referenced new plan
-      const plansDir = join(testDir, ".sisyphus", "plans")
+      const plansDir = join(testDir, ".omo", "plans")
       mkdirSync(plansDir, { recursive: true })
 
       const oldPlanPath = join(plansDir, "old-plan.md")
@@ -257,7 +257,7 @@ You are starting an Atlas work session.
 
     test("should still find nested plan references when direct input fields contain a different plan path", async () => {
       // given - direct path points to plan-a but nested serialized input also references newer plan-b
-      const plansDir = join(testDir, ".sisyphus", "plans")
+      const plansDir = join(testDir, ".omo", "plans")
       mkdirSync(plansDir, { recursive: true })
 
       const planAPath = join(plansDir, "plan-a.md")
@@ -700,7 +700,7 @@ You are starting an Atlas work session.
       )
 
       // then
-      expect(updateSpy).toHaveBeenCalledWith("ses-prometheus-to-sisyphus", "atlas")
+      expect(updateSpy).toHaveBeenCalledWith("ses-prometheus-to-sisyphus", "approver")
       updateSpy.mockRestore()
     })
 
@@ -719,13 +719,13 @@ You are starting an Atlas work session.
       )
 
       // then - config key, not display name (matches no-sisyphus-gpt / boulder-continuation-injector convention)
-      expect(output.message.agent).toBe("atlas")
+      expect(output.message.agent).toBe("approver")
     })
 
     test("should switch to Atlas even when current session is Sisyphus (regression: #3155)", async () => {
       // given: user runs /ulw-execute while in a Sisyphus session
-      // atlas is registered, so /ulw-execute must always hand off to atlas
-      sessionState.updateSessionAgent("ses-sisyphus-to-atlas", "sisyphus")
+      // approver is registered, so /ulw-execute must always hand off to approver
+      sessionState.updateSessionAgent("ses-sisyphus-to-atlas", "orchestrator")
 
       const hook = createUlwExecuteHook(createMockPluginInput())
       const output = {
@@ -738,16 +738,16 @@ You are starting an Atlas work session.
         output
       )
 
-      // atlas is registered in beforeEach, so it must be selected
-      expect(output.message.agent).toBe("atlas")
-      expect(sessionState.getSessionAgent("ses-sisyphus-to-atlas")).toBe("atlas")
+      // approver is registered in beforeEach, so it must be selected
+      expect(output.message.agent).toBe("approver")
+      expect(sessionState.getSessionAgent("ses-sisyphus-to-atlas")).toBe("approver")
     })
 
     test("should keep the current agent when Atlas is unavailable", async () => {
       // given
       sessionState._resetForTesting()
-      sessionState.registerAgentName("sisyphus")
-      sessionState.updateSessionAgent("ses-prometheus-to-sisyphus", "sisyphus")
+      sessionState.registerAgentName("orchestrator")
+      sessionState.updateSessionAgent("ses-prometheus-to-sisyphus", "orchestrator")
 
       const hook = createUlwExecuteHook(createMockPluginInput())
       const output = {
@@ -762,16 +762,16 @@ You are starting an Atlas work session.
       )
 
       // then
-      expect(output.message.agent).toBe("sisyphus")
-      expect(sessionState.getSessionAgent("ses-prometheus-to-sisyphus")).toBe("sisyphus")
+      expect(output.message.agent).toBe("orchestrator")
+      expect(sessionState.getSessionAgent("ses-prometheus-to-sisyphus")).toBe("orchestrator")
     })
 
     test("should fall back to Sisyphus instead of keeping Prometheus when Atlas is unavailable", async () => {
       // given
       sessionState._resetForTesting()
-      sessionState.registerAgentName("prometheus")
-      sessionState.registerAgentName("sisyphus")
-      sessionState.updateSessionAgent("ses-prometheus-to-worker", "prometheus")
+      sessionState.registerAgentName("planner")
+      sessionState.registerAgentName("orchestrator")
+      sessionState.updateSessionAgent("ses-prometheus-to-worker", "planner")
 
       const plansDir = join(testDir, ".omo", "plans")
       mkdirSync(plansDir, { recursive: true })
@@ -790,17 +790,17 @@ You are starting an Atlas work session.
       )
 
       // then
-      expect(output.message.agent).toBe("sisyphus")
-      expect(sessionState.getSessionAgent("ses-prometheus-to-worker")).toBe("sisyphus")
-      expect(readBoulderState(testDir)?.agent).toBe("sisyphus")
+      expect(output.message.agent).toBe("orchestrator")
+      expect(sessionState.getSessionAgent("ses-prometheus-to-worker")).toBe("orchestrator")
+      expect(readBoulderState(testDir)?.agent).toBe("orchestrator")
     })
 
     test("should rewrite stale Prometheus boulder state to Sisyphus when resuming without Atlas", async () => {
       // given
       sessionState._resetForTesting()
-      sessionState.registerAgentName("prometheus")
-      sessionState.registerAgentName("sisyphus")
-      sessionState.updateSessionAgent("ses-prometheus-resume", "prometheus")
+      sessionState.registerAgentName("planner")
+      sessionState.registerAgentName("orchestrator")
+      sessionState.updateSessionAgent("ses-prometheus-resume", "planner")
 
       const planPath = join(testDir, "resume-plan.md")
       writeFileSync(planPath, "# Plan\n- [ ] Task 1")
@@ -809,7 +809,7 @@ You are starting an Atlas work session.
         started_at: "2026-01-02T10:00:00Z",
         session_ids: ["old-session"],
         plan_name: "resume-plan",
-        agent: "prometheus",
+        agent: "planner",
       })
 
       const hook = createUlwExecuteHook(createMockPluginInput())
@@ -825,8 +825,8 @@ You are starting an Atlas work session.
       )
 
       // then
-      expect(output.message.agent).toBe("sisyphus")
-      expect(readBoulderState(testDir)?.agent).toBe("sisyphus")
+      expect(output.message.agent).toBe("orchestrator")
+      expect(readBoulderState(testDir)?.agent).toBe("orchestrator")
     })
 
     test("#given ulw-execute hands the session to Atlas #when Atlas later receives session.idle #then the same session continues the selected plan", async () => {
@@ -861,9 +861,9 @@ You are starting an Atlas work session.
       await atlasHook.handler({ event: { type: "session.idle", properties: { sessionID: "session-123" } } })
 
       // then
-      expect(output.message.agent).toBe("atlas")
+      expect(output.message.agent).toBe("approver")
       expect(readBoulderState(testDir)?.session_ids).toContain("opencode:session-123")
-      expect(readBoulderState(testDir)?.agent).toBe("atlas")
+      expect(readBoulderState(testDir)?.agent).toBe("approver")
       expect(promptAsyncMock).toHaveBeenCalledTimes(1)
       promptAsyncMock.mockRestore()
     })
@@ -952,9 +952,9 @@ You are starting an Atlas work session.
         await firePendingTimers()
 
         // then
-        expect(output.message.agent).toBe("atlas")
+        expect(output.message.agent).toBe("approver")
         expect(readBoulderState(testDir)?.session_ids).toContain("opencode:session-123")
-        expect(readBoulderState(testDir)?.agent).toBe("atlas")
+        expect(readBoulderState(testDir)?.agent).toBe("approver")
         expect(promptAsyncMock).toHaveBeenCalledTimes(1)
       } finally {
         globalThis.setTimeout = originalSetTimeout
