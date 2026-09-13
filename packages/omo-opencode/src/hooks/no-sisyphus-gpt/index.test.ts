@@ -7,8 +7,8 @@ import { getAgentDisplayName } from "../../shared/agent-display-names"
 import { createNoSisyphusGptHook } from "./index"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 
-const SISYPHUS_DISPLAY = getAgentDisplayName("sisyphus")
-const HEPHAESTUS_DISPLAY = getAgentDisplayName("hephaestus")
+const SISYPHUS_DISPLAY = getAgentDisplayName("orchestrator")
+const HEPHAESTUS_DISPLAY = getAgentDisplayName("developer")
 
 type HookOutput = {
   message: { agent?: string; variant?: string; [key: string]: unknown }
@@ -29,8 +29,8 @@ function createHookContext(showToast: (input: unknown) => Promise<unknown>): Plu
 }
 
 describe("no-sisyphus-gpt hook", () => {
-  test("shows toast on every chat.message when sisyphus uses unsupported gpt model", async () => {
-    // given - sisyphus (display name) with a GPT model that lacks native support
+  test("shows toast on every chat.message when orchestrator uses unsupported gpt model", async () => {
+    // given - orchestrator (display name) with a GPT model that lacks native support
     const showToast = spyOn({ fn: async () => ({}) }, "fn")
     const hook = createNoSisyphusGptHook(createHookContext(showToast))
 
@@ -51,8 +51,8 @@ describe("no-sisyphus-gpt hook", () => {
 
     // then - toast is shown for every message
     expect(showToast).toHaveBeenCalledTimes(2)
-    expect(output1.message.agent).toBe("hephaestus")
-    expect(output2.message.agent).toBe("hephaestus")
+    expect(output1.message.agent).toBe("developer")
+    expect(output2.message.agent).toBe("developer")
     const firstToastCall = (showToast.mock.calls as Array<Array<unknown>>)[0]?.[0]
     expect(firstToastCall).toMatchObject({
       body: {
@@ -64,7 +64,7 @@ describe("no-sisyphus-gpt hook", () => {
   })
 
   test("does not show toast for gpt-5.4 model (Sisyphus has specialized support)", async () => {
-    // given - sisyphus with gpt-5.4 model (should be allowed)
+    // given - orchestrator with gpt-5.4 model (should be allowed)
     const showToast = spyOn({ fn: async () => ({}) }, "fn")
     const hook = createNoSisyphusGptHook(createHookContext(showToast))
 
@@ -83,7 +83,7 @@ describe("no-sisyphus-gpt hook", () => {
   })
 
   test("does not show toast for gpt-5.5 model (native Sisyphus support)", async () => {
-    // given - sisyphus with gpt-5.5 model (should be allowed)
+    // given - orchestrator with gpt-5.5 model (should be allowed)
     const showToast = spyOn({ fn: async () => ({}) }, "fn")
     const hook = createNoSisyphusGptHook(createHookContext(showToast))
 
@@ -121,7 +121,7 @@ describe("no-sisyphus-gpt hook", () => {
   })
 
   test("sets medium variant for gpt-5.5 model when native Sisyphus support is used", async () => {
-    // given - sisyphus with gpt-5.5 model and no selected variant
+    // given - orchestrator with gpt-5.5 model and no selected variant
     const showToast = spyOn({ fn: async () => ({}) }, "fn")
     const hook = createNoSisyphusGptHook(createHookContext(showToast))
 
@@ -141,7 +141,7 @@ describe("no-sisyphus-gpt hook", () => {
   })
 
   test("preserves selected variant for gpt-5.5 model when native Sisyphus support is used", async () => {
-    // given - sisyphus with gpt-5.5 model and a selected variant
+    // given - orchestrator with gpt-5.5 model and a selected variant
     const showToast = spyOn({ fn: async () => ({}) }, "fn")
     const hook = createNoSisyphusGptHook(createHookContext(showToast))
 
@@ -161,7 +161,7 @@ describe("no-sisyphus-gpt hook", () => {
   })
 
   test("does not show toast for non-gpt model", async () => {
-    // given - sisyphus with claude model
+    // given - orchestrator with claude model
     const showToast = spyOn({ fn: async () => ({}) }, "fn")
     const hook = createNoSisyphusGptHook(createHookContext(showToast))
 
@@ -180,7 +180,7 @@ describe("no-sisyphus-gpt hook", () => {
   })
 
   test("does not show toast for non-sisyphus agent", async () => {
-    // given - hephaestus with gpt model
+    // given - developer with gpt model
     const showToast = spyOn({ fn: async () => ({}) }, "fn")
     const hook = createNoSisyphusGptHook(createHookContext(showToast))
 
@@ -215,6 +215,6 @@ describe("no-sisyphus-gpt hook", () => {
 
     // then - toast shown via session-agent fallback
     expect(showToast).toHaveBeenCalledTimes(1)
-    expect(output.message.agent).toBe("hephaestus")
+    expect(output.message.agent).toBe("developer")
   })
 })
