@@ -218,7 +218,7 @@ describe("keyword-detector hyperplan-ultrawork combo", () => {
     expect(text).toContain("run this")
   })
 
-  test("should filter combo when agent is prometheus (planner)", async () => {
+  test("should filter combo when agent is planner (planner)", async () => {
     // given - planner agent receives a combo prompt
     const sessionID = "combo-prometheus-session"
     const hook = createKeywordDetectorHook(createMockPluginInput())
@@ -228,7 +228,7 @@ describe("keyword-detector hyperplan-ultrawork combo", () => {
     }
 
     // when - planner-agent path filters all execution-mode keywords
-    await hook["chat.message"]({ sessionID, agent: "prometheus" }, output)
+    await hook["chat.message"]({ sessionID, agent: "planner" }, output)
 
     // then - text untouched: combo, ultrawork, and hyperplan all filtered for planner
     const text = textOf(output)
@@ -250,7 +250,7 @@ describe("keyword-detector hyperplan-ultrawork combo", () => {
 
     // when - combo fires with GPT model resolved
     await hook["chat.message"](
-      { sessionID, agent: "sisyphus", model: { providerID: "openai", modelID: "gpt-5.4" } },
+      { sessionID, agent: "orchestrator", model: { providerID: "openai", modelID: "gpt-5.4" } },
       output,
     )
 
