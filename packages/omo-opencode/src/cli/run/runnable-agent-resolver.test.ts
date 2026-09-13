@@ -17,13 +17,13 @@ function createClient(agentNames: readonly string[]): RunAgentListClient {
 describe("resolveRunnableRunAgent", () => {
   it("#given server exposes Sisyphus by display name #when run agent is config key #then returns registered display name", async () => {
     // given
-    const client = createClient(["Sisyphus - ultraworker", "general"])
+    const client = createClient(["Orchestrator", "general"])
 
     // when
-    const agent = await resolveRunnableRunAgent(client, "sisyphus")
+    const agent = await resolveRunnableRunAgent(client, "orchestrator")
 
     // then
-    expect(agent).toBe("Sisyphus - ultraworker")
+    expect(agent).toBe("Orchestrator")
   })
 
   it("#given requested custom agent exists exactly #when resolving runnable agent #then preserves custom name", async () => {
@@ -39,13 +39,13 @@ describe("resolveRunnableRunAgent", () => {
 
   it("#given known display-name input #when resolving runnable agent #then returns server registered casing", async () => {
     // given
-    const client = createClient(["Sisyphus - ultraworker"])
+    const client = createClient(["Orchestrator"])
 
     // when
-    const agent = await resolveRunnableRunAgent(client, "Sisyphus - Ultraworker")
+    const agent = await resolveRunnableRunAgent(client, "Orchestrator")
 
     // then
-    expect(agent).toBe("Sisyphus - ultraworker")
+    expect(agent).toBe("Orchestrator")
   })
 
   it("#given built-in agent has configured display name #when resolving config key #then returns configured server name", async () => {
@@ -53,9 +53,9 @@ describe("resolveRunnableRunAgent", () => {
     const client = createClient(["总指挥"])
 
     // when
-    const agent = await resolveRunnableRunAgent(client, "sisyphus", {
+    const agent = await resolveRunnableRunAgent(client, "orchestrator", {
       agents: {
-        sisyphus: {
+        orchestrator: {
           displayName: "总指挥",
         },
       },
@@ -74,9 +74,9 @@ describe("resolveRunnableRunAgent", () => {
     })
 
     // when
-    const agent = await resolveRunnableRunAgent(client, "sisyphus")
+    const agent = await resolveRunnableRunAgent(client, "orchestrator")
 
     // then
-    expect(agent).toBe("sisyphus")
+    expect(agent).toBe("orchestrator")
   })
 })
