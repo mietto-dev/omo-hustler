@@ -17,9 +17,9 @@ describe("todo continuation registered agent resolution", () => {
     _resetForTesting()
   })
 
-  test("#given OpenCode registered Atlas under legacy display name #when continuation inherits config key #then prompt uses registered name", async () => {
+  test("#given OpenCode registered canonical Approver display name #when continuation inherits config key #then prompt uses registered name", async () => {
     // given
-    registerAgentName("Atlas (Plan Executor)")
+    registerAgentName("Approver")
     let capturedAgent: string | undefined
     const ctx = unsafeTestValue<PluginInput>({
       directory: "/tmp/test",
@@ -42,19 +42,19 @@ describe("todo continuation registered agent resolution", () => {
       ctx,
       sessionID: "ses_todo_registered_atlas",
       resolvedInfo: {
-        agent: "atlas",
+        agent: "approver",
         model: { providerID: "openai", modelID: "gpt-5.5" },
       },
       sessionStateStore: unsafeTestValue(sessionStateStore),
     })
 
     // then
-    expect(capturedAgent).toBe("Atlas (Plan Executor)")
+    expect(capturedAgent).toBe("Approver")
   })
 
-  test("#given OpenCode registered Atlas with a zero-width sort prefix #when continuation inherits config key #then prompt keeps the registered name", async () => {
+  test("#given OpenCode registered Approver with a zero-width sort prefix #when continuation inherits config key #then prompt uses the canonical display name", async () => {
     // given
-    registerAgentName("\u200BAtlas (Plan Executor)")
+    registerAgentName("\u200BApprover")
     let capturedAgent: string | undefined
     const ctx = unsafeTestValue<PluginInput>({
       directory: "/tmp/test",
@@ -77,13 +77,13 @@ describe("todo continuation registered agent resolution", () => {
       ctx,
       sessionID: "ses_todo_registered_zwsp_atlas",
       resolvedInfo: {
-        agent: "atlas",
+        agent: "approver",
         model: { providerID: "openai", modelID: "gpt-5.5" },
       },
       sessionStateStore: unsafeTestValue(sessionStateStore),
     })
 
     // then
-    expect(capturedAgent).toBe("\u200BAtlas (Plan Executor)")
+    expect(capturedAgent).toBe("\u200BApprover")
   })
 })
