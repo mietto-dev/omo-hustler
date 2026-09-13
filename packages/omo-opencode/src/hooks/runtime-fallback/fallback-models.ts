@@ -1,6 +1,6 @@
 import type { OhMyOpenCodeConfig } from "../../config"
 import type { FallbackModelObject } from "../../config/schema/fallback-models"
-import { agentPattern } from "./agent-resolver"
+import { agentPattern, normalizeAgentName } from "./agent-resolver"
 import { HOOK_NAME } from "./constants"
 import { log } from "../../shared/logger"
 import { SessionCategoryRegistry } from "../../shared/session-category-registry"
@@ -74,13 +74,18 @@ function getRawFallbackModelsForSession(
     pluginConfig.sisyphus_agent?.replace_plan !== false
   const tryGetPrometheusFallbackForPlan = (agentName: string) => {
     if (agentName.toLowerCase() !== "plan" || !shouldInheritPlanFallback) return undefined
-    return tryGetFallbackFromAgent("prometheus")
+    return tryGetFallbackFromAgent("planner")
   }
 
+  const normalizedAgent = normalizeAgentName(agent)
   if (agent) {
     const result = tryGetFallbackFromAgent(agent)
     if (result) return result
-    const planFallback = tryGetPrometheusFallbackForPlan(agent)
+  }
+  if (normalizedAgent) {
+    const result = tryGetFallbackFromAgent(normalizedAgent)
+    if (result) return result
+    const planFallback = tryGetPrometheusFallbackForPlan(normalizedAgent)
     if (planFallback) return planFallback
   }
 

@@ -18,6 +18,7 @@ import { buildRetryModelPayload } from "./retry-model-payload"
 import { resolveRuntimeModelSettings } from "./runtime-model-settings"
 import { resolveMessageEventSessionID, resolveSessionEventID } from "../../shared/event-session-id"
 import { normalizeModelToCanonicalString } from "./normalize-model"
+import { normalizeAgentName } from "./agent-resolver"
 
 function isRuntimeFallbackRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
@@ -49,8 +50,9 @@ function resolvePreferredSessionModel(
     : undefined
   if (typeof registeredCategoryModel === "string") return registeredCategoryModel
 
+  const normalizedAgent = normalizeAgentName(agent)
   const agentConfig = agent && pluginConfig?.agents
-    ? pluginConfig.agents[agent]
+    ? pluginConfig.agents[agent] ?? (normalizedAgent ? pluginConfig.agents[normalizedAgent] : undefined)
     : undefined
   if (typeof agentConfig?.model === "string") return agentConfig.model
 
