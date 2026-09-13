@@ -4,7 +4,7 @@ import type { CategoriesConfig, GitMasterConfig } from "../config/schema"
 import type { LoadedSkill } from "../features/opencode-skill-loader/types"
 import type { BrowserAutomationProvider } from "../config/schema"
 import { createSisyphusAgent } from "./sisyphus"
-import { createOracleAgent, ORACLE_PROMPT_METADATA } from "./oracle"
+import { createOracleAgent, ARCHITECT_PROMPT_METADATA } from "./oracle"
 import { createLibrarianAgent, LIBRARIAN_PROMPT_METADATA } from "./librarian"
 import { createAtlasAgent, atlasPromptMetadata } from "./atlas"
 import { createMomusAgent, momusPromptMetadata } from "./momus"
@@ -42,7 +42,7 @@ const agentSources: Partial<Record<BuiltinAgentName, AgentSource>> = {
  * (Delegation Table, Tool Selection, Key Triggers, etc.)
  */
 const agentMetadata: Partial<Record<BuiltinAgentName, AgentPromptMetadata>> = {
-  architect: ORACLE_PROMPT_METADATA,
+  architect: ARCHITECT_PROMPT_METADATA,
   librarian: LIBRARIAN_PROMPT_METADATA,
   tester: momusPromptMetadata,
 }
