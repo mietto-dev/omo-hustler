@@ -49,7 +49,7 @@ class AtlasPromptVariantError extends Error {
 
 export function getAtlasPromptSource(model?: string): AtlasPromptSource {
   const variant = resolveVariant({
-    agentName: "atlas",
+    agentName: "approver",
     modelID: model,
     variants: atlasPromptVariants,
   })
@@ -95,12 +95,12 @@ function buildDynamicOrchestratorPrompt(ctx?: OrchestratorContext): string {
   ] satisfies readonly SyncRuntimeInjection[]
 
   const agentIdentity = buildAgentIdentitySection(
-    "Atlas",
-    "Master Orchestrator agent from OhMyOpenCode that coordinates specialized agents to complete todo lists",
+    "Approver",
+    "Approval agent from OhMyOpenCode that coordinates verification of completed todo-list work",
   )
   const basePrompt = loadPromptSync({
     source: atlasPromptVariants[source],
-    name: "atlas",
+    name: "approver",
     variant: source,
     inject: runtimeInjections,
   }).body
@@ -111,7 +111,7 @@ function buildDynamicOrchestratorPrompt(ctx?: OrchestratorContext): string {
 export function createAtlasAgent(ctx: OrchestratorContext): AgentConfig {
   const baseConfig: AgentConfig = {
     description:
-      "Orchestrates work via task() to complete ALL tasks in a todo list until fully done. (Atlas - OhMyOpenCode)",
+      "Approves completed todo-list work after verification. (Approver - OhMyOpenCode)",
     mode: MODE,
     ...(ctx.model ? { model: ctx.model } : {}),
     temperature: 0.1,
@@ -126,7 +126,7 @@ createAtlasAgent.mode = MODE
 export const atlasPromptMetadata: AgentPromptMetadata = {
   category: "advisor",
   cost: "EXPENSIVE",
-  promptAlias: "Atlas",
+  promptAlias: "Approver",
   triggers: [
     {
       domain: "Todo list orchestration",
