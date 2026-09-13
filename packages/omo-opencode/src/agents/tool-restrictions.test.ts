@@ -9,7 +9,7 @@ import { createMetisAgent } from "./metis"
 import { createAtlasAgent } from "./atlas"
 import { createSisyphusAgent } from "./sisyphus"
 import { createHephaestusAgent } from "./hephaestus"
-import { getAgentToolRestrictions } from "../shared/agent-tool-restrictions"
+import { canAgentCallOmoAgent, getAgentToolRestrictions, projectAgentPermissions } from "../shared/agent-tool-restrictions"
 
 const TEST_MODEL = "anthropic/claude-sonnet-4-5"
 const TEAM_TOOL_NAMES = [
@@ -29,6 +29,23 @@ const TEAM_TOOL_NAMES = [
 
 describe("read-only agent tool restrictions", () => {
   const FILE_WRITE_TOOLS = ["write", "edit", "apply_patch"]
+
+  test("projects hard denials after user permissions and limits Architect to Librarian", () => {
+    // given
+    const userPermission = { write: "allow" as const, call_omo_agent: "allow" as const }
+
+    // when
+    const librarian = projectAgentPermissions("librarian", userPermission)
+    const architect = projectAgentPermissions("architect", userPermission)
+
+    // then
+    expect(librarian.write).toBe("deny")
+    expect(librarian.call_omo_agent).toBe("deny")
+    expect(architect.write).toBe("deny")
+    expect(architect.call_omo_agent).toBe("allow")
+    expect(canAgentCallOmoAgent("architect", "librarian")).toBe(true)
+    expect(canAgentCallOmoAgent("architect", "developer")).toBe(false)
+  })
 
   test("denies team tools for every delegated subagent prompt", () => {
     // given
