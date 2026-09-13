@@ -139,22 +139,6 @@ export function migrateConfigFile(
     }
   }
 
-  if (copy.disabled_agents && Array.isArray(copy.disabled_agents)) {
-    const migrated: string[] = []
-    let changed = false
-    for (const agent of copy.disabled_agents as string[]) {
-      const newAgent = AGENT_NAME_MAP[agent.toLowerCase()] ?? AGENT_NAME_MAP[agent] ?? agent
-      if (newAgent !== agent) {
-        changed = true
-      }
-      migrated.push(newAgent)
-    }
-    if (changed) {
-      copy.disabled_agents = migrated
-      needsWrite = true
-    }
-  }
-
   if (copy.disabled_hooks && Array.isArray(copy.disabled_hooks)) {
     const { migrated, changed, removed } = migrateHookNames(copy.disabled_hooks as string[])
     if (changed) {
@@ -165,6 +149,18 @@ export function migrateConfigFile(
       log(
         `Removed obsolete hooks from disabled_hooks: ${removed.join(", ")} (these hooks no longer exist in v3.0.0)`
       )
+    }
+  }
+
+  if (copy.disabled_agents && Array.isArray(copy.disabled_agents)) {
+    const disabledAgents = copy.disabled_agents as string[]
+    const migrated = disabledAgents.map((agent) => {
+      const key = agent.toLowerCase()
+      return AGENT_NAME_MAP[key] ?? AGENT_NAME_MAP[agent] ?? agent
+    })
+    if (migrated.some((agent, index) => agent !== disabledAgents[index])) {
+      copy.disabled_agents = migrated
+      needsWrite = true
     }
   }
 
