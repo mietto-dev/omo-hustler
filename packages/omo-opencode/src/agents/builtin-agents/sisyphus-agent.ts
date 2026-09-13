@@ -43,8 +43,8 @@ export function maybeCreateSisyphusConfig(input: {
     disableOmoEnv = false,
   } = input
 
-  const sisyphusOverride = agentOverrides["sisyphus"]
-  const sisyphusRequirement = AGENT_MODEL_REQUIREMENTS["sisyphus"]
+  const sisyphusOverride = agentOverrides["orchestrator"]
+  const sisyphusRequirement = AGENT_MODEL_REQUIREMENTS["orchestrator"]
   const hasSisyphusExplicitConfig = sisyphusOverride !== undefined
   const meetsSisyphusAnyModelRequirement =
     !sisyphusRequirement?.requiresAnyModel ||
@@ -52,12 +52,12 @@ export function maybeCreateSisyphusConfig(input: {
     isFirstRunNoCache ||
     isAnyFallbackModelAvailable(sisyphusRequirement.fallbackChain, availableModels)
 
-  if (!disabledAgents.includes("sisyphus") && !meetsSisyphusAnyModelRequirement) {
+  if (!disabledAgents.includes("orchestrator") && !meetsSisyphusAnyModelRequirement) {
     log("[agent-registration] Agent skipped: no model in fallback chain is available", {
-      agent: "sisyphus",
+      agent: "orchestrator",
     })
   }
-  if (disabledAgents.includes("sisyphus") || !meetsSisyphusAnyModelRequirement) return undefined
+  if (disabledAgents.includes("orchestrator") || !meetsSisyphusAnyModelRequirement) return undefined
 
   let sisyphusResolution = applyModelResolution({
     uiSelectedModel: sisyphusOverride?.model !== undefined ? undefined : uiSelectedModel,
@@ -73,7 +73,7 @@ export function maybeCreateSisyphusConfig(input: {
 
   if (!sisyphusResolution) {
     log("[agent-registration] Agent skipped: model resolution returned no result", {
-      agent: "sisyphus",
+      agent: "orchestrator",
       configuredModel: sisyphusOverride?.model,
     })
     return undefined
