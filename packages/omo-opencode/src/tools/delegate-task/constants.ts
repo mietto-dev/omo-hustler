@@ -376,7 +376,7 @@ export function getDeliverableTag(agentName: string | undefined): string | undef
  * Plan family: plan + prometheus. Shares mutual delegation blocking and task tool permission.
  * Does NOT share system prompt (only isPlanAgent controls that).
  */
-export const PLAN_FAMILY_NAMES = ["plan", "prometheus"]
+export const PLAN_FAMILY_NAMES = ["plan", "planner"]
 
 /**
  * Check if the given agent belongs to the plan family (blocking + task permission).
@@ -402,7 +402,7 @@ export function isPlanFamily(category: string | undefined): boolean {
  *
  * Symmetric guard to the caller-eligibility check added by PR #4065 for team_create.
  */
-export const COORDINATOR_AGENT_NAMES = ["prometheus"]
+export const COORDINATOR_AGENT_NAMES = ["planner"]
 
 /**
  * Returns true when the given agent name refers to a coordinator/meta agent that
