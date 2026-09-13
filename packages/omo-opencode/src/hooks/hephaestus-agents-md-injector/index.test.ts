@@ -8,8 +8,8 @@ import { getAgentDisplayName } from "../../shared/agent-display-names"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 import { createHephaestusAgentsMdInjectorHook } from "./index"
 
-const HEPHAESTUS_DISPLAY = getAgentDisplayName("hephaestus")
-const SISYPHUS_DISPLAY = getAgentDisplayName("sisyphus")
+const HEPHAESTUS_DISPLAY = getAgentDisplayName("developer")
+const SISYPHUS_DISPLAY = getAgentDisplayName("orchestrator")
 
 let temporaryDirectory = ""
 
@@ -20,7 +20,7 @@ function createOutput(text = "Implement the thing") {
   }
 }
 
-describe("hephaestus agents md injector hook", () => {
+describe("developer agents md injector hook", () => {
   afterEach(() => {
     if (temporaryDirectory.length > 0) {
       rmSync(temporaryDirectory, { recursive: true, force: true })
@@ -79,7 +79,7 @@ describe("hephaestus agents md injector hook", () => {
       client: { session: { messages: async () => [] } },
     }))
     const output = createOutput()
-    output.message.agent = "sisyphus"
+    output.message.agent = "orchestrator"
 
     // when
     await hook["chat.message"]?.({
