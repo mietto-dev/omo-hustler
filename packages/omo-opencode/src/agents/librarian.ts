@@ -9,6 +9,7 @@ export const LIBRARIAN_PROMPT_METADATA: AgentPromptMetadata = {
   cost: "CHEAP",
   promptAlias: "Librarian",
   keyTrigger: "External library/source mentioned → fire `librarian` background",
+  librarianModes: ["repository", "external"],
   triggers: [
     { domain: "Librarian", trigger: "Unfamiliar packages / libraries, struggles at weird behaviour (to find existing implementation of opensource)" },
   ],

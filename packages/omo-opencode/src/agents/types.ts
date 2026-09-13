@@ -124,6 +124,8 @@ export interface AgentPromptMetadata {
 
   /** Key triggers that should appear in Phase 0 (e.g., "External library mentioned → fire librarian") */
   keyTrigger?: string;
+
+  librarianModes?: readonly ("repository" | "external")[];
 }
 
 function extractModelName(model: string): string {
