@@ -40,8 +40,8 @@ function buildPromptGenerationParams(model: DelegatedModelConfig | undefined): R
   }
 }
 
-function isOracleAgent(agentToUse: string): boolean {
-  return stripInvisibleAgentCharacters(agentToUse).toLowerCase() === "oracle"
+function isArchitectAgent(agentToUse: string): boolean {
+  return stripInvisibleAgentCharacters(agentToUse).toLowerCase() === "architect"
 }
 
 function isUnexpectedEofError(error: unknown): boolean {
@@ -127,7 +127,7 @@ export async function sendSyncPrompt(
       checkToolState: false,
     })
   } catch (promptError) {
-    if (isOracleAgent(input.agentToUse) && isUnexpectedEofError(promptError)) {
+    if (isArchitectAgent(input.agentToUse) && isUnexpectedEofError(promptError)) {
       return null
     }
 
