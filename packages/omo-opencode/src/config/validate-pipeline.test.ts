@@ -34,7 +34,7 @@ describe("validatePluginConfig pipeline", () => {
   it("#given a partially invalid omo opencode view #when validating #then retains valid sections", () => {
     withProjectConfig("partial", {
       "[opencode]": {
-        agents: { sisyphus: { model: 123 } },
+        agents: { orchestrator: { model: 123 } },
         tui: { sidebar: { enabled: false } },
       },
     }, (project) => {
@@ -42,7 +42,7 @@ describe("validatePluginConfig pipeline", () => {
 
       expect(result.valid).toBe(false)
       expect(result.config.tui?.sidebar.enabled).toBe(false)
-      expect(result.messages.some((message) => message.includes("agents.sisyphus.model"))).toBe(true)
+      expect(result.messages.some((message) => message.includes("agents.orchestrator.model"))).toBe(true)
     })
   })
 
@@ -50,12 +50,12 @@ describe("validatePluginConfig pipeline", () => {
     withProjectConfig("disabled-provider", {
       "[opencode]": {
         disabled_providers: ["blocked"],
-        agents: { sisyphus: { model: "blocked/primary", fallback_models: ["allowed/fallback"] } },
+        agents: { orchestrator: { model: "blocked/primary", fallback_models: ["allowed/fallback"] } },
       },
     }, (project) => {
       const result = validatePluginConfig(project)
 
-      expect(result.config.agents?.sisyphus?.model).toBe("allowed/fallback")
+      expect(result.config.agents?.orchestrator?.model).toBe("allowed/fallback")
     })
   })
 

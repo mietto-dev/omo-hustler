@@ -583,7 +583,7 @@ describe("Sisyphus-Junior agent override", () => {
     // given
     const config = {
       agents: {
-        "sisyphus-junior": {
+        "developer": {
           model: "openai/gpt-5.4",
           temperature: 0.2,
         },
@@ -596,18 +596,18 @@ describe("Sisyphus-Junior agent override", () => {
     // then
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.agents?.["sisyphus-junior"]).toBeDefined()
-      expect(result.data.agents?.["sisyphus-junior"]?.model).toBe("openai/gpt-5.4")
-      expect(result.data.agents?.["sisyphus-junior"]?.temperature).toBe(0.2)
+      expect(result.data.agents?.["developer"]).toBeDefined()
+      expect(result.data.agents?.["developer"]?.model).toBe("openai/gpt-5.4")
+      expect(result.data.agents?.["developer"]?.temperature).toBe(0.2)
     }
   })
 
-  test("schema accepts sisyphus-junior with prompt_append", () => {
+  test("schema accepts developer with prompt_append", () => {
     // given
     const config = {
       agents: {
-        "sisyphus-junior": {
-          prompt_append: "Additional instructions for sisyphus-junior",
+        "developer": {
+          prompt_append: "Additional instructions for developer",
         },
       },
     }
@@ -618,17 +618,17 @@ describe("Sisyphus-Junior agent override", () => {
     // then
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.agents?.["sisyphus-junior"]?.prompt_append).toBe(
-        "Additional instructions for sisyphus-junior"
+      expect(result.data.agents?.["developer"]?.prompt_append).toBe(
+        "Additional instructions for developer"
       )
     }
   })
 
-  test("schema accepts sisyphus-junior with tools override", () => {
+  test("schema accepts developer with tools override", () => {
     // given
     const config = {
       agents: {
-        "sisyphus-junior": {
+        "developer": {
           tools: {
             read: true,
             write: false,
@@ -643,24 +643,24 @@ describe("Sisyphus-Junior agent override", () => {
     // then
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.agents?.["sisyphus-junior"]?.tools).toEqual({
+      expect(result.data.agents?.["developer"]?.tools).toEqual({
         read: true,
         write: false,
       })
     }
   })
 
-  test("schema accepts lowercase agent names (sisyphus, atlas, prometheus)", () => {
+  test("schema accepts lowercase agent names (orchestrator, approver, planner)", () => {
     // given
     const config = {
       agents: {
-        sisyphus: {
+        orchestrator: {
           temperature: 0.1,
         },
-        atlas: {
+        approver: {
           temperature: 0.2,
         },
-        prometheus: {
+        planner: {
           temperature: 0.3,
         },
       },
@@ -672,20 +672,17 @@ describe("Sisyphus-Junior agent override", () => {
     // then
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.agents?.sisyphus?.temperature).toBe(0.1)
-      expect(result.data.agents?.atlas?.temperature).toBe(0.2)
-      expect(result.data.agents?.prometheus?.temperature).toBe(0.3)
+      expect(result.data.agents?.orchestrator?.temperature).toBe(0.1)
+      expect(result.data.agents?.approver?.temperature).toBe(0.2)
+      expect(result.data.agents?.planner?.temperature).toBe(0.3)
     }
   })
 
-  test("schema accepts lowercase metis and momus agent names", () => {
+  test("schema rejects retired metis and accepts tester agent names", () => {
     // given
     const config = {
       agents: {
-        metis: {
-          category: "ultrabrain",
-        },
-        momus: {
+        tester: {
           category: "quick",
         },
       },
@@ -697,8 +694,7 @@ describe("Sisyphus-Junior agent override", () => {
     // then
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.agents?.metis?.category).toBe("ultrabrain")
-      expect(result.data.agents?.momus?.category).toBe("quick")
+      expect(result.data.agents?.tester?.category).toBe("quick")
     }
   })
 })

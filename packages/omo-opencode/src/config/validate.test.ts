@@ -90,12 +90,12 @@ describe("validatePluginConfig", () => {
     withOmoConfig("ancestor-invalid", (fixture) => {
       const child = join(fixture.project, "child", "deep")
       mkdirSync(child, { recursive: true })
-      writeProjectConfig(fixture, { "[opencode]": { agents: { sisyphus: { model: 123 } } } })
+      writeProjectConfig(fixture, { "[opencode]": { agents: { orchestrator: { model: 123 } } } })
 
       const result = validatePluginConfig(child)
 
       expect(result.valid).toBe(false)
-      expect(result.messages.some((message) => message.includes("agents.sisyphus.model"))).toBe(true)
+      expect(result.messages.some((message) => message.includes("agents.orchestrator.model"))).toBe(true)
     })
   })
 
@@ -103,7 +103,7 @@ describe("validatePluginConfig", () => {
     withOmoConfig("merge", (fixture) => {
       writeUserConfig(fixture, {
         "[opencode]": {
-          agents: { sisyphus: { model: "user/model", prompt: "user prompt" } },
+          agents: { orchestrator: { model: "user/model", prompt: "user prompt" } },
           categories: { deep: { model: "user/deep", temperature: 0.2 } },
           claude_code: { mcp: true },
           disabled_agents: ["user-agent"],
@@ -112,7 +112,7 @@ describe("validatePluginConfig", () => {
       })
       writeProjectConfig(fixture, {
         "[opencode]": {
-          agents: { sisyphus: { model: "project/model", temperature: 0.7 } },
+          agents: { orchestrator: { model: "project/model", temperature: 0.7 } },
           categories: { deep: { prompt_append: "project appendix" } },
           claude_code: { commands: true },
           disabled_agents: ["project-agent"],
@@ -121,7 +121,7 @@ describe("validatePluginConfig", () => {
 
       const result = validatePluginConfig(fixture.project)
 
-      expect(result.config.agents?.sisyphus).toMatchObject({ model: "project/model", prompt: "user prompt", temperature: 0.7 })
+      expect(result.config.agents?.orchestrator).toMatchObject({ model: "project/model", prompt: "user prompt", temperature: 0.7 })
       expect(result.config.categories?.deep).toMatchObject({ model: "user/deep", temperature: 0.2, prompt_append: "project appendix" })
       expect(result.config.claude_code).toMatchObject({ mcp: true, commands: true })
       expect(result.config.disabled_agents).toEqual(["user-agent", "project-agent"])
@@ -219,19 +219,19 @@ describe("validatePluginConfig", () => {
     })
   })
 
-  it("#given an OCX profile overlay #when OCX_PROFILE changes #then flips the resolved sisyphus model", () => {
+  it("#given an OCX profile overlay #when OCX_PROFILE changes #then flips the resolved orchestrator model", () => {
     withOmoConfig("ocx-profile", (fixture) => {
       writeUserConfig(fixture, {
-        "[opencode]": { agents: { sisyphus: { model: "base/model" } } },
-        profiles: { kimi: { "[opencode]": { agents: { sisyphus: { model: "kimi/model" } } } } },
+        "[opencode]": { agents: { orchestrator: { model: "base/model" } } },
+        profiles: { kimi: { "[opencode]": { agents: { orchestrator: { model: "kimi/model" } } } } },
       })
 
       const base = validatePluginConfig(fixture.project)
       process.env.OCX_PROFILE = "kimi"
       const kimi = validatePluginConfig(fixture.project)
 
-      expect(base.config.agents?.sisyphus?.model).toBe("base/model")
-      expect(kimi.config.agents?.sisyphus?.model).toBe("kimi/model")
+      expect(base.config.agents?.orchestrator?.model).toBe("base/model")
+      expect(kimi.config.agents?.orchestrator?.model).toBe("kimi/model")
     })
   })
 
@@ -239,12 +239,12 @@ describe("validatePluginConfig", () => {
     withOmoConfig("model-catalog", (fixture) => {
       writeProjectConfig(fixture, {
         models: { kimi: { model: "provider/kimi" } },
-        "[opencode]": { agents: { sisyphus: { model: "kimi" } } },
+        "[opencode]": { agents: { orchestrator: { model: "kimi" } } },
       })
 
       const result = validatePluginConfig(fixture.project)
 
-      expect(result.config.agents?.sisyphus?.model).toBe("provider/kimi")
+      expect(result.config.agents?.orchestrator?.model).toBe("provider/kimi")
     })
   })
 
@@ -253,7 +253,7 @@ describe("validatePluginConfig", () => {
       writeProjectConfig(fixture, {
         "[opencode]": {
           agents: {
-            explore: {
+            librarian: {
               models: [
                 { model: "provider/primary", reasoning: "low" },
                 { model: "provider/fallback", reasoning: "medium" },
@@ -267,9 +267,9 @@ describe("validatePluginConfig", () => {
 
       expect(result.messages).toEqual([])
       expect(result.valid).toBe(true)
-      expect(result.config.agents?.explore?.model).toBe("provider/primary")
-      expect(result.config.agents?.explore?.reasoning).toBe("low")
-      expect(result.config.agents?.explore?.fallback_models).toEqual([
+      expect(result.config.agents?.librarian?.model).toBe("provider/primary")
+      expect(result.config.agents?.librarian?.reasoning).toBe("low")
+      expect(result.config.agents?.librarian?.fallback_models).toEqual([
         { model: "provider/fallback", reasoning: "medium" },
       ])
     })
