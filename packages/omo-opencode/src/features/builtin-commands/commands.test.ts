@@ -62,35 +62,35 @@ describe("loadBuiltinCommands", () => {
     expect(commands.handoff.template).toContain("$ARGUMENTS")
   })
 
-  test("should default ulw-execute to Atlas for static slash-command discovery", () => {
+  test("should default ulw-execute to Approver for static slash-command discovery", () => {
     //#given - no disabled commands
 
     //#when
     const commands = loadBuiltinCommands()
 
     //#then
-    expect(commands["ulw-execute"].agent).toBe("atlas")
+    expect(commands["ulw-execute"].agent).toBe("approver")
   })
 
-  test("should preassign Sisyphus as the native agent for ulw-execute when command config checks registered agents", () => {
-    //#given - no atlas registration
+  test("should preassign Orchestrator as the native agent for ulw-execute when command config checks registered agents", () => {
+    //#given - no approver registration
 
     //#when
     const commands = loadBuiltinCommands(undefined, { useRegisteredAgents: true })
 
     //#then
-    expect(commands["ulw-execute"].agent).toBe("sisyphus")
+    expect(commands["ulw-execute"].agent).toBe("orchestrator")
   })
 
-  test("should preassign Atlas as the native agent for ulw-execute when Atlas is registered", () => {
+  test("should preassign Approver as the native agent for ulw-execute when Approver is registered", () => {
     //#given
-    registerAgentName("atlas")
+    registerAgentName("approver")
 
     //#when
     const commands = loadBuiltinCommands(undefined, { useRegisteredAgents: true })
 
     //#then
-    expect(commands["ulw-execute"].agent).toBe("atlas")
+    expect(commands["ulw-execute"].agent).toBe("approver")
   })
 })
 
