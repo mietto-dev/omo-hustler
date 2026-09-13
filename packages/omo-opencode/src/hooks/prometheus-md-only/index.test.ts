@@ -74,9 +74,9 @@ describe("prometheus-md-only", () => {
   })
 
   describe("agent name matching", () => {
-    test("should enforce md-only restriction for exact prometheus agent name", async () => {
+    test("should enforce md-only restriction for exact planner agent name", async () => {
       //#given
-      setupMessageStorage(TEST_SESSION_ID, "prometheus")
+      setupMessageStorage(TEST_SESSION_ID, "planner")
       const hook = createPrometheusMdOnlyHook(createMockPluginInput())
       const input = {
         tool: "Write",
@@ -95,7 +95,7 @@ describe("prometheus-md-only", () => {
 
     test("should enforce md-only restriction for Prometheus display name Plan Builder", async () => {
       //#given
-      setupMessageStorage(TEST_SESSION_ID, "Prometheus - Plan Builder")
+      setupMessageStorage(TEST_SESSION_ID, "planner")
       const hook = createPrometheusMdOnlyHook(createMockPluginInput())
       const input = {
         tool: "Write",
@@ -114,7 +114,7 @@ describe("prometheus-md-only", () => {
 
     test("should enforce md-only restriction for Prometheus display name Planner", async () => {
       //#given
-      setupMessageStorage(TEST_SESSION_ID, "Prometheus - Plan Builder")
+      setupMessageStorage(TEST_SESSION_ID, "PLANNER")
       const hook = createPrometheusMdOnlyHook(createMockPluginInput())
       const input = {
         tool: "Write",
@@ -131,9 +131,9 @@ describe("prometheus-md-only", () => {
       ).rejects.toThrow("File operations restricted to .omo/*.md plan files only")
     })
 
-    test("should enforce md-only restriction for uppercase PROMETHEUS", async () => {
+    test("should enforce md-only restriction for uppercase PLANNER", async () => {
       //#given
-      setupMessageStorage(TEST_SESSION_ID, "PROMETHEUS")
+      setupMessageStorage(TEST_SESSION_ID, "PLANNER")
       const hook = createPrometheusMdOnlyHook(createMockPluginInput())
       const input = {
         tool: "Write",
@@ -152,7 +152,7 @@ describe("prometheus-md-only", () => {
 
     test("should not enforce restriction for non-Prometheus agent", async () => {
       //#given
-      setupMessageStorage(TEST_SESSION_ID, "sisyphus")
+      setupMessageStorage(TEST_SESSION_ID, "orchestrator")
       const hook = createPrometheusMdOnlyHook(createMockPluginInput())
       const input = {
         tool: "Write",
@@ -191,7 +191,7 @@ describe("prometheus-md-only", () => {
 
    describe("with Prometheus agent in message storage", () => {
      beforeEach(() => {
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
      })
 
     test("should block Prometheus from writing non-.md files", async () => {
@@ -498,7 +498,7 @@ describe("prometheus-md-only", () => {
 
   describe("with non-Prometheus agent in message storage", () => {
     beforeEach(() => {
-      setupMessageStorage(TEST_SESSION_ID, "sisyphus")
+      setupMessageStorage(TEST_SESSION_ID, "orchestrator")
     })
 
     test("should not affect non-Prometheus agents", async () => {
@@ -553,19 +553,19 @@ describe("prometheus-md-only", () => {
       rmSync(BOULDER_DIR, { recursive: true, force: true })
     })
 
-    //#given session was started with prometheus (first message), but /ulw-execute set boulder agent to atlas
+    //#given session was started with planner (first message), but /ulw-execute set boulder agent to approver
     //#when user types "continue" after interruption (memory cleared, falls back to message files)
-    //#then should use boulder state agent (atlas), not message file agent (prometheus)
+    //#then should use boulder state agent (approver), not message file agent (planner)
     test("should prioritize boulder agent over message file agent", async () => {
       setupMessageStorage(TEST_SESSION_ID, undefined)
       
-      // given - atlas in boulder state (from /ulw-execute)
+      // given - approver in boulder state (from /ulw-execute)
       writeFileSync(BOULDER_FILE, JSON.stringify({
         active_plan: "/test/plan.md",
         started_at: new Date().toISOString(),
         session_ids: [TEST_SESSION_ID],
         plan_name: "test-plan",
-        agent: "atlas"
+        agent: "approver"
       }))
 
       const hook = createPrometheusMdOnlyHook({
@@ -582,23 +582,23 @@ describe("prometheus-md-only", () => {
         args: { filePath: "/path/to/code.ts" },
       }
 
-      // when / then - should NOT block because boulder says atlas, not prometheus
+      // when / then - should NOT block because boulder says approver, not planner
       await expect(
         hook["tool.execute.before"](input, output)
       ).resolves.toBeUndefined()
     })
 
-    test("should use prometheus from boulder state when set", async () => {
-      // given - atlas in message files (from some other agent)
-      setupMessageStorage(TEST_SESSION_ID, "atlas", { useSessionAgent: false })
+    test("should use planner from boulder state when set", async () => {
+      // given - approver in message files (from some other agent)
+      setupMessageStorage(TEST_SESSION_ID, "approver", { useSessionAgent: false })
       
-      // given - prometheus in boulder state (edge case, but should honor it)
+      // given - planner in boulder state (edge case, but should honor it)
       writeFileSync(BOULDER_FILE, JSON.stringify({
         active_plan: "/test/plan.md",
         started_at: new Date().toISOString(),
         session_ids: [TEST_SESSION_ID],
         plan_name: "test-plan",
-        agent: "prometheus"
+        agent: "planner"
       }))
 
       const hook = createPrometheusMdOnlyHook({
@@ -615,15 +615,15 @@ describe("prometheus-md-only", () => {
         args: { filePath: "/path/to/code.ts" },
       }
 
-      // when / then - should block because boulder says prometheus
+      // when / then - should block because boulder says planner
       await expect(
         hook["tool.execute.before"](input, output)
       ).rejects.toThrow("File operations restricted to .omo/*.md plan files only")
     })
 
     test("should fall back to message files when session not in boulder", async () => {
-      // given - prometheus in message files
-      setupMessageStorage(TEST_SESSION_ID, "prometheus")
+      // given - planner in message files
+      setupMessageStorage(TEST_SESSION_ID, "planner")
       
       // given - boulder state exists but for different session
       writeFileSync(BOULDER_FILE, JSON.stringify({
@@ -631,7 +631,7 @@ describe("prometheus-md-only", () => {
         started_at: new Date().toISOString(),
         session_ids: ["ses_other_session_id"],
         plan_name: "test-plan",
-        agent: "atlas"
+        agent: "approver"
       }))
 
       const hook = createPrometheusMdOnlyHook({
@@ -648,7 +648,7 @@ describe("prometheus-md-only", () => {
         args: { filePath: "/path/to/code.ts" },
       }
 
-      // when / then - should block because falls back to message files (prometheus)
+      // when / then - should block because falls back to message files (planner)
       await expect(
         hook["tool.execute.before"](input, output)
       ).rejects.toThrow("File operations restricted to .omo/*.md plan files only")
@@ -677,12 +677,12 @@ describe("prometheus-md-only", () => {
 
   describe("cross-platform path validation", () => {
     beforeEach(() => {
-      setupMessageStorage(TEST_SESSION_ID, "prometheus")
+      setupMessageStorage(TEST_SESSION_ID, "planner")
     })
 
      test("should allow Windows-style backslash paths under .omo/", async () => {
        // given
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -701,7 +701,7 @@ describe("prometheus-md-only", () => {
 
      test("should allow mixed separator paths under .omo/", async () => {
        // given
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -720,7 +720,7 @@ describe("prometheus-md-only", () => {
 
      test("should allow uppercase .MD extension", async () => {
        // given
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -739,7 +739,7 @@ describe("prometheus-md-only", () => {
 
      test("should block paths outside workspace root even if containing .omo", async () => {
        // given
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -758,7 +758,7 @@ describe("prometheus-md-only", () => {
 
      test("should allow nested .omo directories (ctx.directory may be parent)", async () => {
        // given - when ctx.directory is parent of actual project, path includes project name
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -777,7 +777,7 @@ describe("prometheus-md-only", () => {
 
      test("should block path traversal attempts", async () => {
        // given
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -796,7 +796,7 @@ describe("prometheus-md-only", () => {
 
      test("should allow case-insensitive .OMO directory", async () => {
        // given
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -816,7 +816,7 @@ describe("prometheus-md-only", () => {
      test("should allow nested project path with .omo (Windows real-world case)", async () => {
        // given - simulates when ctx.directory is parent of actual project
        // User reported: xauusd-dxy-plan\.omo\drafts\supabase-email-templates.md
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -835,7 +835,7 @@ describe("prometheus-md-only", () => {
 
      test("should allow nested project path with mixed separators", async () => {
        // given
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
@@ -854,7 +854,7 @@ describe("prometheus-md-only", () => {
 
      test("should block nested project path without .omo", async () => {
        // given
-       setupMessageStorage(TEST_SESSION_ID, "prometheus")
+       setupMessageStorage(TEST_SESSION_ID, "planner")
        const hook = createPrometheusMdOnlyHook(createMockPluginInput())
        const input = {
          tool: "Write",
