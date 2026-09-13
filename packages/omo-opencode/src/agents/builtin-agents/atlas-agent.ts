@@ -34,10 +34,10 @@ export function maybeCreateAtlasConfig(input: {
     userCategories,
   } = input
 
-  if (disabledAgents.includes("atlas")) return undefined
+  if (disabledAgents.includes("approver")) return undefined
 
-  const orchestratorOverride = agentOverrides["atlas"]
-  const atlasRequirement = AGENT_MODEL_REQUIREMENTS["atlas"]
+  const orchestratorOverride = agentOverrides["approver"]
+  const atlasRequirement = AGENT_MODEL_REQUIREMENTS["approver"]
 
   let atlasResolution = applyModelResolution({
     uiSelectedModel: orchestratorOverride?.model !== undefined ? undefined : uiSelectedModel,
@@ -55,7 +55,7 @@ export function maybeCreateAtlasConfig(input: {
 
   if (!atlasResolution) {
     log("[agent-registration] Agent skipped: model resolution returned no result", {
-      agent: "atlas",
+      agent: "approver",
       configuredModel: orchestratorOverride?.model,
     })
     return undefined
