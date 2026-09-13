@@ -87,7 +87,7 @@ const TERMINAL_402_INFO = {
 
 const FALLBACK_PLUGIN_CONFIG = {
   agents: {
-    "sisyphus-junior": {
+    developer: {
       model: "litellm/kimi-k3",
       fallback_models: ["litellm/gpt-5.6-sol", "litellm/glm-5.2"],
     },
@@ -106,7 +106,7 @@ describe("createMessageUpdateHandler terminal-quota-402 session-stable fallback"
   it("#given a session hits a terminal-quota 402 abort and resolves fallback models #when the assistant error event fires #then exactly ONE session-stable fallback dispatch happens on the same session", async () => {
     // given
     const { createMessageUpdateHandler } = await importFreshMessageUpdateHandlerModule()
-    const sessionID = "ses_xx-sisyphus-junior-terminal402"
+    const sessionID = "ses_xx-developer-terminal402"
     const dispatchCalls: Array<{ sessionID: string; newModel: string; source: string }> = []
     const deps = createDeps(FALLBACK_PLUGIN_CONFIG)
     const handler = createMessageUpdateHandler(deps, createHelpers(dispatchCalls))
@@ -123,7 +123,7 @@ describe("createMessageUpdateHandler terminal-quota-402 session-stable fallback"
   it("#given a session hits an abort WITHOUT a 402 status (user abort) #when the assistant error event fires #then NO fallback dispatch happens (the new branch only opens for abort + 402)", async () => {
     // given
     const { createMessageUpdateHandler } = await importFreshMessageUpdateHandlerModule()
-    const sessionID = "ses_xx-sisyphus-junior-userabort"
+    const sessionID = "ses_xx-developer-userabort"
     const dispatchCalls: Array<{ sessionID: string; newModel: string; source: string }> = []
     const deps = createDeps(FALLBACK_PLUGIN_CONFIG)
     const handler = createMessageUpdateHandler(deps, createHelpers(dispatchCalls))
@@ -145,7 +145,7 @@ describe("createMessageUpdateHandler terminal-quota-402 session-stable fallback"
   it("#given a session hits a terminal-quota 402 abort but resolves NO fallback models #when the assistant error event fires #then NO fallback dispatch happens", async () => {
     // given
     const { createMessageUpdateHandler } = await importFreshMessageUpdateHandlerModule()
-    const sessionID = "ses_xx-sisyphus-junior-nofallback"
+    const sessionID = "ses_xx-developer-nofallback"
     const dispatchCalls: Array<{ sessionID: string; newModel: string; source: string }> = []
     const deps = createDeps({}) // no agents/fallback config
     const handler = createMessageUpdateHandler(deps, createHelpers(dispatchCalls))
