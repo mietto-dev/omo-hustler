@@ -23,6 +23,7 @@ export const AgentOverrideConfigSchema = z.object({
   prompt_append: z.string().optional(),
   tools: z.record(z.string(), z.boolean()).optional(),
   disable: z.boolean().optional(),
+  allow_non_gpt_model: z.boolean().optional(),
   description: z.string().optional(),
   mode: z.enum(["subagent", "primary", "all"]).optional(),
   color: z
@@ -69,21 +70,22 @@ export const AgentOverrideConfigSchema = z.object({
 export const AgentOverridesSchema = z.object({
   build: AgentOverrideConfigSchema.optional(),
   plan: AgentOverrideConfigSchema.optional(),
-  sisyphus: AgentOverrideConfigSchema.optional(),
-  hephaestus: AgentOverrideConfigSchema.extend({
-    allow_non_gpt_model: z.boolean().optional(),
-  }).optional(),
-  "sisyphus-junior": AgentOverrideConfigSchema.optional(),
-  "OpenCode-Builder": AgentOverrideConfigSchema.optional(),
-  prometheus: AgentOverrideConfigSchema.optional(),
-  metis: AgentOverrideConfigSchema.optional(),
-  momus: AgentOverrideConfigSchema.optional(),
-  oracle: AgentOverrideConfigSchema.optional(),
+  orchestrator: AgentOverrideConfigSchema.optional(),
+  developer: AgentOverrideConfigSchema.optional(),
+  planner: AgentOverrideConfigSchema.optional(),
+  tester: AgentOverrideConfigSchema.optional(),
+  approver: AgentOverrideConfigSchema.optional(),
   librarian: AgentOverrideConfigSchema.optional(),
-  explore: AgentOverrideConfigSchema.optional(),
-  "multimodal-looker": AgentOverrideConfigSchema.optional(),
-  atlas: AgentOverrideConfigSchema.optional(),
-}).catchall(AgentOverrideConfigSchema.optional())
+  architect: AgentOverrideConfigSchema.optional(),
+  "OpenCode-Builder": AgentOverrideConfigSchema.optional(),
+}).catchall(AgentOverrideConfigSchema.optional()).superRefine((value, ctx) => {
+  const legacyNames = ["sisyphus", "hephaestus", "prometheus", "oracle", "explore", "multimodal-looker", "metis", "momus", "atlas", "sisyphus-junior"]
+  for (const name of legacyNames) {
+    if (Object.prototype.hasOwnProperty.call(value, name)) {
+      ctx.addIssue({ code: "custom", path: [name], message: "Legacy agent IDs are not supported" })
+    }
+  }
+})
 
 export type AgentOverrideConfig = z.infer<typeof AgentOverrideConfigSchema>
 export type AgentOverrides = z.infer<typeof AgentOverridesSchema>
