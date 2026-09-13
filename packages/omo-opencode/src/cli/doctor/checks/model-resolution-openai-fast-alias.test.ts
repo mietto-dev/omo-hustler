@@ -8,19 +8,19 @@ describe("doctor OpenAI GPT fast capability diagnostics", () => {
   test("preserves the configured model and variant while reporting alias-backed capabilities", () => {
     const config: OmoConfig = {
       agents: {
-        hephaestus: { model: "openai/gpt-5.6-sol-fast", variant: "xhigh" },
+        developer: { model: "openai/gpt-5.6-sol-fast", variant: "xhigh" },
       },
     }
     const info = getModelResolutionInfoWithOverrides(config)
-    const hephaestus = info.agents.find((agent) => agent.name === "hephaestus")
+    const developer = info.agents.find((agent) => agent.name === "developer")
     const details = buildModelResolutionDetails({
       info,
       available: { providers: ["openai"], modelCount: 1, cacheExists: true },
       config,
     })
-    const hephaestusDetail = details.find((detail) => detail.includes("hephaestus:"))
+    const developerDetail = details.find((detail) => detail.includes("developer:"))
 
-    expect(hephaestus).toMatchObject({
+    expect(developer).toMatchObject({
       effectiveModel: "openai/gpt-5.6-sol-fast",
       userVariant: "xhigh",
       capabilityDiagnostics: {
@@ -31,9 +31,9 @@ describe("doctor OpenAI GPT fast capability diagnostics", () => {
         },
       },
     })
-    expect(hephaestusDetail).toContain("openai/gpt-5.6-sol-fast (xhigh)")
-    expect(hephaestusDetail).toContain("capabilities: alias-backed")
-    expect(hephaestusDetail).not.toContain("heuristic-backed")
+    expect(developerDetail).toContain("openai/gpt-5.6-sol-fast (xhigh)")
+    expect(developerDetail).toContain("capabilities: alias-backed")
+    expect(developerDetail).not.toContain("heuristic-backed")
     expect(collectCapabilityResolutionIssues(info)).toEqual([])
   })
 })
