@@ -27,6 +27,6 @@ describe("event error utilities", () => {
     })
 
     // then
-    expect(agentName).toBe("hephaestus")
+    expect(agentName).toBe("developer")
   })
 })
