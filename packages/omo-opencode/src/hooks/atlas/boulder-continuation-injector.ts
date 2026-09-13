@@ -72,7 +72,7 @@ export async function injectBoulderContinuation(input: {
 		preferredSessionContext +
 		worktreeContext
 	const resolvedContinuationAgent = resolveRegisteredAgentName(
-		agent ?? (isAgentRegistered("atlas") ? "atlas" : undefined),
+    agent ?? (isAgentRegistered("approver") ? "approver" : undefined),
 	)
 	const continuationAgent = resolvedContinuationAgent ? stripAgentListSortPrefix(resolvedContinuationAgent) : resolvedContinuationAgent
 

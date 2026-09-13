@@ -82,7 +82,7 @@ export async function injectContinuation(input: {
     if (!canContinueSession) {
       log(`[${HOOK_NAME}] Skipped: tracked descendant agent does not match boulder agent`, {
         sessionID: input.sessionID,
-        requiredAgent: currentBoulder.agent ?? "atlas",
+        requiredAgent: currentBoulder.agent ?? "approver",
       })
       return
     }
