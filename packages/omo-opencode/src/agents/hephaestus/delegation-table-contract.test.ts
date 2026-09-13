@@ -12,7 +12,7 @@ import { buildGpt56HephaestusPrompt } from "./gpt-5-6";
 
 const AVAILABLE_AGENTS: AvailableAgent[] = [
 	{
-		name: "explore",
+		name: "librarian",
 		description: "Contextual grep for codebases.",
 		metadata: {
 			category: "exploration",
@@ -40,7 +40,7 @@ const AVAILABLE_AGENTS: AvailableAgent[] = [
 		},
 	},
 	{
-		name: "oracle",
+		name: "architect",
 		description: "Read-only architecture and debugging consultant.",
 		metadata: {
 			category: "advisor",
@@ -70,7 +70,7 @@ const AVAILABLE_AGENTS: AvailableAgent[] = [
 		},
 	},
 	{
-		name: "momus",
+		name: "tester",
 		description: "Plan quality reviewer.",
 		metadata: {
 			category: "advisor",
@@ -118,7 +118,7 @@ const AVAILABLE_CATEGORIES: AvailableCategory[] = [
 	},
 ];
 
-const HEPHAESTUS_DIRECT_AGENTS = new Set(["explore", "librarian", "oracle"]);
+const HEPHAESTUS_DIRECT_AGENTS = new Set(["librarian"]);
 
 /**
  * Delegation rows are the machine-rendered `→ `agent`` tokens emitted by
@@ -165,28 +165,28 @@ for (const { name, build } of PROMPT_BUILDERS) {
 			expect(routedAgentNames(prompt)).toEqual(HEPHAESTUS_DIRECT_AGENTS);
 		});
 
-		test("propagates Oracle routing inputs only while oracle is available", () => {
-			// given: the same catalog with and without the oracle agent
-			const withOracle = build(
+  test("propagates architect routing inputs only while architect is available", () => {
+			// given: the same catalog with and without the architect agent
+    const withArchitect = build(
 				AVAILABLE_AGENTS,
 				[],
 				AVAILABLE_SKILLS,
 				AVAILABLE_CATEGORIES,
 				false,
 			);
-			const withoutOracle = build(
-				AVAILABLE_AGENTS.filter((agent) => agent.name !== "oracle"),
+    const withoutArchitect = build(
+				AVAILABLE_AGENTS.filter((agent) => agent.name !== "architect"),
 				[],
 				AVAILABLE_SKILLS,
 				AVAILABLE_CATEGORIES,
 				false,
 			);
 
-			// then: dynamic oracle metadata is rendered exactly when oracle is in the catalog
-			expect(withOracle).toContain("SENTINEL_ORACLE_USE_CASE");
-			expect(withOracle).toContain("SENTINEL_ORACLE_AVOID_CASE");
-			expect(withoutOracle).not.toContain("SENTINEL_ORACLE_USE_CASE");
-			expect(withoutOracle).not.toContain("SENTINEL_ORACLE_AVOID_CASE");
+			// then: dynamic architect metadata is rendered exactly when architect is in the catalog
+    expect(withArchitect).toContain("SENTINEL_ORACLE_USE_CASE");
+    expect(withArchitect).toContain("SENTINEL_ORACLE_AVOID_CASE");
+    expect(withoutArchitect).not.toContain("SENTINEL_ORACLE_USE_CASE");
+    expect(withoutArchitect).not.toContain("SENTINEL_ORACLE_AVOID_CASE");
 		});
 
 		test("preserves the selected tracking tool", () => {
@@ -217,7 +217,7 @@ for (const { name, build } of PROMPT_BUILDERS) {
 }
 
 describe("planner delegation contracts", () => {
-	test("keeps every advisor route in Sisyphus", () => {
+  test("keeps every advisor route in the orchestrator", () => {
 		// given: the same agent catalog used to build Hephaestus prompts
 		const prompt = buildGpt55SisyphusPrompt(
 			"openai/gpt-5.5",

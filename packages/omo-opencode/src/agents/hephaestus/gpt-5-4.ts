@@ -102,7 +102,7 @@ export function buildHephaestusPrompt(
     availableSkills,
   );
   const delegationTable = buildDelegationTable(availableAgents);
-  const hasOracle = availableAgents.some((agent) => agent.name === "oracle");
+  const hasArchitect = availableAgents.some((agent) => agent.name === "architect");
   const hardBlocks = buildHardBlocksSection();
   const antiPatterns = buildAntiPatternsSection();
   const antiDuplication = buildAntiDuplicationSection();
@@ -321,7 +321,7 @@ Every \`task()\` output includes a continuation ID (\`ses_...\`). Use it for all
 
 This preserves full context, avoids repeated exploration, saves 70%+ tokens.
 </session_continuity>
-${hasOracle ? `
+${hasArchitect ? `
 <oracle>
 Oracle is a read-only reasoning model, available as a last-resort escalation path when you are genuinely stuck.
 
