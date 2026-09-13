@@ -74,7 +74,10 @@ export function buildToolSelectionTable(
   return rows.join("\n")
 }
 
-export function buildExploreSection(agents: AvailableAgent[]): string {
+export function buildLibrarianSection(
+  agents: AvailableAgent[],
+  mode: "repository" | "external" = "external",
+): string {
   const librarianAgent = agents.find((agent) => agent.name === "librarian")
   if (!librarianAgent) {
     return ""
@@ -83,7 +86,11 @@ export function buildExploreSection(agents: AvailableAgent[]): string {
   const useWhen = librarianAgent.metadata.useWhen || []
   const avoidWhen = librarianAgent.metadata.avoidWhen || []
 
-  return `### Librarian Agent = Contextual Grep
+  if (mode === "external") {
+    return buildExternalLibrarianSection(useWhen)
+  }
+
+  return `### Librarian Agent = Repository Grep
 
 Use it as a **peer tool**, not a fallback. Fire liberally for discovery, not for files you already know.
 
@@ -92,19 +99,12 @@ Use it as a **peer tool**, not a fallback. Fire liberally for discovery, not for
 **Use Direct Tools when:**
 ${avoidWhen.map((entry) => `- ${entry}`).join("\n")}
 
-**Use Explore Agent when:**
+**Use Librarian's repository mode when:**
 ${useWhen.map((entry) => `- ${entry}`).join("\n")}`
 }
 
-export function buildLibrarianSection(agents: AvailableAgent[]): string {
-  const librarianAgent = agents.find((agent) => agent.name === "librarian")
-  if (!librarianAgent) {
-    return ""
-  }
-
-  const useWhen = librarianAgent.metadata.useWhen || []
-
-  return `### Librarian Agent = Reference Grep
+function buildExternalLibrarianSection(useWhen: string[]): string {
+  return `### Librarian Agent = External Reference Grep
 
 Search **external references** (docs, OSS, web). Fire proactively when unfamiliar libraries are involved.
 
@@ -127,7 +127,7 @@ export function buildDelegationTable(agents: AvailableAgent[]): string {
   return rows.join("\n")
 }
 
-export function buildOracleSection(agents: AvailableAgent[]): string {
+export function buildArchitectSection(agents: AvailableAgent[]): string {
   const architectAgent = agents.find((agent) => agent.name === "architect")
   if (!architectAgent) {
     return ""
@@ -158,10 +158,10 @@ Briefly announce "Consulting Architect for [reason]" before invocation.
 
 **Collect Architect results before your final answer. No exceptions.**
 
-**Oracle-dependent implementation is BLOCKED until Oracle finishes.**
+**Architect-dependent implementation is BLOCKED until Architect finishes.**
 
 - If you asked Architect for architecture/debugging direction that affects the fix, do not implement before Architect result arrives.
-- While waiting, only do non-overlapping prep work. Never ship implementation decisions Oracle was asked to decide.
+- While waiting, only do non-overlapping prep work. Never ship implementation decisions Architect was asked to decide.
 - Never "time out and continue anyway" for Architect-dependent tasks.
 
 - Architect takes minutes. When done with your own work: **end your response** - wait for the \`<system-reminder>\`.
