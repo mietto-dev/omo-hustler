@@ -12,7 +12,7 @@ describe("legacy migration maps", () => {
     const agents = migrateAgentNames({ OmO: { model: "provider/model" } })
     const hooks = migrateHookNames(["anthropic-auto-compact", "empty-message-sanitizer"])
 
-    expect(agents).toEqual({ changed: true, migrated: { sisyphus: { model: "provider/model" } } })
+    expect(agents).toEqual({ changed: true, migrated: { orchestrator: { model: "provider/model" } } })
     expect(hooks).toEqual({
       changed: true,
       migrated: ["anthropic-context-window-limit-recovery"],
