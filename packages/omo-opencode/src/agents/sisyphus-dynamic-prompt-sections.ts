@@ -3,12 +3,11 @@ import {
   buildAntiPatternsSection,
   buildCategorySkillsDelegationGuide,
   buildDelegationTable,
-  buildExploreSection,
   buildHardBlocksSection,
   buildKeyTriggersSection,
   buildLibrarianSection,
   buildNonClaudePlannerSection,
-  buildOracleSection,
+  buildArchitectSection,
   buildParallelDelegationSection,
   buildToolSelectionTable,
 } from "./dynamic-agent-prompt-builder";
@@ -25,12 +24,12 @@ export interface SisyphusDynamicPromptSections {
   readonly antiPatterns: string;
   readonly categorySkillsGuide: string;
   readonly delegationTable: string;
-  readonly exploreSection: string;
   readonly hardBlocks: string;
   readonly keyTriggers: string;
   readonly librarianSection: string;
+  readonly repositoryLibrarianSection: string;
   readonly nonClaudePlannerSection: string;
-  readonly oracleSection: string;
+  readonly architectSection: string;
   readonly parallelDelegationSection: string;
   readonly taskManagementSection: string;
   readonly todoHookNote: string;
@@ -56,12 +55,12 @@ export function buildSisyphusDynamicPromptSections(
       availableSkills,
     ),
     delegationTable: buildDelegationTable(availableAgents),
-    exploreSection: buildExploreSection(availableAgents),
     hardBlocks: buildHardBlocksSection(),
     keyTriggers: buildKeyTriggersSection(availableAgents, availableSkills),
     librarianSection: buildLibrarianSection(availableAgents),
+    repositoryLibrarianSection: buildLibrarianSection(availableAgents, "repository"),
     nonClaudePlannerSection: buildNonClaudePlannerSection(model),
-    oracleSection: buildOracleSection(availableAgents),
+    architectSection: buildArchitectSection(availableAgents),
     parallelDelegationSection: buildParallelDelegationSection(model, availableCategories),
     taskManagementSection: buildTaskManagementSection(useTaskSystem),
     todoHookNote: buildTodoHookNote(useTaskSystem),
