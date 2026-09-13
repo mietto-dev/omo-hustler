@@ -45,7 +45,7 @@ describe("resolveMember", () => {
     } satisfies Member
 
     resolveCategoryExecutionMock.mockResolvedValue({
-      agentToUse: "sisyphus-junior",
+      agentToUse: "developer",
       categoryModel: { providerID: "openai", modelID: "gpt-5.4" },
       categoryPromptAppend: "appendix",
       maxPromptTokens: 512,
@@ -64,14 +64,14 @@ describe("resolveMember", () => {
         load_skills: [],
         prompt: "impl X",
         run_in_background: false,
-        subagent_type: "sisyphus-junior",
+        subagent_type: "Developer",
       },
       createExecutorContext(),
       undefined,
       undefined,
     )
     expect(resolveSubagentExecutionMock).not.toHaveBeenCalled()
-    expect(result.agentToUse).toBe("sisyphus-junior")
+    expect(result.agentToUse).toBe("developer")
     expect(result.systemContent).toBe("resolved-system-content")
   })
 

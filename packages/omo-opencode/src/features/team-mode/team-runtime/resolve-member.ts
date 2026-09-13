@@ -3,6 +3,7 @@ import type { DelegatedModelConfig } from "../../../shared/model-resolution-type
 import type { ExecutorContext } from "../../../tools/delegate-task/executor-types"
 import type { DelegateTaskArgs } from "../../../tools/delegate-task/types"
 import type { Member } from "../types"
+import { getAgentDisplayName } from "../../../shared/agent-display-names"
 import {
   buildSystemContent,
   resolveCategoryExecution,
@@ -71,7 +72,7 @@ export async function resolveMember(
         {
           ...createBaseDelegateTaskArgs(member.prompt),
           category: member.category,
-          subagent_type: "sisyphus-junior",
+          subagent_type: getAgentDisplayName("developer"),
         },
         withoutSisyphusJuniorOverride(ctx),
         undefined,
