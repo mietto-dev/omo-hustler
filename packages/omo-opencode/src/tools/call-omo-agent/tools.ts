@@ -10,7 +10,7 @@ import { AGENT_MODEL_REQUIREMENTS } from "../../shared/model-requirements"
 import { getAgentConfigKey, stripInvisibleAgentCharacters } from "../../shared/agent-display-names"
 import { normalizeFallbackModels } from "../../shared/model-resolver"
 import { buildFallbackChainFromModels } from "../../shared/fallback-chain-from-models"
-import { log } from "../../shared"
+import { canAgentCallOmoAgent, log } from "../../shared"
 import { parseModelString } from "../../shared"
 import { executeBackground } from "./background-executor"
 import { executeSync } from "./sync-executor"
@@ -41,7 +41,7 @@ function resolveModelAndFallbackChain(args: {
 }): { model: DelegatedModelConfig | undefined; fallbackChain: FallbackEntry[] | undefined } {
   const { subagentType, agentOverrides, userCategories } = args
   const normalizedAgentConfigKey = getAgentConfigKey(subagentType)
-  const agentConfigKey = normalizedAgentConfigKey === "explore" ? "librarian" : normalizedAgentConfigKey
+  const agentConfigKey = normalizedAgentConfigKey
   const agentRequirement = AGENT_MODEL_REQUIREMENTS[agentConfigKey]
 
   const agentOverride = agentOverrides?.[normalizedAgentConfigKey as keyof AgentOverrides]
@@ -139,8 +139,12 @@ export function createCallOmoAgent(
       subagent_type: tool.schema
         .string()
         .describe(
-          "The agent to invoke. Only explore and librarian are allowed.",
+          "The agent to invoke. Only librarian is allowed.",
         ),
+      mode: tool.schema
+        .enum(["repository", "external"])
+        .describe("Librarian search mode: repository for this codebase, external for docs and OSS")
+        .optional(),
       run_in_background: tool.schema
         .boolean()
         .describe(
@@ -174,7 +178,16 @@ export function createCallOmoAgent(
       }
 
       const normalizedAgent = strippedAgentType.toLowerCase();
-      args = { ...args, subagent_type: normalizedAgent };
+      if (!canAgentCallOmoAgent(toolCtx.agent, normalizedAgent)) {
+        return `Error: Agent "${toolCtx.agent}" may only invoke the Librarian agent.`
+      }
+      args = {
+        ...args,
+        subagent_type: normalizedAgent,
+        ...(normalizedAgent === "librarian"
+          ? { prompt: `<librarian-mode>${args.mode ?? "external"}</librarian-mode>\n${args.prompt}` }
+          : {}),
+      };
 
       // Check if agent is disabled
       if (disabledAgents.some((disabled) => stripInvisibleAgentCharacters(disabled).toLowerCase() === normalizedAgent)) {
