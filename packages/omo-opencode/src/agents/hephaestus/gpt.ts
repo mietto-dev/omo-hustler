@@ -10,11 +10,10 @@ import type {
 import {
   buildKeyTriggersSection,
   buildToolSelectionTable,
-  buildExploreSection,
   buildLibrarianSection,
+  buildArchitectSection,
   buildCategorySkillsDelegationGuide,
   buildDelegationTable,
-  buildOracleSection,
   buildHardBlocksSection,
   buildAntiPatternsSection,
   buildAntiDuplicationSection,
@@ -75,14 +74,14 @@ export function buildHephaestusPrompt(
     availableTools,
     availableSkills,
   );
-  const exploreSection = buildExploreSection(availableAgents);
+  const exploreSection = buildLibrarianSection(availableAgents, "repository");
   const librarianSection = buildLibrarianSection(availableAgents);
   const categorySkillsGuide = buildCategorySkillsDelegationGuide(
     availableCategories,
     availableSkills,
   );
   const delegationTable = buildDelegationTable(availableAgents);
-  const oracleSection = buildOracleSection(availableAgents);
+  const oracleSection = buildArchitectSection(availableAgents);
   const hardBlocks = buildHardBlocksSection();
   const antiPatterns = buildAntiPatternsSection();
   const todoDiscipline = buildTodoDisciplineSection(useTaskSystem);
@@ -227,7 +226,7 @@ STOP searching when:
 4. **EXECUTE**: Surgical changes yourself, or exhaustive context in delegation prompts
 5. **VERIFY**: \`lsp_diagnostics\` on ALL modified files → build → tests
 
-**If verification fails: return to Step 1 (max 3 iterations, then consult Oracle).**
+**If verification fails: return to Step 1 (max 3 iterations, then consult Architect).**
 
 ---
 
@@ -330,8 +329,8 @@ ${oracleSection}
 2. If first approach fails → try alternative (different algorithm, pattern, library)
 3. After 3 DIFFERENT approaches fail:
    - STOP all edits → REVERT to last working state
-   - DOCUMENT what you tried → CONSULT Oracle
-   - If Oracle fails → ASK USER with clear explanation
+   - DOCUMENT what you tried → CONSULT Architect
+   - If Architect fails → ASK USER with clear explanation
 
 **Never**: Leave code broken, delete failing tests, shotgun debug`;
 }

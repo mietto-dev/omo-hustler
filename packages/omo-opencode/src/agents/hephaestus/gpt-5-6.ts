@@ -8,7 +8,7 @@ import type {
 import {
   buildCategorySkillsDelegationGuide,
   buildDelegationTable,
-  buildOracleSection,
+  buildArchitectSection,
   buildFrontendGuidanceSection,
 } from "../dynamic-agent-prompt-builder"
 
@@ -89,7 +89,7 @@ Diagnostics catch type errors, not logic bugs; tests cover only what their autho
 
 If an approach fails, try a materially different one - different algorithm, library, or pattern, not a small tweak. Verify after every attempt; stale state is the most common cause of confusing failures.
 
-After three different approaches fail: stop editing, revert to a known-good state, document each attempt and why it failed, consult Oracle synchronously with full failure context, and only if Oracle cannot resolve it, ask the user one precise question.
+After three different approaches fail: stop editing, revert to a known-good state, document each attempt and why it failed, consult Architect synchronously with full failure context, and only if Architect cannot resolve it, ask the user one precise question.
 
 # Pragmatism & Scope
 
@@ -189,10 +189,10 @@ export function buildGpt56HephaestusPrompt(
   )
   const delegationTable = buildDelegationTable(
     availableAgents.filter((agent) =>
-      ["explore", "librarian", "oracle"].includes(agent.name),
+      ["explore", "librarian", "architect"].includes(agent.name),
     ),
   )
-  const oracleSection = buildOracleSection(availableAgents)
+  const oracleSection = buildArchitectSection(availableAgents)
   const frontendGuidance = buildFrontendGuidanceSection(availableCategories)
 
   return HEPHAESTUS_GPT_5_6_TEMPLATE
