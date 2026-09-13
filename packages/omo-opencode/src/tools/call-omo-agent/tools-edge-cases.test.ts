@@ -26,7 +26,7 @@ function createMockCtx(agents: Array<{ name: string; mode?: string }> = []): Plu
 }
 
 const DEFAULT_AGENTS = [
-  { name: "explore", mode: "subagent" },
+  { name: "librarian", mode: "subagent" },
   { name: "librarian", mode: "subagent" },
 ]
 
@@ -76,7 +76,7 @@ describe("createCallOmoAgent edge cases", () => {
         {
           description: "Test",
           prompt: "Test prompt",
-          subagent_type: "explore",
+          subagent_type: "librarian",
           run_in_background: false,
         },
         toolCtx,
@@ -120,7 +120,7 @@ describe("createCallOmoAgent edge cases", () => {
       )
 
       expect(result).toContain("Invalid agent type")
-      expect(result).toContain("Only explore, librarian are allowed")
+       expect(result).toContain("Only librarian are allowed")
     })
   })
 
@@ -128,7 +128,7 @@ describe("createCallOmoAgent edge cases", () => {
     test("#then the agent is callable without conflict", async () => {
       const agents = [
         ...DEFAULT_AGENTS,
-        { name: "explore", mode: "subagent" },
+        { name: "librarian", mode: "subagent" },
       ]
       const mockCtx = createMockCtx(agents)
       const mockManager = {
@@ -150,13 +150,13 @@ describe("createCallOmoAgent edge cases", () => {
         {
           description: "Test",
           prompt: "Search codebase",
-          subagent_type: "explore",
+          subagent_type: "librarian",
           run_in_background: true,
         },
         toolCtx,
       )
 
-      expect(result).not.toContain("Invalid agent type")
+       expect(result).not.toContain("Invalid agent type")
     })
   })
 
@@ -207,7 +207,7 @@ describe("createCallOmoAgent edge cases", () => {
         {
           description: "Test",
           prompt: "Continue work",
-          subagent_type: "explore",
+          subagent_type: "librarian",
           run_in_background: true,
           session_id: "ses-existing-123",
         },
