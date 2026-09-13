@@ -23,7 +23,7 @@ describe("sendSyncPrompt session routing", () => {
       unsafeTestValue<OpencodeClient>({ session: {} }),
       {
         sessionID: "ses_child",
-        agentToUse: "sisyphus-junior",
+        agentToUse: "developer",
         args: {
           description: "test task",
           prompt: "test prompt",
@@ -46,7 +46,7 @@ describe("sendSyncPrompt session routing", () => {
     expect(promptCalls[0]?.query).toEqual({ directory: "/parent/project" })
   })
 
-  test("#given oracle prompt returns unexpected EOF #when sending the prompt #then the sync route keeps the same directory route", async () => {
+  test("#given architect prompt returns unexpected EOF #when sending the prompt #then the sync route keeps the same directory route", async () => {
     // given
     const promptCalls: PromptRetryArgs[] = []
     const promptWithRetry = mock(async (_client: PromptRetryClient, input: PromptRetryArgs) => {
@@ -59,7 +59,7 @@ describe("sendSyncPrompt session routing", () => {
       unsafeTestValue<OpencodeClient>({ session: {} }),
       {
         sessionID: "ses_child",
-        agentToUse: "oracle",
+        agentToUse: "architect",
         args: {
           description: "test task",
           prompt: "test prompt",
