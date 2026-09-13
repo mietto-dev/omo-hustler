@@ -88,7 +88,7 @@ describe("applyToolConfig task permission hard denials", () => {
           applyToolConfig(params)
 
           const permission = requirePermission(params.agentResult, agentName)
-          expect(permission.task).toBe(agentName === "developer" ? undefined : "allow")
+           expect(permission.task).toBe(agentName === "developer" ? undefined : agentName === "approver" ? "deny" : "allow")
         })
       }
     })
@@ -107,9 +107,9 @@ describe("applyToolConfig task permission hard denials", () => {
 
           // then the user value survives instead of being clobbered to "allow"
           const permission = requirePermission(params.agentResult, agentName)
-          expect(permission.task).toBe("ask")
+           expect(permission.task).toBe(agentName === "approver" ? "deny" : "ask")
           // sanity: the other plugin-injected rules still apply
-          expect(permission.call_omo_agent).toBe("deny")
+           expect(permission.call_omo_agent).toBe(agentName === "orchestrator" ? "allow" : "deny")
         })
       }
     })
@@ -150,5 +150,31 @@ describe("applyToolConfig task permission hard denials", () => {
         expect(junior.permission.teammate).toBe("allow")
       })
     })
+  })
+})
+
+describe("applyToolConfig canonical role projection", () => {
+  it("applies hard denials after user permissions for every read-only role", () => {
+    const params = createParams(["planner", "tester", "approver", "librarian", "architect"])
+    for (const agent of Object.values(params.agentResult)) {
+      agent.permission = {
+        write: "allow",
+        edit: "allow",
+        apply_patch: "allow",
+        task: "allow",
+        call_omo_agent: "allow",
+      }
+    }
+
+    applyToolConfig(params)
+
+    for (const agentName of ["planner", "tester", "approver", "librarian", "architect"]) {
+      const permission = requirePermission(params.agentResult, agentName)
+      expect(permission.write).toBe("deny")
+      expect(permission.edit).toBe("deny")
+      expect(permission.apply_patch).toBe("deny")
+    }
+    expect(requirePermission(params.agentResult, "librarian").call_omo_agent).toBe("deny")
+    expect(requirePermission(params.agentResult, "architect").call_omo_agent).toBe("allow")
   })
 })
