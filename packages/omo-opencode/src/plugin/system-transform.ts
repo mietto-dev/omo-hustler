@@ -38,7 +38,7 @@ export function createSystemTransformHandler(
     if (output.system.some((part) => part.includes(ULTRAWORK_MODE_TAG))) return
 
     const modelID = input.model?.id
-    const ultraworkMessage = getUltraworkMessage("sisyphus", modelID)
+    const ultraworkMessage = getUltraworkMessage("orchestrator", modelID)
     if (!ultraworkMessage) return
 
     output.system.push(ultraworkMessage)
