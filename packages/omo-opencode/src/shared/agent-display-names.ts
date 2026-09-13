@@ -10,20 +10,13 @@
  * type selector dropdown. Use ` - ` (space-dash-space) instead of `(...)`.
  */
 export const AGENT_DISPLAY_NAMES: Record<string, string> = {
-  sisyphus: "Sisyphus - ultraworker",
-  hephaestus: "Hephaestus - Deep Agent",
-  prometheus: "Prometheus - Plan Builder",
-  atlas: "Atlas - Plan Executor",
-  "sisyphus-junior": "Sisyphus-Junior",
-  metis: "Metis - Plan Consultant",
-  momus: "Momus - Plan Critic",
-  athena: "Athena - Council",
-  "athena-junior": "Athena-Junior - Council",
-  oracle: "oracle",
-  librarian: "librarian",
-  explore: "explore",
-  "multimodal-looker": "multimodal-looker",
-  "council-member": "council-member",
+  orchestrator: "Orchestrator",
+  planner: "Planner",
+  developer: "Developer",
+  tester: "Tester",
+  approver: "Approver",
+  librarian: "Librarian",
+  architect: "Architect",
 }
 
 const INVISIBLE_AGENT_CHARACTERS_REGEX = /[\u200B\u200C\u200D\uFEFF]/g
@@ -94,16 +87,7 @@ const REVERSE_DISPLAY_NAMES: Record<string, string> = Object.fromEntries(
 
 // Legacy parenthesized display names for backward compatibility.
 // Old configs/sessions may reference these names; resolve them to config keys.
-const LEGACY_DISPLAY_NAMES: Record<string, string> = {
-  "sisyphus (ultraworker)": "sisyphus",
-  "hephaestus (deep agent)": "hephaestus",
-  "prometheus (plan builder)": "prometheus",
-  "atlas (plan executor)": "atlas",
-  "metis (plan consultant)": "metis",
-  "momus (plan critic)": "momus",
-  "athena (council)": "athena",
-  "athena-junior (council)": "athena-junior",
-}
+const LEGACY_DISPLAY_NAMES: Record<string, string> = {}
 
 function resolveKnownAgentConfigKey(agentName: string): string | undefined {
   const lower = stripAgentListSortPrefix(agentName).trim().toLowerCase()
