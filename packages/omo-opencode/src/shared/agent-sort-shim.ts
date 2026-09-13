@@ -25,13 +25,14 @@
  * (sst/opencode#19127).
  */
 
-import { DEFAULT_AGENT_ORDER, resolveAgentOrderDisplayNames } from "./agent-ordering"
-import { getAgentListDisplayName } from "./agent-display-names"
+import {
+  createRuntimeAgentRank,
+  normalizeRuntimeAgentName,
+  CANONICAL_CORE_AGENT_ORDER,
+} from "./agent-runtime-name-sort"
 
 let agentRank: ReadonlyMap<string, number> = createAgentRank(undefined)
-const AGENT_ARRAY_SENTINELS = new Set(
-  DEFAULT_AGENT_ORDER.map((configKey) => getAgentListDisplayName(configKey)),
-)
+const AGENT_ARRAY_SENTINELS = new Set<string>(CANONICAL_CORE_AGENT_ORDER)
 
 const UNRANKED = Number.MAX_SAFE_INTEGER
 
@@ -49,7 +50,7 @@ function isAgentArray(arr: ReadonlyArray<unknown>): boolean {
     if (element === null || typeof element !== "object") return false
     const name = (element as { name?: unknown }).name
     if (typeof name !== "string") return false
-    if (AGENT_ARRAY_SENTINELS.has(name)) rankedCount++
+    if (AGENT_ARRAY_SENTINELS.has(normalizeRuntimeAgentName(name) ?? "")) rankedCount++
   }
 
   return rankedCount >= 2
@@ -60,8 +61,8 @@ function agentComparator(
   b: unknown,
   fallback: ((a: unknown, b: unknown) => number) | undefined,
 ): number {
-  const aRank = agentRank.get(extractAgentName(a)) ?? UNRANKED
-  const bRank = agentRank.get(extractAgentName(b)) ?? UNRANKED
+  const aRank = agentRank.get(normalizeRuntimeAgentName(extractAgentName(a)) ?? "") ?? UNRANKED
+  const bRank = agentRank.get(normalizeRuntimeAgentName(extractAgentName(b)) ?? "") ?? UNRANKED
 
   if (aRank !== bRank) return aRank - bRank
   if (fallback) return fallback(a, b)
@@ -71,11 +72,7 @@ function agentComparator(
 let installed = false
 
 function createAgentRank(agentOrder: readonly string[] | undefined): ReadonlyMap<string, number> {
-  return new Map(
-    resolveAgentOrderDisplayNames(agentOrder).map(
-      (displayName, index): [string, number] => [displayName, index + 1],
-    ),
-  )
+  return createRuntimeAgentRank(agentOrder)
 }
 
 export function setAgentSortOrder(agentOrder: readonly string[] | undefined): void {
@@ -84,11 +81,12 @@ export function setAgentSortOrder(agentOrder: readonly string[] | undefined): vo
 
 export function setDefaultAgentForSort(agentName: string | undefined): void {
   if (!agentName) return
-  if (agentRank.get(agentName) === 0) return
+  const rankKey = normalizeRuntimeAgentName(agentName) ?? agentName
+  if (agentRank.get(rankKey) === 0) return
   const updated = new Map<string, number>()
-  updated.set(agentName, 0)
+  updated.set(rankKey, 0)
   for (const [key, rank] of agentRank) {
-    if (key !== agentName) updated.set(key, rank + 1)
+    if (key !== rankKey) updated.set(key, rank + 1)
   }
   agentRank = updated
 }

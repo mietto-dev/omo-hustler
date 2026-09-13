@@ -29,29 +29,23 @@ const EXPLORATION_AGENT_DENYLIST: Record<string, boolean> = {
 }
 
 const AGENT_RESTRICTIONS: Record<string, Record<string, boolean>> = {
-  explore: EXPLORATION_AGENT_DENYLIST,
-
   librarian: EXPLORATION_AGENT_DENYLIST,
 
-  oracle: {
+  architect: {
     write: false,
     edit: false,
     task: false,
     call_omo_agent: false,
   },
 
-  metis: {
+  planner: {
     write: false,
     edit: false,
   },
 
-  momus: {
+  tester: {
     write: false,
     edit: false,
-  },
-
-  "multimodal-looker": {
-    read: true,
   },
 
   "sisyphus-junior": {
@@ -74,4 +68,3 @@ export function getAgentToolRestrictions(agentName: string, options: AgentToolRe
     ...agentRestrictions,
   }
 }
-
