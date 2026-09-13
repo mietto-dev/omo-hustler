@@ -52,7 +52,7 @@ export async function buildPrometheusAgentConfig(params: {
     ? resolveCategoryConfig(params.pluginPrometheusOverride.category, params.userCategories)
     : undefined;
 
-  const requirement = AGENT_MODEL_REQUIREMENTS["prometheus"];
+  const requirement = AGENT_MODEL_REQUIREMENTS["planner"];
   const connectedProviders = readConnectedProvidersCache();
   const availableModels = await fetchAvailableModels(undefined, {
     connectedProviders: connectedProviders ?? undefined,
