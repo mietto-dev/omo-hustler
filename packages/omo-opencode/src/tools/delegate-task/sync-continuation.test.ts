@@ -922,6 +922,8 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
       question: false,
       write: false,
       edit: false,
+      apply_patch: false,
+      teammate: false,
       ...TEAM_TOOL_DENIALS,
     })
   })
@@ -997,6 +999,8 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
       question: false,
       write: false,
       edit: false,
+      apply_patch: false,
+      teammate: false,
       ...TEAM_TOOL_DENIALS,
     })
   })
@@ -1072,6 +1076,10 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
       question: false,
       edit: false,
       write: false,
+      apply_patch: false,
+      bash: false,
+      interactive_bash: false,
+      teammate: false,
       ...TEAM_TOOL_DENIALS,
     })
   })

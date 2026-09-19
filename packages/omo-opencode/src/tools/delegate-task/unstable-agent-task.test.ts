@@ -221,4 +221,61 @@ describe("executeUnstableAgentTask - interrupt detection", () => {
     expect(result.toLowerCase()).toContain("stale timeout")
     expect(elapsed).toBeLessThan(400)
   })
+
+  test("preserves authorized delegation lineage through manager launch", async () => {
+    //#given - an authorized unstable child launch
+    const delegationLineage = {
+      rootSessionId: "root-session",
+      parentSessionId: "parent-session",
+      callerRole: "orchestrator" as const,
+      targetRole: "developer" as const,
+      depth: 1,
+      reservationId: "delegation-1",
+    }
+    let launchInput: Record<string, unknown> | undefined
+    const taskState = {
+      id: "bg_lineage",
+      sessionId: "ses_lineage",
+      status: "interrupt" as string,
+      description: "lineage task",
+      prompt: "lineage prompt",
+      agent: "unstable-agent",
+    }
+    const mockManager = {
+      launch: async (input: Record<string, unknown>) => {
+        launchInput = input
+        return taskState
+      },
+      getTask: () => taskState,
+    }
+    const mockClient = {
+      session: {
+        status: async () => ({ data: { [taskState.sessionId]: { type: "idle" } } }),
+        messages: async () => ({ data: [] }),
+      },
+    }
+    const { executeUnstableAgentTask } = require("./unstable-agent-task")
+
+    //#when - the unstable task is launched
+    await executeUnstableAgentTask(
+      {
+        prompt: "lineage prompt",
+        description: "lineage task",
+        category: "deep",
+        load_skills: [],
+        run_in_background: false,
+        delegationLineage,
+      },
+      { sessionID: "parent-session", callID: "call-lineage", metadata: () => {} },
+      { manager: mockManager, client: mockClient, directory: "/tmp" },
+      { sessionID: "parent-session", messageID: "message-lineage" },
+      "unstable-agent",
+      undefined,
+      undefined,
+      "test-model",
+    )
+
+    //#then - manager receives the exact authorized lineage
+    expect(launchInput?.delegationLineage).toEqual(delegationLineage)
+  })
 })
