@@ -1,6 +1,7 @@
 import type { FallbackEntry } from "../../shared/model-requirements"
 import type { DelegatedModelConfig } from "../../shared/model-resolution-types"
 import type { SessionPermissionRule } from "../../shared/question-denied-session-permission"
+import type { WorkflowContract } from "../claude-tasks/workflow-contracts"
 
 export type BackgroundTaskStatus =
   | "pending"
@@ -71,6 +72,8 @@ export interface BackgroundTask {
   concurrencyGroup?: string
   /** Parent session's agent name for notification */
   parentAgent?: string
+  delegationLineage?: import("./delegation-policy").DelegationLineage
+  workflowContract?: WorkflowContract
   /** Parent session's tool restrictions for notification prompts */
   parentTools?: Record<string, boolean>
   skillContent?: string
@@ -131,6 +134,8 @@ export interface LaunchInput {
   onSessionCreated?: (sessionId: string) => void | Promise<void>
   /** User tool overrides (ask/allow/deny) from category or agent config. Merged into launchTools before hardcoded restrictions. */
   userPermission?: Record<string, "ask" | "allow" | "deny">
+  delegationLineage?: import("./delegation-policy").DelegationLineage
+  workflowContract?: WorkflowContract
 }
 
 export interface ResumeInput {
