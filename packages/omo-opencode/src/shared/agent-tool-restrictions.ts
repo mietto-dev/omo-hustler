@@ -77,7 +77,7 @@ const AGENT_RESTRICTIONS: Record<string, Record<string, boolean>> = {
 const AGENT_DEFAULT_PERMISSIONS: Record<string, Record<string, PermissionValue>> = {
   orchestrator: { task: "allow", "task_*": "allow", teammate: "allow", call_omo_agent: "allow" },
   planner: { task: "allow", "task_*": "allow", teammate: "allow", call_omo_agent: "deny" },
-  developer: { "task_*": "allow", teammate: "allow", call_omo_agent: "deny" },
+  developer: { "task_*": "allow", teammate: "allow", call_omo_agent: "allow" },
   tester: { "task_*": "allow", teammate: "allow" },
   approver: { task: "allow", "task_*": "allow", teammate: "allow", call_omo_agent: "deny" },
   librarian: { "grep_app_*": "allow" },
@@ -131,6 +131,7 @@ export function buildAgentPromptTools(
     question: false,
   }
   for (const [tool, value] of Object.entries(projected)) {
+    if (tool === "call_omo_agent") continue
     tools[tool] = value !== "deny"
   }
   if (options.includeTeamToolDenylist !== false) {
