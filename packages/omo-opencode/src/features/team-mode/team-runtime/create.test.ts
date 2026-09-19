@@ -130,6 +130,43 @@ describe("createTeamRun", () => {
     expect((launchMock.mock.calls as Array<[LaunchInput]>).every(([input]) => input.suppressTmuxSpawn === true)).toBe(true)
   })
 
+  test("passes authorized lineage to policy-bound member launches", async () => {
+    const baseDir = await mkdtemp(path.join(tmpdir(), "team-runtime-policy-"))
+    temporaryDirectories.push(baseDir)
+    const { manager, launchMock } = createManager(baseDir, async (input) => ({
+      id: "policy-task",
+      sessionId: "policy-session",
+      status: "running",
+      ...input,
+    } as BackgroundTask))
+
+    const spec = { ...createSpec(1), leadAgentId: "other-lead" }
+    await createTeamRun(spec, "lead-session", createContext(baseDir, manager), createConfig(baseDir), manager, undefined, {
+      callerAgentTypeId: "sisyphus",
+      parentMessageID: "policy-message",
+    })
+
+    expect(launchMock.mock.calls[0]?.[0].delegationLineage).toMatchObject({
+      callerRole: "orchestrator",
+      targetRole: "developer",
+      parentSessionId: "lead-session",
+    })
+  })
+
+  test("does not launch a member when policy rejects its edge", async () => {
+    const baseDir = await mkdtemp(path.join(tmpdir(), "team-runtime-policy-denied-"))
+    temporaryDirectories.push(baseDir)
+    const { manager, launchMock } = createManager(baseDir, async () => ({ id: "must-not-launch", sessionId: "never", status: "running" } as BackgroundTask))
+
+    const spec = { ...createSpec(1), leadAgentId: "other-lead" }
+    await expect(createTeamRun(spec, "lead-session", createContext(baseDir, manager), createConfig(baseDir), manager, undefined, {
+      callerAgentTypeId: "planner",
+      parentMessageID: "policy-message",
+    })).rejects.toThrow("planner may not delegate to developer")
+    expect(launchMock).not.toHaveBeenCalled()
+    expect(await readdir(baseDir)).toEqual([])
+  })
+
   test("#given a new team runtime #when createTeamRun succeeds #then it registers the run for session cleanup", async () => {
     // given
     const baseDir = await mkdtemp(path.join(tmpdir(), "team-runtime-session-cleanup-"))
