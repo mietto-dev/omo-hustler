@@ -18,6 +18,13 @@ import { createDelegateTaskPresentation } from "./tool-description"
 import type { AvailableSkill } from "../../agents/dynamic-agent-prompt-builder"
 import { mergeNativeSkillInfos, type NativeSkillEntry } from "../skill/native-skills"
 import type { SkillInfo } from "../skill/types"
+import { authorizeDelegation } from "../../features/background-agent/delegation-authorizer"
+import { createDelegationPolicy, DelegationPolicyError } from "../../features/background-agent/delegation-policy"
+
+function policyErrorResult(error: unknown): string | undefined {
+  if (!(error instanceof DelegationPolicyError)) return undefined
+  return `Error: ${error.code}: ${error.message}`
+}
 
 async function loadNativeSkillEntries(
   nativeSkills: DelegateTaskToolOptions["nativeSkills"] | undefined,
@@ -76,10 +83,12 @@ const delegateTaskArgsSchema = {
     .optional()
     .describe("Continuation session id (`ses_...`) from task metadata; not a background task id (`bg_...`)."),
   command: tool.schema.string().optional().describe("The command that triggered this task"),
+  workflow_contract: tool.schema.unknown().optional().describe("Validated Planner or Developer execution contract"),
 }
 
 export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefinition {
   const { availableCategories, availableSkills, categoryExamples, description } = createDelegateTaskPresentation(options)
+  const delegationPolicy = options.delegationPolicy ?? createDelegationPolicy()
 
   return tool({
     description,
@@ -121,10 +130,22 @@ export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefini
       const parentContext = await resolveParentContext(ctx, options.client)
 
       if (delegateTaskArgs.task_id) {
-        if (runInBackground) {
-          return executeBackgroundContinuation(delegateTaskArgs, ctx, options, parentContext, continuationSystemContent)
+        try {
+          const lineage = delegationPolicy.authorizeContinuation({
+            callerSessionId: ctx.sessionID,
+            taskId: delegateTaskArgs.task_id,
+            sessionId: delegateTaskArgs.task_id,
+          })
+          const continuationArgs = lineage.childSessionId && lineage.childSessionId !== delegateTaskArgs.task_id
+            ? { ...delegateTaskArgs, task_id: lineage.childSessionId }
+            : delegateTaskArgs
+          if (runInBackground) {
+            return executeBackgroundContinuation(continuationArgs, ctx, options, parentContext, continuationSystemContent)
+          }
+          return executeSyncContinuation(continuationArgs, ctx, options, parentContext, undefined, continuationSystemContent)
+        } catch (error) {
+          return policyErrorResult(error) ?? `Error: ${error instanceof Error ? error.message : String(error)}`
         }
-        return executeSyncContinuation(delegateTaskArgs, ctx, options, parentContext, undefined, continuationSystemContent)
       }
 
       if (!delegateTaskArgs.category && !delegateTaskArgs.subagent_type) {
@@ -184,20 +205,6 @@ export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefini
           willForceBackground: isUnstableAgent && isRunInBackgroundExplicitlyFalse,
         })
 
-        if (isUnstableAgent && isRunInBackgroundExplicitlyFalse) {
-          const systemContent = buildSystemContent({
-            skillContent,
-            skillContents,
-            categoryPromptAppend,
-            agentName: agentToUse,
-            maxPromptTokens,
-            model: categoryModel,
-            availableCategories,
-            availableSkills,
-            nativeSkillInfos,
-          })
-          return executeUnstableAgentTask(delegateTaskArgs, ctx, options, parentContext, agentToUse, categoryModel, systemContent, actualModel)
-        }
       } else {
         const resolution = await resolveSubagentExecution(delegateTaskArgs, modelOptions, parentContext.agent, categoryExamples)
         if (resolution.error) {
@@ -206,6 +213,29 @@ export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefini
         agentToUse = resolution.agentToUse
         categoryModel = resolution.categoryModel
         fallbackChain = resolution.fallbackChain
+      }
+
+      let delegationLineage
+      try {
+        delegationLineage = authorizeDelegation({ rootSessionId: parentContext.sessionID, parentSessionId: parentContext.sessionID, callerSessionId: ctx.sessionID, callerRole: parentContext.agent, targetRole: agentToUse, category: delegateTaskArgs.category }, delegationPolicy)
+      } catch (error) {
+        return policyErrorResult(error) ?? `Error: ${error instanceof Error ? error.message : String(error)}`
+      }
+      const authorizedDelegateTaskArgs = { ...delegateTaskArgs, delegationLineage }
+
+      if (isUnstableAgent && isExplicitSyncRun(delegateTaskArgs.run_in_background)) {
+        const systemContent = buildSystemContent({
+          skillContent,
+          skillContents,
+          categoryPromptAppend,
+          agentName: agentToUse,
+          maxPromptTokens,
+          model: categoryModel,
+          availableCategories,
+          availableSkills,
+          nativeSkillInfos,
+        })
+        return executeUnstableAgentTask(authorizedDelegateTaskArgs, ctx, options, parentContext, agentToUse, categoryModel, systemContent, actualModel)
       }
 
       const systemContent = buildSystemContent({
@@ -221,10 +251,10 @@ export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefini
       })
 
       if (runInBackground) {
-        return executeBackgroundTask(delegateTaskArgs, ctx, options, parentContext, agentToUse, categoryModel, systemContent, fallbackChain)
+        return executeBackgroundTask(authorizedDelegateTaskArgs, ctx, options, parentContext, agentToUse, categoryModel, systemContent, fallbackChain)
       }
 
-      return executeSyncTask(delegateTaskArgs, ctx, options, parentContext, agentToUse, categoryModel, systemContent, modelInfo, fallbackChain)
+      return executeSyncTask(authorizedDelegateTaskArgs, ctx, options, parentContext, agentToUse, categoryModel, systemContent, modelInfo, fallbackChain)
     },
   })
 }

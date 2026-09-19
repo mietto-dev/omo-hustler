@@ -1,6 +1,7 @@
 import type { DelegateTaskArgs, ToolContextWithMetadata } from "./types"
 import { log } from "../../shared/logger"
 import { getAgentDisplayName } from "../../shared/agent-display-names"
+import { parseWorkflowContract } from "../../features/claude-tasks/workflow-contracts"
 
 const CATEGORY_AGENT = getAgentDisplayName("developer")
 
@@ -85,6 +86,15 @@ export async function prepareDelegateTaskArgs(args: Record<string, unknown>, ctx
 
   const taskID = typeof args.task_id === "string" ? args.task_id : undefined
   const command = typeof args.command === "string" ? args.command : undefined
+  let workflowContract: DelegateTaskArgs["workflow_contract"]
+  if (args.workflow_contract !== undefined) {
+    try {
+      workflowContract = parseWorkflowContract(args.workflow_contract)
+    } catch (error) {
+      if (!(error instanceof Error)) throw error
+      throw new Error(`Invalid workflow contract: ${error.message}`)
+    }
+  }
 
 
   return {
@@ -98,5 +108,6 @@ export async function prepareDelegateTaskArgs(args: Record<string, unknown>, ctx
     task_id: taskID,
     command,
     load_skills: normalizedLoadSkills,
+    workflow_contract: workflowContract,
   }
 }

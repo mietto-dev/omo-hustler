@@ -8,6 +8,8 @@ import type {
   AvailableCategory,
   AvailableSkill,
 } from "../../agents/dynamic-agent-prompt-builder"
+import type { DelegationLineage, DelegationPolicy } from "../../features/background-agent/delegation-policy"
+import type { WorkflowContract } from "../../features/claude-tasks/workflow-contracts"
 
 type SessionPathInput = { readonly path: { readonly id: string } }
 type SessionMessagesQuery = { readonly directory?: string; readonly limit?: number }
@@ -64,6 +66,8 @@ export interface DelegateTaskArgs {
   task_id?: string
   command?: string
   load_skills: string[]
+  delegationLineage?: DelegationLineage
+  workflow_contract?: WorkflowContract
 }
 
 export interface ToolContextWithMetadata {
@@ -124,6 +128,7 @@ export interface DelegateTaskToolOptions {
     dirs(): string[] | Promise<string[]>
   }
   getLoadedSkills?: () => Promise<LoadedSkill[]>
+  delegationPolicy?: DelegationPolicy
 }
 
 import type { DelegatedModelConfig } from "../../shared/model-resolution-types"
