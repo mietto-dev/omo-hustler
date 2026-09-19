@@ -23,7 +23,7 @@ function createBackgroundManager() {
     id: "task-id",
     sessionId: "session-id",
     description: "Test task",
-    agent: "explore",
+  agent: "librarian",
     status: "pending",
   }))
 
@@ -45,7 +45,7 @@ function createBackgroundManager() {
 const toolContext = {
   sessionID: "parent-session",
   messageID: "message-id",
-  agent: "sisyphus-junior",
+  agent: "orchestrator",
   abort: new AbortController().signal,
 }
 

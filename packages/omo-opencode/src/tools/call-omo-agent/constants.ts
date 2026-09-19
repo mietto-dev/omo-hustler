@@ -1,6 +1,4 @@
-export const ALLOWED_AGENTS = [
-  "librarian",
-] as const
+export const ALLOWED_AGENTS = ["librarian"] as const
 
 export const CALL_OMO_AGENT_DESCRIPTION = `Spawn a Librarian agent. run_in_background REQUIRED (true=async with task_id, false=sync).
 
