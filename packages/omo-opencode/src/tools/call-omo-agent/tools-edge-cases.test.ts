@@ -42,7 +42,7 @@ const reserveSubagentSpawnMock = mock(() => Promise.resolve({
 const toolCtx = {
   sessionID: "test",
   messageID: "msg",
-  agent: "test",
+    agent: "orchestrator",
   abort: new AbortController().signal,
 }
 
@@ -138,7 +138,7 @@ describe("createCallOmoAgent edge cases", () => {
           id: "task-id",
           sessionId: "ses-1",
           description: "Test",
-          agent: "explore",
+       agent: "librarian",
           status: "pending",
         })),
         getTask: mock(() => ({ status: "pending", sessionId: "ses-1" })),

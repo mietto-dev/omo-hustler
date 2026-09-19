@@ -145,7 +145,7 @@ bunDescribe("sendSyncPrompt", () => {
 
     //#then
     bunExpect(promptAsync).toHaveBeenCalled()
-    bunExpect(promptArgs.body.tools.call_omo_agent).toBe(false)
+    bunExpect(promptArgs.body.tools.call_omo_agent).toBe(true)
   })
 
   bunTest("applies agent tool restrictions for librarian agent", async () => {
@@ -186,7 +186,7 @@ bunDescribe("sendSyncPrompt", () => {
 
     //#then
     bunExpect(promptAsync).toHaveBeenCalled()
-    bunExpect(promptArgs.body.tools.call_omo_agent).toBe(false)
+    bunExpect(promptArgs.body.tools.call_omo_agent).toBe(true)
   })
 
   bunTest("does not restrict call_omo_agent for orchestrator agent", async () => {
