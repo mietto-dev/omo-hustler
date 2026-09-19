@@ -1,5 +1,6 @@
 import { tool, type PluginInput, type ToolDefinition } from "@opencode-ai/plugin"
 import type { BackgroundManager } from "../../features/background-agent"
+import { resolveDelegationRole } from "../../features/background-agent/delegation-policy"
 import type { BackgroundTaskArgs } from "./types"
 import { BACKGROUND_TASK_DESCRIPTION } from "./constants"
 import { resolveMessageContext } from "../../features/hook-message-injector"
@@ -65,6 +66,20 @@ export function createBackgroundTask(
               }
             : undefined
 
+        const delegationPolicy = manager.delegationPolicy
+        const callerRole = resolveDelegationRole(parentAgent)
+        const targetRole = resolveDelegationRole(args.agent)
+        const delegationLineage = delegationPolicy === undefined
+          ? undefined
+          : delegationPolicy.authorize({
+              rootSessionId: ctx.sessionID,
+              parentSessionId: ctx.sessionID,
+              callerSessionId: ctx.sessionID,
+              callerRole: callerRole ?? "",
+              targetRole: targetRole ?? "",
+              depth: 0,
+            })
+
         const task = await manager.launch({
           description: args.description,
           prompt: args.prompt,
@@ -73,7 +88,9 @@ export function createBackgroundTask(
           parentMessageId: ctx.messageID,
           parentModel,
           parentAgent,
+          ...(delegationLineage ? { delegationLineage } : {}),
         })
+        if (delegationLineage) delegationPolicy.remember(delegationLineage, task.id, task.sessionId ?? undefined)
 
         const WAIT_FOR_SESSION_INTERVAL_MS = 50
         const WAIT_FOR_SESSION_TIMEOUT_MS = 30000
