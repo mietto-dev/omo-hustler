@@ -4,6 +4,7 @@ import {
   getSessionPromptParams,
 } from "../../shared/session-prompt-params-state"
 import { releaseAllPromptAsyncReservationsForTesting } from "../../shared/prompt-async-gate"
+import { createDelegationPolicy, type DelegationLineage } from "./delegation-policy"
 import { buildFallbackBody, createTask, isAgentNotFoundError, resumeTask, startTask } from "./spawner"
 import type { BackgroundTask } from "./types"
 
@@ -176,6 +177,108 @@ describe("background-agent spawner agent-not-found fallback", () => {
     expect(task.agent).toBe("general")
     // Task should not have errored
     expect(onTaskError).not.toHaveBeenCalled()
+  })
+
+  test("rejects fallback before session mutation when lineage forbids general", async () => {
+    //#given
+    const promptCalls: PromptRequest[] = []
+    const client = {
+      session: {
+        get: async () => ({ data: { directory: "/tmp/test" } }),
+        create: async () => ({ data: { id: "session-fallback" } }),
+        promptAsync: async (args: PromptRequest) => {
+          promptCalls.push(args)
+          throw new Error('Agent not found: "Sisyphus-Junior"')
+        },
+      },
+    } as never
+    const policy = createDelegationPolicy()
+    const task = createTask({
+      description: "Implement feature",
+      prompt: "Please implement the break-even analysis",
+      agent: "Sisyphus-Junior",
+      parentSessionId: "ses_parent",
+      parentMessageId: "msg_parent",
+    })
+    task.delegationLineage = {
+      rootSessionId: "root",
+      parentSessionId: "ses_parent",
+      callerRole: "orchestrator",
+      targetRole: "developer",
+      depth: 1,
+      reservationId: "delegation-test",
+    } satisfies DelegationLineage
+    const onTaskError = mock(() => {})
+
+    //#when
+    await startTask({ task, input: {
+      description: task.description,
+      prompt: task.prompt,
+      agent: task.agent,
+      parentSessionId: task.parentSessionId,
+      parentMessageId: task.parentMessageId,
+      parentModel: task.parentModel,
+      parentAgent: task.parentAgent,
+      model: task.model,
+    } } as never, {
+      client,
+      directory: "/tmp/test",
+      concurrencyManager: { release: () => {} },
+      tmuxEnabled: false,
+      onTaskError,
+      delegationPolicy: policy,
+    })
+    await waitForCondition(() => onTaskError.mock.calls.length > 0)
+
+    //#then
+    expect(promptCalls).toHaveLength(1)
+    expect(onTaskError).toHaveBeenCalledWith(task, expect.objectContaining({ code: "DELEGATION_FALLBACK_FORBIDDEN" }))
+    expect(task.agent).toBe("Sisyphus-Junior")
+  })
+
+  test("rejects start fallback when lineage has no policy", async () => {
+    //#given
+    const promptAsync = mock(async () => { throw new Error('Agent not found: "Sisyphus-Junior"') })
+    const task = createTask({ description: "missing policy", prompt: "work", agent: "Sisyphus-Junior", parentSessionId: "parent", parentMessageId: "message" })
+    task.delegationLineage = {
+      rootSessionId: "root", parentSessionId: "parent", callerRole: "orchestrator", targetRole: "developer", depth: 1, reservationId: "missing-policy-start",
+    }
+    const onTaskError = mock(() => {})
+
+    //#when
+    await startTask({ task, input: { ...task, parentSessionId: "parent", parentMessageId: "message" } } as never, {
+      client: { session: { get: async () => ({ data: { directory: "/tmp" } }), create: async () => ({ data: { id: "child" } }), promptAsync } } as never,
+      directory: "/tmp", concurrencyManager: { release: () => {} }, tmuxEnabled: false, onTaskError,
+    } as never)
+    await waitForCondition(() => onTaskError.mock.calls.length > 0)
+
+    //#then
+    expect(promptAsync).toHaveBeenCalledTimes(1)
+    expect(onTaskError).toHaveBeenCalledWith(task, expect.objectContaining({ code: "DELEGATION_FALLBACK_FORBIDDEN" }))
+    expect(task.agent).toBe("Sisyphus-Junior")
+  })
+
+  test("rejects resume fallback when lineage has no policy", async () => {
+    //#given
+    const promptAsync = mock(async () => { throw new Error('Agent not found: "Sisyphus-Junior"') })
+    const task = createTask({ description: "missing policy", prompt: "work", agent: "Sisyphus-Junior", parentSessionId: "parent", parentMessageId: "message" })
+    task.sessionId = "child"
+    task.status = "completed"
+    task.delegationLineage = {
+      rootSessionId: "root", parentSessionId: "parent", callerRole: "orchestrator", targetRole: "developer", depth: 1, reservationId: "missing-policy-resume",
+    }
+    const onTaskError = mock(() => {})
+
+    //#when
+    await resumeTask(task, { sessionId: "child", prompt: "continue", parentSessionId: "parent", parentMessageId: "message" }, {
+      client: { session: { promptAsync } } as never, concurrencyManager: { acquire: async () => {}, release: () => {} }, directory: "/tmp", onTaskError,
+    } as never)
+    await waitForCondition(() => onTaskError.mock.calls.length > 0)
+
+    //#then
+    expect(promptAsync).toHaveBeenCalledTimes(1)
+    expect(onTaskError).toHaveBeenCalledWith(task, expect.objectContaining({ code: "DELEGATION_FALLBACK_FORBIDDEN" }))
+    expect(task.agent).toBe("Sisyphus-Junior")
   })
 
   test("does not retry for non-agent-not-found errors", async () => {

@@ -8346,6 +8346,65 @@ describe("BackgroundManager - tool permission spread order", () => {
     }
   })
 
+  test("preserves typed fallback denial for a delegated launch", async () => {
+    //#given
+    const promptCalls: Array<{ body: Record<string, unknown> }> = []
+    const client = {
+      session: {
+        get: async () => ({ data: { directory: "/test/dir" } }),
+        create: async () => ({ data: { id: "session-manager-denied-fallback" } }),
+        promptAsync: async (args: { body: Record<string, unknown> }) => {
+          promptCalls.push(args)
+          throw new Error("Agent not found: missing-agent")
+        },
+        abort: async () => ({}),
+      },
+    }
+    const manager = new BackgroundManager({ pluginContext: createPluginInput(client) })
+    const task: BackgroundTask = {
+      id: "task-manager-denied-fallback",
+      status: "pending",
+      queuedAt: new Date(),
+      description: "denied fallback task",
+      prompt: "test prompt",
+      agent: "missing-agent",
+      parentSessionId: "parent-session",
+      parentMessageId: "parent-message",
+      delegationLineage: {
+        rootSessionId: "root",
+        parentSessionId: "parent-session",
+        callerRole: "orchestrator",
+        targetRole: "developer",
+        depth: 1,
+        reservationId: "manager-denied-fallback",
+      },
+    }
+    const input: import("./types").LaunchInput = {
+      description: task.description,
+      prompt: task.prompt,
+      agent: task.agent,
+      parentSessionId: task.parentSessionId,
+      parentMessageId: task.parentMessageId,
+      delegationLineage: task.delegationLineage,
+    }
+    cast<{ tasks: Map<string, BackgroundTask> }>(manager).tasks.set(task.id, task)
+
+    try {
+      //#when
+      await (cast<{ startTask: (item: { task: BackgroundTask; input: import("./types").LaunchInput }) => Promise<void> }>(manager))
+        .startTask({ task, input })
+      await waitUntil(() => task.status === "interrupt", 600)
+
+      //#then
+      expect(promptCalls).toHaveLength(1)
+      expect(task.attempts?.some((attempt) => attempt.error?.includes("DELEGATION_FALLBACK_FORBIDDEN"))).toBe(true)
+      expect(task.attempts?.some((attempt) => attempt.error?.includes("not found. Make sure"))).toBe(false)
+    } finally {
+      manager.shutdown()
+      clearAllDelegatedChildSessionBootstrap()
+    }
+  })
+
   test("resume respects librarian agent restrictions", async () => {
     //#given
     let capturedTools: Record<string, unknown> | undefined
