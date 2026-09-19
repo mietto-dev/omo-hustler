@@ -10,6 +10,7 @@ import { getMessageDir } from "./message-dir"
 import { getSessionTools } from "../../shared/session-tools-store"
 import { sanitizeSubagentType } from "../delegate-task/subagent-discovery"
 import { getAgentDisplayName, stripAgentListSortPrefix } from "../../shared/agent-display-names"
+import type { DelegationPolicy } from "../../features/background-agent/delegation-policy"
 
 export async function executeBackground(
   args: CallOmoAgentArgs,
@@ -24,6 +25,7 @@ export async function executeBackground(
   client: PluginInput["client"],
   fallbackChain?: FallbackEntry[],
   model?: DelegatedModelConfig,
+  delegationPolicy?: DelegationPolicy,
 ): Promise<string> {
   try {
     const messageDir = getMessageDir(toolContext.sessionID)
@@ -56,7 +58,11 @@ export async function executeBackground(
       parentTools: getSessionTools(toolContext.sessionID),
       model,
       fallbackChain,
+      delegationLineage: args.delegationLineage,
     })
+    if (args.delegationLineage) {
+      delegationPolicy?.remember(args.delegationLineage, task.id, task.sessionId)
+    }
 
     const WAIT_FOR_SESSION_INTERVAL_MS = 50
     const WAIT_FOR_SESSION_TIMEOUT_MS = 30000
