@@ -4,21 +4,23 @@ import type { CallOmoAgentArgs, ToolContextWithMetadata } from "./types"
 import type { BackgroundManager } from "../../features/background-agent"
 import type { ModelFallbackControllerAccessor } from "../../hooks/model-fallback"
 import type { CategoriesConfig, AgentOverrides } from "../../config/schema"
-import type { DelegatedModelConfig } from "../../shared/model-resolution-types"
 import type { FallbackEntry } from "../../shared/model-requirements"
-import { AGENT_MODEL_REQUIREMENTS } from "../../shared/model-requirements"
-import { getAgentConfigKey, stripInvisibleAgentCharacters } from "../../shared/agent-display-names"
-import { normalizeFallbackModels } from "../../shared/model-resolver"
-import { buildFallbackChainFromModels } from "../../shared/fallback-chain-from-models"
-import { canAgentCallOmoAgent, log } from "../../shared"
-import { parseModelString } from "../../shared"
+import { log } from "../../shared/logger"
+import { stripInvisibleAgentCharacters } from "../../shared/agent-display-names"
+import { authorizeNamedDelegation } from "../../features/background-agent/delegation-authorizer"
+import { createDelegationPolicy, DelegationPolicyError, type DelegationPolicy } from "../../features/background-agent/delegation-policy"
 import { executeBackground } from "./background-executor"
 import { executeSync } from "./sync-executor"
 import { resolveCallableAgents } from "./agent-resolver"
 import { createOrGetSession } from "./session-creator"
 import { processMessages } from "./message-processor"
 import { waitForCompletion } from "./completion-poller"
-import { getFirstFallbackModel } from "../../agents/builtin-agents/model-resolution"
+import { resolveCallOmoAgentModel } from "./model-resolution"
+
+function policyErrorResult(error: unknown): string | undefined {
+  if (!(error instanceof DelegationPolicyError)) return undefined
+  return `Error: ${error.code}: ${error.message}`
+}
 
 function createSyncExecutorDeps(modelFallbackControllerAccessor?: ModelFallbackControllerAccessor) {
   return {
@@ -34,83 +36,6 @@ function createSyncExecutorDeps(modelFallbackControllerAccessor?: ModelFallbackC
   }
 }
 
-function resolveModelAndFallbackChain(args: {
-  subagentType: string
-  agentOverrides?: AgentOverrides
-  userCategories?: CategoriesConfig
-}): { model: DelegatedModelConfig | undefined; fallbackChain: FallbackEntry[] | undefined } {
-  const { subagentType, agentOverrides, userCategories } = args
-  const normalizedAgentConfigKey = getAgentConfigKey(subagentType)
-  const agentConfigKey = normalizedAgentConfigKey
-  const agentRequirement = AGENT_MODEL_REQUIREMENTS[agentConfigKey]
-
-  const agentOverride = agentOverrides?.[normalizedAgentConfigKey as keyof AgentOverrides]
-    ?? agentOverrides?.[agentConfigKey as keyof AgentOverrides]
-    ?? (agentOverrides
-      ? Object.entries(agentOverrides).find(([key]) =>
-        key.toLowerCase() === normalizedAgentConfigKey || key.toLowerCase() === agentConfigKey,
-      )?.[1]
-      : undefined)
-  const agentCategoryModel = agentOverride?.category
-    ? userCategories?.[agentOverride.category]?.model
-    : undefined
-  const agentCategoryVariant = agentOverride?.category
-    ? userCategories?.[agentOverride.category]?.variant
-    : undefined
-
-  let model: DelegatedModelConfig | undefined
-  if (agentOverride?.model) {
-    const normalized = parseModelString(agentOverride.model)
-    if (normalized) {
-      model = agentOverride.variant ? { ...normalized, variant: agentOverride.variant } : normalized
-      log("[call_omo_agent] Resolved model override from agent config", {
-        agent: subagentType,
-        model: agentOverride.model,
-        variant: agentOverride.variant,
-      })
-    }
-  } else if (agentCategoryModel) {
-    const normalized = parseModelString(agentCategoryModel)
-    if (normalized) {
-      const variantToUse = agentOverride?.variant ?? agentCategoryVariant
-      model = variantToUse ? { ...normalized, variant: variantToUse } : normalized
-      log("[call_omo_agent] Resolved model override from agent category", {
-        agent: subagentType,
-        category: agentOverride?.category,
-        model: agentCategoryModel,
-        variant: variantToUse,
-      })
-    }
-  } else {
-    const firstFallback = getFirstFallbackModel(agentRequirement)
-    if (firstFallback) {
-      const normalized = parseModelString(firstFallback.model)
-      if (normalized) {
-        model = firstFallback.variant ? { ...normalized, variant: firstFallback.variant } : normalized
-        log("[call_omo_agent] Resolved model from first fallbackChain entry", {
-          agent: subagentType,
-          model: firstFallback.model,
-          variant: firstFallback.variant,
-        })
-      }
-    }
-  }
-
-  const normalizedFallbackModels = normalizeFallbackModels(
-    agentOverride?.fallback_models
-    ?? (agentOverride?.category ? userCategories?.[agentOverride.category]?.fallback_models : undefined)
-  )
-  const defaultProviderID = model?.providerID
-    ?? agentRequirement?.fallbackChain?.[0]?.providers?.[0]
-    ?? "opencode"
-  const configuredFallbackChain = buildFallbackChainFromModels(normalizedFallbackModels, defaultProviderID)
-
-  return {
-    model,
-    fallbackChain: configuredFallbackChain ?? agentRequirement?.fallbackChain,
-  }
-}
-
 export function createCallOmoAgent(
   ctx: PluginInput,
   backgroundManager: BackgroundManager,
@@ -118,7 +43,9 @@ export function createCallOmoAgent(
   agentOverrides?: AgentOverrides,
   userCategories?: CategoriesConfig,
   modelFallbackControllerAccessor?: ModelFallbackControllerAccessor,
+  delegationPolicy?: DelegationPolicy,
 ): ToolDefinition {
+  const sharedDelegationPolicy = delegationPolicy ?? createDelegationPolicy()
   const agentDescriptions = ALLOWED_AGENTS.map(
     (name) => `- ${name}: Specialized agent for ${name} tasks`,
   ).join("\n");
@@ -167,7 +94,6 @@ export function createCallOmoAgent(
 
       const callableAgents = await resolveCallableAgents(ctx.client);
 
-      // Strip ZWSP and case-insensitive agent validation - allows "Explore", "EXPLORE", "explore" etc.
       const strippedAgentType = stripInvisibleAgentCharacters(args.subagent_type)
       if (
         !callableAgents.some(
@@ -177,34 +103,40 @@ export function createCallOmoAgent(
         return `Error: Invalid agent type "${args.subagent_type}". Only ${callableAgents.join(", ")} are allowed.`;
       }
 
-      const normalizedAgent = strippedAgentType.toLowerCase();
-      if (!canAgentCallOmoAgent(toolCtx.agent, normalizedAgent)) {
-        return `Error: Agent "${toolCtx.agent}" may only invoke the Librarian agent.`
+      const normalizedAgent = strippedAgentType.toLowerCase()
+      if (args.run_in_background && args.session_id) {
+        return `Error: session_id is not supported in background mode. Use run_in_background=false to continue an existing session.`
       }
-      args = {
-        ...args,
-        subagent_type: normalizedAgent,
-        ...(normalizedAgent === "librarian"
-          ? { prompt: `<librarian-mode>${args.mode ?? "external"}</librarian-mode>\n${args.prompt}` }
-          : {}),
-      };
+      let delegationLineage
+      try {
+        delegationLineage = args.session_id
+          ? sharedDelegationPolicy.authorizeContinuation({ callerSessionId: toolCtx.sessionID, taskId: args.session_id, sessionId: args.session_id })
+          : authorizeNamedDelegation({ rootSessionId: toolCtx.sessionID, parentSessionId: toolCtx.sessionID, callerSessionId: toolCtx.sessionID, callerRole: toolCtx.agent, targetRole: normalizedAgent }, sharedDelegationPolicy)
+      } catch (error) {
+        return policyErrorResult(error) ?? `Error: ${error instanceof Error ? error.message : String(error)}`
+      }
+      const authorizedArgs = {
+         ...args,
+         subagent_type: normalizedAgent,
+         delegationLineage,
+         ...(normalizedAgent === "librarian"
+         ? { prompt: `<librarian-mode>${args.mode ?? "external"}</librarian-mode>\n${args.prompt}` }
+         : {}),
+      }
 
       // Check if agent is disabled
       if (disabledAgents.some((disabled) => stripInvisibleAgentCharacters(disabled).toLowerCase() === normalizedAgent)) {
         return `Error: Agent "${normalizedAgent}" is disabled via disabled_agents configuration. Remove it from disabled_agents in your .omo/omo.jsonc to use it.`
       }
 
-      const { model: resolvedModel, fallbackChain } = resolveModelAndFallbackChain({
+       const { model: resolvedModel, fallbackChain } = resolveCallOmoAgentModel({
         subagentType: args.subagent_type,
         agentOverrides,
         userCategories,
       })
 
       if (args.run_in_background) {
-        if (args.session_id) {
-          return `Error: session_id is not supported in background mode. Use run_in_background=false to continue an existing session.`;
-        }
-        return await executeBackground(args, toolCtx, backgroundManager, ctx.client, fallbackChain, resolvedModel)
+        return await executeBackground(authorizedArgs, toolCtx, backgroundManager, ctx.client, fallbackChain, resolvedModel, sharedDelegationPolicy)
       }
 
       if (!args.session_id) {
@@ -212,13 +144,14 @@ export function createCallOmoAgent(
         try {
           spawnReservation = await backgroundManager.reserveSubagentSpawn(toolCtx.sessionID)
           return await executeSync(
-            args,
+            authorizedArgs,
             toolCtx,
             ctx,
             createSyncExecutorDeps(modelFallbackControllerAccessor),
             fallbackChain,
             spawnReservation,
             resolvedModel,
+            sharedDelegationPolicy,
           )
         } catch (error) {
           spawnReservation?.rollback()
@@ -227,13 +160,14 @@ export function createCallOmoAgent(
       }
 
       return await executeSync(
-        args,
+        authorizedArgs,
         toolCtx,
         ctx,
         createSyncExecutorDeps(modelFallbackControllerAccessor),
         fallbackChain,
         undefined,
         resolvedModel,
+        sharedDelegationPolicy,
       )
     },
   });

@@ -64,7 +64,7 @@ const mockBackgroundManager = {
 const toolCtx = {
   sessionID: "test",
   messageID: "msg",
-  agent: "test",
+  agent: "orchestrator",
   abort: new AbortController().signal,
 }
 
@@ -251,7 +251,7 @@ describe("createCallOmoAgent", () => {
       id: "task-fallback",
       sessionId: "sub-session",
       description: "Test task",
-      agent: "explore",
+       agent: "librarian",
       status: "pending",
     }))
     const managerWithLaunch = {
@@ -279,7 +279,7 @@ describe("createCallOmoAgent", () => {
           subagent_type: "librarian",
         run_in_background: true,
       },
-      { sessionID: "test", messageID: "msg", agent: "test", abort: new AbortController().signal }
+      { sessionID: "test", messageID: "msg", agent: "orchestrator", abort: new AbortController().signal }
     )
 
     //#then
@@ -301,7 +301,7 @@ describe("createCallOmoAgent", () => {
       id: "task-model",
       sessionId: "sub-session",
       description: "Test task",
-      agent: "explore",
+       agent: "librarian",
       status: "pending",
     }))
     const managerWithLaunch = {
@@ -328,7 +328,7 @@ describe("createCallOmoAgent", () => {
           subagent_type: "librarian",
         run_in_background: true,
       },
-      { sessionID: "test", messageID: "msg", agent: "test", abort: new AbortController().signal }
+      { sessionID: "test", messageID: "msg", agent: "orchestrator", abort: new AbortController().signal }
     )
 
     //#then
@@ -350,7 +350,7 @@ describe("createCallOmoAgent", () => {
       id: "task-variant",
       sessionId: "sub-session",
       description: "Test task",
-      agent: "explore",
+       agent: "librarian",
       status: "pending",
     }))
     const managerWithLaunch = {
@@ -378,7 +378,7 @@ describe("createCallOmoAgent", () => {
           subagent_type: "librarian",
         run_in_background: true,
       },
-      { sessionID: "test", messageID: "msg", agent: "test", abort: new AbortController().signal }
+      { sessionID: "test", messageID: "msg", agent: "orchestrator", abort: new AbortController().signal }
     )
 
     //#then
@@ -401,7 +401,7 @@ describe("createCallOmoAgent", () => {
       id: "task-inline-variant",
       sessionId: "sub-session",
       description: "Test task",
-      agent: "explore",
+       agent: "librarian",
       status: "pending",
     }))
     const managerWithLaunch = {
@@ -428,7 +428,7 @@ describe("createCallOmoAgent", () => {
           subagent_type: "librarian",
         run_in_background: true,
       },
-      { sessionID: "test", messageID: "msg", agent: "test", abort: new AbortController().signal }
+      { sessionID: "test", messageID: "msg", agent: "orchestrator", abort: new AbortController().signal }
     )
 
     //#then
@@ -451,7 +451,7 @@ describe("createCallOmoAgent", () => {
       id: "task-category-model",
       sessionId: "sub-session",
       description: "Test task",
-      agent: "explore",
+       agent: "librarian",
       status: "pending",
     }))
     const managerWithLaunch = {
@@ -483,7 +483,7 @@ describe("createCallOmoAgent", () => {
           subagent_type: "librarian",
         run_in_background: true,
       },
-      { sessionID: "test", messageID: "msg", agent: "test", abort: new AbortController().signal }
+      { sessionID: "test", messageID: "msg", agent: "orchestrator", abort: new AbortController().signal }
     )
 
     //#then
@@ -505,7 +505,7 @@ describe("createCallOmoAgent", () => {
       id: "task-default-model",
       sessionId: "sub-session",
       description: "Test task",
-      agent: "explore",
+       agent: "librarian",
       status: "pending",
     }))
     const managerWithLaunch = {
@@ -528,7 +528,7 @@ describe("createCallOmoAgent", () => {
           subagent_type: "librarian",
         run_in_background: true,
       },
-      { sessionID: "test", messageID: "msg", agent: "test", abort: new AbortController().signal }
+      { sessionID: "test", messageID: "msg", agent: "orchestrator", abort: new AbortController().signal }
     )
 
     //#then
@@ -537,7 +537,7 @@ describe("createCallOmoAgent", () => {
       throw new Error("Expected launch to be called")
     }
     const [launchArgs] = firstLaunchCall
-    // explore's first fallbackChain entry is openai/gpt-5.6-luna-fast at low reasoning
+       // librarian's first fallbackChain entry is openai/gpt-5.6-luna-fast at low reasoning
     expect(launchArgs.model).toEqual({
       providerID: "openai",
       modelID: "gpt-5.6-luna-fast",
@@ -560,7 +560,7 @@ describe("createCallOmoAgent", () => {
           subagent_type: "librarian",
         run_in_background: false,
       },
-      { sessionID: "test", messageID: "msg", agent: "test", abort: new AbortController().signal },
+      { sessionID: "test", messageID: "msg", agent: "orchestrator", abort: new AbortController().signal },
     )
 
     //#then
