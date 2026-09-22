@@ -10,7 +10,8 @@ import type { HustlerLifecycleRecord } from "./lifecycle-state-schema"
 import type { WorkflowClassification } from "../claude-tasks/orchestrator-classification"
 import {
   HustlerLifecycleError,
-  acquireLock,
+  acquireHustlerLock,
+  assertReferenceIdentity,
   createWorkflowRecord,
   ensureDir,
   eventSignature,
@@ -31,6 +32,8 @@ export type HustlerLifecycleConfig = Partial<OhMyOpenCodeConfig>
 
 export type HustlerWorkflowReference = Readonly<{
   workflowId: string
+  sessionId?: string
+  taskId?: string
 }> | string
 
 export type CreateHustlerWorkflowInput = Readonly<{
@@ -74,8 +77,7 @@ export function createHustlerLifecycleAdapter(config: HustlerLifecycleConfig = {
       const directory = workflowDirectory(config)
       const filePath = getHustlerWorkflowPath(config, identity.workflowId)
       ensureDir(directory)
-      const lock = acquireLock(directory)
-      if (!lock.acquired) throw new HustlerLifecycleError("LOCK_UNAVAILABLE", `Workflow storage is locked: ${directory}`)
+      const lock = acquireHustlerLock(directory)
       try {
         const existing = readWorkflowRecord(filePath)
         if (existing !== null) {
@@ -92,7 +94,9 @@ export function createHustlerLifecycleAdapter(config: HustlerLifecycleConfig = {
       }
     },
     load(reference) {
-      return readWorkflowRecord(getHustlerWorkflowPath(config, workflowIdOf(reference)))
+      const record = readWorkflowRecord(getHustlerWorkflowPath(config, workflowIdOf(reference)))
+      if (record !== null) assertReferenceIdentity(record, reference)
+      return record
     },
     transition(reference, input) {
       const nextPhase = String(input.nextPhase)
@@ -121,7 +125,7 @@ export function createHustlerLifecycleAdapter(config: HustlerLifecycleConfig = {
     },
     recordTesterReview(reference, input) {
       const reviewStatus = input.review.status
-      return updateWorkflowRecord(config, reference, input.eventKey, "tester_review", eventSignature([reviewStatus, input.workItemId]), current => {
+      return updateWorkflowRecord(config, reference, input.eventKey, "tester_review", eventSignature([reviewStatus, input.workItemId, JSON.stringify(input.review)]), current => {
         const state = recordTesterReview(current.state, input.review, input.workItemId)
         return { state, toPhase: state.phase, reviewStatus }
       })

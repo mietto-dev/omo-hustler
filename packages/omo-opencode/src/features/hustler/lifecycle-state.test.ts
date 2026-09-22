@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test"
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "fs"
 import { join } from "path"
+import { acquireLock, ensureDir } from "../claude-tasks/storage"
 import { classifyTask } from "../claude-tasks/orchestrator-classification"
 import {
   createHustlerLifecycleAdapter,
@@ -135,15 +136,114 @@ describe("HUSTLER lifecycle identity", () => {
     })
 
     // #when
-    const results = await Promise.all([
-      Promise.resolve(adapter.transition(created.identity.workflowId, { eventKey: "idle:1", nextPhase: "implementation" })),
-      Promise.resolve(adapter.transition(created.identity.workflowId, { eventKey: "idle:1", nextPhase: "implementation" })),
-    ])
+    const directory = join(storagePath, "hustler-workflows")
+    ensureDir(directory)
+    const heldLock = acquireLock(directory)
+    expect(heldLock.acquired).toBe(true)
+    const lifecycleModule = JSON.stringify(join(process.cwd(), "packages/omo-opencode/src/features/hustler/lifecycle-state.ts"))
+    const childCode = `
+      import { createHustlerLifecycleAdapter } from ${lifecycleModule};
+      const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE, claude_code_compat: false } } };
+      const adapter = createHustlerLifecycleAdapter(config);
+      adapter.transition(process.env.HUSTLER_TEST_WORKFLOW_ID, { eventKey: "idle:1", nextPhase: "implementation" });
+    `
+    const child = Bun.spawn(["bun", "-e", childCode], {
+      env: {
+        ...process.env,
+        HUSTLER_TEST_STORAGE: storagePath,
+        HUSTLER_TEST_WORKFLOW_ID: created.identity.workflowId,
+      },
+      stderr: "pipe",
+      stdout: "pipe",
+    })
+    const releaseTimer = setTimeout(() => heldLock.release(), 25)
+    const exitCode = await child.exited
+    clearTimeout(releaseTimer)
+    heldLock.release()
 
     // #then
-    expect(results[0]?.revision).toBe(1)
-    expect(results[1]?.revision).toBe(1)
+    expect(exitCode).toBe(0)
     expect(adapter.load(created.identity.workflowId)?.events).toHaveLength(1)
+  })
+
+  test("collapses duplicate tester review replay and rejects conflicting replay", () => {
+    // #given
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({
+      sessionId: "ses_tester_replay",
+      classification: classifyTask({ expectedFiles: 1 }),
+    })
+    adapter.transition(created.identity.workflowId, { eventKey: "phase:implementation", nextPhase: "implementation" })
+    adapter.transition(created.identity.workflowId, { eventKey: "phase:review", nextPhase: "review" })
+
+    // #when
+    const first = adapter.recordTesterReview(created.identity.workflowId, { eventKey: "review:tester", review: approvedReview })
+    const replay = adapter.recordTesterReview(created.identity.workflowId, { eventKey: "review:tester", review: approvedReview })
+    const conflicting = () => adapter.recordTesterReview(created.identity.workflowId, {
+      eventKey: "review:tester",
+      review: { ...approvedReview, reviewSummary: "different" },
+    })
+
+    // #then
+    expect(replay.revision).toBe(first.revision)
+    expect(replay.events).toHaveLength(3)
+    expect(conflicting).toThrow(HustlerLifecycleError)
+    expect(adapter.load(created.identity.workflowId)?.revision).toBe(first.revision)
+  })
+
+  test("collapses duplicate approver replay and rejects conflicting replay", () => {
+    // #given
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({
+      sessionId: "ses_approver_replay",
+      classification: classifyTask({ expectedFiles: 1 }),
+    })
+    adapter.transition(created.identity.workflowId, { eventKey: "phase:implementation", nextPhase: "implementation" })
+    adapter.transition(created.identity.workflowId, { eventKey: "phase:review", nextPhase: "review" })
+    adapter.recordTesterReview(created.identity.workflowId, { eventKey: "review:tester", review: approvedReview })
+
+    // #when
+    const first = adapter.recordApproverResult(created.identity.workflowId, { eventKey: "approval:replay", result: acceptedInput })
+    const replay = adapter.recordApproverResult(created.identity.workflowId, { eventKey: "approval:replay", result: acceptedInput })
+    const conflicting = () => adapter.recordApproverResult(created.identity.workflowId, {
+      eventKey: "approval:replay",
+      result: { ...acceptedInput, completedWork: [] },
+    })
+
+    // #then
+    expect(replay.revision).toBe(first.revision)
+    expect(replay.events).toHaveLength(4)
+    expect(conflicting).toThrow(HustlerLifecycleError)
+    expect(adapter.load(created.identity.workflowId)?.revision).toBe(first.revision)
+  })
+
+  test("preserves a valid record when create, load, or update receives a conflicting identity", () => {
+    // #given
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({
+      sessionId: "ses_identity_conflict",
+      workflowId: "workflow-identity-conflict",
+      classification: classifyTask({ expectedFiles: 1 }),
+    })
+    const conflictingCreate = () => adapter.create({
+      sessionId: "ses_other",
+      workflowId: created.identity.workflowId,
+      classification: classifyTask({ expectedFiles: 1 }),
+    })
+    const conflictingReference = {
+      workflowId: created.identity.workflowId,
+      sessionId: "ses_other",
+    }
+
+    // #when
+    const conflictingLoad = () => adapter.load(conflictingReference)
+    const conflictingUpdate = () => adapter.recordEvent(conflictingReference, { eventKey: "identity:conflict", kind: "session_idle" })
+
+    // #then
+    expect(conflictingCreate).toThrow(HustlerLifecycleError)
+    expect(conflictingLoad).toThrow(HustlerLifecycleError)
+    expect(conflictingUpdate).toThrow(HustlerLifecycleError)
+    expect(adapter.load(created.identity.workflowId)).toEqual(created)
   })
 
   test("rejects a conflicting replay without changing the valid record", () => {

@@ -37,6 +37,8 @@ import type {
 
 const WORKFLOW_DIRECTORY = "hustler-workflows"
 const HASH_LENGTH = 24
+const LOCK_RETRY_ATTEMPTS = 40
+const LOCK_RETRY_DELAY_MS = 5
 
 export type HustlerLifecycleErrorCode =
   | "INVALID_IDENTITY"
@@ -107,7 +109,10 @@ export function redactState(state: WorkflowState): WorkflowState {
 }
 
 export function eventSignature(parts: readonly (string | number | boolean | undefined)[]): string {
-  return parts.map(value => value === undefined ? "-" : String(value)).join("|")
+  const signature = parts.map(value => value === undefined ? "-" : String(value)).join("|")
+  return signature.length <= 256
+    ? signature
+    : `sha256:${createHash("sha256").update(signature).digest("hex")}`
 }
 
 export function workflowIdOf(reference: HustlerWorkflowReference): string {
@@ -182,6 +187,35 @@ export function workflowDirectory(config: HustlerLifecycleConfig): string {
   return join(getTaskDir(config), WORKFLOW_DIRECTORY)
 }
 
+function waitForLockRetry(): void {
+  const signal = new Int32Array(new SharedArrayBuffer(4))
+  Atomics.wait(signal, 0, 0, LOCK_RETRY_DELAY_MS)
+}
+
+export function acquireHustlerLock(directory: string): { acquired: true; release: () => void } {
+  ensureDir(directory)
+  for (let attempt = 0; attempt < LOCK_RETRY_ATTEMPTS; attempt += 1) {
+    const lock = acquireLock(directory)
+    if (lock.acquired) return { acquired: true, release: lock.release }
+    waitForLockRetry()
+  }
+  throw new HustlerLifecycleError("LOCK_UNAVAILABLE", `Workflow storage is locked: ${directory}`)
+}
+
+export function assertReferenceIdentity(
+  record: HustlerLifecycleRecord,
+  reference: HustlerWorkflowReference,
+): void {
+  if (typeof reference === "string") return
+  const identity = record.identity
+  if (
+    (reference.sessionId !== undefined && reference.sessionId !== identity.sessionId)
+    || (reference.taskId !== undefined && reference.taskId !== identity.taskId)
+  ) {
+    throw new HustlerLifecycleError("CONFLICTING_RECORD", `Workflow identity conflicts: ${identity.workflowId}`)
+  }
+}
+
 export function updateWorkflowRecord(
   config: HustlerLifecycleConfig,
   reference: HustlerWorkflowReference,
@@ -198,11 +232,11 @@ export function updateWorkflowRecord(
   const directory = workflowDirectory(config)
   const workflowId = workflowIdOf(reference)
   const filePath = getHustlerWorkflowPath(config, workflowId)
-  const lock = acquireLock(directory)
-  if (!lock.acquired) throw new HustlerLifecycleError("LOCK_UNAVAILABLE", `Workflow storage is locked: ${directory}`)
+  const lock = acquireHustlerLock(directory)
   try {
     const current = readWorkflowRecord(filePath)
     if (current === null) throw new HustlerLifecycleError("UNKNOWN_WORKFLOW", `Unknown workflow: ${workflowId}`)
+    assertReferenceIdentity(current, reference)
     const existingEvent = current.events.find(event => event.eventKey === eventKey)
     if (existingEvent !== undefined) {
       if (existingEvent.operation !== operation || existingEvent.signature !== eventSignatureValue) {
@@ -238,4 +272,4 @@ export function updateWorkflowRecord(
   }
 }
 
-export { acquireLock, ensureDir, writeJsonAtomic }
+export { ensureDir, writeJsonAtomic }
