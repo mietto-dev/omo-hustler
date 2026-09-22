@@ -1,11 +1,23 @@
 import { describe, expect, test } from "bun:test"
 import {
+  ApproverInputSchema,
+  ApproverResultSchema,
+  ActionableTesterIssueSchema,
   DeveloperTaskContractSchema,
   PlannerPlanSchema,
+  resolveApproverResult,
+  TesterReviewSchema,
 } from "./workflow-contracts"
 import { buildTaskRecord } from "../background-agent/spawner/task-record"
 
 describe("workflow contracts", () => {
+  const passingVerification = {
+    tests: "pass",
+    build: "pass",
+    lint: "pass",
+    typecheck: "pass",
+  } as const
+
   test("rejects duplicate and unknown Planner dependencies", () => {
     const result = PlannerPlanSchema.safeParse({
       summary: "Implement the feature",
@@ -98,5 +110,84 @@ describe("workflow contracts", () => {
     expect(plan.parallelGroups).toEqual([["work-1"]])
     expect(plan.workItems[0]?.skills).toEqual(["typescript"])
     expect(task.workflowContract).toEqual({ kind: "developer", contract: developer })
+  })
+
+  test("accepts a complete Tester review and Approver result", () => {
+    const review = TesterReviewSchema.parse({
+      status: "approved",
+      issues: [],
+      reviewSummary: "Implementation satisfies the requested behavior",
+      verification: passingVerification,
+    })
+    const input = ApproverInputSchema.parse({
+      originalRequest: "Implement the feature",
+      acceptanceCriteria: ["The feature works"],
+      completedWork: ["The feature works"],
+      unresolvedIssues: [],
+      verification: passingVerification,
+    })
+
+    expect(review.status).toBe("approved")
+    expect(resolveApproverResult(input)).toEqual({ status: "accepted", missingCriteria: [] })
+  })
+
+  test("reports an exact missing acceptance criterion", () => {
+    const input = ApproverInputSchema.parse({
+      originalRequest: "Implement the feature",
+      acceptanceCriteria: ["The feature works", "The feature is documented"],
+      completedWork: ["The feature works"],
+      unresolvedIssues: [],
+      verification: passingVerification,
+    })
+
+    expect(resolveApproverResult(input)).toEqual({
+      status: "incomplete",
+      missingCriteria: ["The feature is documented"],
+    })
+  })
+
+  test("rejects an approved Tester review when the build fails", () => {
+    const result = TesterReviewSchema.safeParse({
+      status: "approved",
+      issues: [],
+      reviewSummary: "The implementation looks complete",
+      verification: { ...passingVerification, build: "fail" },
+    })
+
+    expect(result.success).toBe(false)
+  })
+
+  test("rejects an approved Tester review with an unresolved high-severity issue", () => {
+    const issue = ActionableTesterIssueSchema.parse({
+      severity: "high",
+      file: "packages/app/index.ts",
+      description: "The error path drops the response body",
+      requiredFix: "Preserve and assert the response body before returning",
+      workItemId: "work-1",
+    })
+    const result = TesterReviewSchema.safeParse({
+      status: "approved",
+      issues: [issue],
+      reviewSummary: "The implementation looks complete",
+      verification: passingVerification,
+    })
+
+    expect(result.success).toBe(false)
+  })
+
+  test("requires actionable issues for a changes-requested review", () => {
+    const result = TesterReviewSchema.safeParse({
+      status: "changes_requested",
+      issues: [],
+      reviewSummary: "The implementation needs a fix",
+      verification: { ...passingVerification, tests: "fail" },
+    })
+
+    expect(result.success).toBe(false)
+  })
+
+  test("requires missing criteria only for an incomplete Approver result", () => {
+    expect(ApproverResultSchema.safeParse({ status: "accepted", missingCriteria: ["criterion"] }).success).toBe(false)
+    expect(ApproverResultSchema.safeParse({ status: "incomplete", missingCriteria: [] }).success).toBe(false)
   })
 })

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { PlannerPlanSchema } from "./workflow-contracts"
+import { ApproverInputSchema, PlannerPlanSchema, TesterReviewSchema } from "./workflow-contracts"
 import { OrchestratorWorkflowConfigSchema } from "../../config/schema/workflow"
 import {
   OrchestratorTaskSignalsSchema,
@@ -10,6 +10,8 @@ import {
   createWorkflowState,
   getWorkflowRouting,
   readWorkflowStateMetadata,
+  recordApproverResult,
+  recordTesterReview,
   resolveRetryRoute,
   transitionWorkflowState,
   writeWorkflowStateMetadata,
@@ -95,6 +97,19 @@ describe("orchestrator workflow routing", () => {
 })
 
 describe("orchestrator workflow state", () => {
+  const passingVerification = {
+    tests: "pass",
+    build: "pass",
+    lint: "pass",
+    typecheck: "pass",
+  } as const
+
+  function reviewState() {
+    const routing = createWorkflowState("task-1", 1)
+    const implementation = transitionWorkflowState(routing, "implementation")
+    return transitionWorkflowState(implementation, "review")
+  }
+
   test("rejects Tier 2 implementation without Planner evidence", () => {
     const state = createWorkflowState("task-1", 2)
 
@@ -137,5 +152,86 @@ describe("orchestrator workflow state", () => {
 
     expect(readWorkflowStateMetadata(metadata)).toEqual(state)
     expect(metadata.priority).toBe("high")
+  })
+
+  test("records complete review and acceptance before completing the workflow", () => {
+    const review = TesterReviewSchema.parse({
+      status: "approved",
+      issues: [],
+      reviewSummary: "Review passed",
+      verification: passingVerification,
+    })
+    const reviewAccepted = recordTesterReview(reviewState(), review)
+    const acceptanceInput = ApproverInputSchema.parse({
+      originalRequest: "Implement the feature",
+      acceptanceCriteria: ["The feature works"],
+      completedWork: ["The feature works"],
+      unresolvedIssues: [],
+      verification: passingVerification,
+    })
+    const accepted = recordApproverResult(reviewAccepted, acceptanceInput)
+
+    expect(accepted.phase).toBe("acceptance")
+    expect(accepted.acceptance?.status).toBe("accepted")
+    expect(transitionWorkflowState(accepted, "complete").phase).toBe("complete")
+  })
+
+  test("rejects direct completion before acceptance is recorded", () => {
+    const routing = createWorkflowState("task-1", 1)
+    const implementation = transitionWorkflowState(routing, "implementation")
+    const acceptance = transitionWorkflowState(implementation, "acceptance")
+
+    expect(() => transitionWorkflowState(acceptance, "complete")).toThrow(WorkflowStateError)
+    expect(() => transitionWorkflowState(acceptance, "complete")).toThrow("Approver acceptance")
+  })
+
+  test("rejects bypassing Tester approval on the review-to-acceptance edge", () => {
+    expect(() => transitionWorkflowState(reviewState(), "acceptance")).toThrow("Tester approval")
+  })
+
+  test("routes Tester changes to the targeted Developer work item", () => {
+    const review = TesterReviewSchema.parse({
+      status: "changes_requested",
+      issues: [{
+        severity: "high",
+        description: "The build path is not covered",
+        requiredFix: "Add the missing build-path test",
+        workItemId: "work-2",
+      }],
+      reviewSummary: "A targeted fix is required",
+      verification: { ...passingVerification, build: "fail" },
+    })
+
+    const routed = recordTesterReview(reviewState(), review)
+
+    expect(routed.phase).toBe("implementation")
+    expect(routed.lastRetry).toEqual({
+      role: "developer",
+      workItemId: "work-2",
+      phase: "implementation",
+    })
+  })
+
+  test("routes incomplete Approver acceptance to the requested Developer work item", () => {
+    const review = TesterReviewSchema.parse({
+      status: "approved",
+      issues: [],
+      reviewSummary: "Review passed",
+      verification: passingVerification,
+    })
+    const reviewAccepted = recordTesterReview(reviewState(), review)
+    const incompleteInput = ApproverInputSchema.parse({
+      originalRequest: "Implement the feature",
+      acceptanceCriteria: ["The feature works", "The feature is documented"],
+      completedWork: ["The feature works"],
+      unresolvedIssues: [],
+      verification: passingVerification,
+    })
+
+    const routed = recordApproverResult(reviewAccepted, incompleteInput, "work-3")
+
+    expect(routed.phase).toBe("implementation")
+    expect(routed.acceptance?.status).toBe("incomplete")
+    expect(routed.lastRetry?.workItemId).toBe("work-3")
   })
 })

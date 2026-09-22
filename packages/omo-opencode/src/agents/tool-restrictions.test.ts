@@ -71,6 +71,28 @@ describe("read-only agent tool restrictions", () => {
     }
   })
 
+  test("keeps Tester and Approver read-only and unable to spawn workers", () => {
+    const restrictedRoles = ["tester", "approver"]
+    const deniedTools = ["write", "edit", "apply_patch", "task", "call_omo_agent", "teammate"]
+
+    for (const role of restrictedRoles) {
+      const restrictions = getAgentToolRestrictions(role)
+      const permissions = projectAgentPermissions(role, {
+        write: "allow",
+        edit: "allow",
+        apply_patch: "allow",
+        task: "allow",
+        call_omo_agent: "allow",
+        teammate: "allow",
+      })
+
+      for (const tool of deniedTools) {
+        expect(restrictions[tool]).toBe(false)
+        expect(permissions[tool]).toBe("deny")
+      }
+    }
+  })
+
   test("allows team tools for team member prompt restrictions", () => {
     // given
     const teamMemberAgentName = "sisyphus-junior"

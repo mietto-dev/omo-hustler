@@ -1,5 +1,11 @@
 import { z } from "zod"
-import { PlannerPlanSchema, type PlannerPlan } from "./workflow-contracts"
+import {
+  ActionableTesterIssueSchema,
+  ApproverMissingCriterionSchema,
+  PlannerPlanSchema,
+  VerificationStatusSchema,
+  type PlannerPlan,
+} from "./workflow-contracts"
 import type { WorkflowTier } from "./orchestrator-classification"
 
 export const WorkflowPhaseSchema = z.enum([
@@ -26,14 +32,26 @@ const WorkflowRetryRouteSchema = z.object({
   phase: WorkflowPhaseSchema,
 }).strict()
 
+const WorkflowReviewStateSchema = z.object({
+  status: z.enum(["pending", "approved", "changes_requested"]),
+  verification: VerificationStatusSchema.optional(),
+  issues: z.array(ActionableTesterIssueSchema).optional(),
+  reviewSummary: z.string().trim().min(1).optional(),
+}).strict()
+
+const WorkflowAcceptanceStateSchema = z.object({
+  status: z.enum(["pending", "accepted", "incomplete"]),
+  missingCriteria: z.array(ApproverMissingCriterionSchema).optional(),
+}).strict()
+
 export const WorkflowStateSchema = z.object({
   taskId: z.string().trim().min(1),
   tier: z.number().int().min(0).max(3),
   phase: WorkflowPhaseSchema,
   plan: PlannerPlanSchema.optional(),
   workers: z.array(WorkflowWorkerStateSchema).default([]),
-  review: z.object({ status: z.enum(["pending", "approved", "changes_requested"]) }).strict().optional(),
-  acceptance: z.object({ status: z.enum(["pending", "accepted", "incomplete"]) }).strict().optional(),
+  review: WorkflowReviewStateSchema.optional(),
+  acceptance: WorkflowAcceptanceStateSchema.optional(),
   architectCalls: z.number().int().min(0).default(0),
   retryCount: z.number().int().min(0).default(0),
   lastRetry: WorkflowRetryRouteSchema.optional(),
@@ -47,6 +65,10 @@ export type WorkflowStateErrorCode =
   | "INVALID_PLANNER_EVIDENCE"
   | "MISSING_WORK_ITEM"
   | "INVALID_METADATA"
+  | "INVALID_TESTER_REVIEW"
+  | "INVALID_APPROVER_RESULT"
+  | "ACCEPTANCE_REQUIRED"
+  | "REVIEW_REQUIRED"
 
 export class WorkflowStateError extends Error {
   readonly code: WorkflowStateErrorCode
@@ -98,6 +120,19 @@ export function transitionWorkflowState(state: WorkflowState, nextPhase: unknown
 
   if (state.tier >= 2 && state.phase === "implementation" && parsedNextPhase.data !== "integration") {
     throw new WorkflowStateError("INVALID_PHASE_TRANSITION", "Tier 2 and Tier 3 implementation must enter integration")
+  }
+
+  if (state.phase === "review" && parsedNextPhase.data === "acceptance" && state.review?.status !== "approved") {
+    throw new WorkflowStateError("REVIEW_REQUIRED", "Tester approval is required before acceptance")
+  }
+
+  if (parsedNextPhase.data === "complete") {
+    if (state.acceptance?.status !== "accepted") {
+      throw new WorkflowStateError("ACCEPTANCE_REQUIRED", "Approver acceptance is required before workflow completion")
+    }
+    if (state.review !== undefined && state.review.status !== "approved") {
+      throw new WorkflowStateError("REVIEW_REQUIRED", "Tester review must be approved before workflow completion")
+    }
   }
 
   return WorkflowStateSchema.parse({ ...state, phase: parsedNextPhase.data })
