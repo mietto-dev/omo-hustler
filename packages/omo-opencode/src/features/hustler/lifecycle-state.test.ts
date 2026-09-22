@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, test } from "bun:test"
-import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "fs"
+import { afterAll, describe, expect, test } from "bun:test"
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "fs"
+import { tmpdir } from "os"
 import { join } from "path"
 import { acquireLock, ensureDir } from "../claude-tasks/storage"
 import { classifyTask } from "../claude-tasks/orchestrator-classification"
@@ -10,15 +11,35 @@ import {
 } from "./lifecycle-state"
 import { ApproverInputSchema, TesterReviewSchema } from "../claude-tasks/workflow-contracts"
 
-const storagePath = join(process.cwd(), ".test-hustler-lifecycle")
-const config = {
-  sisyphus: {
-    tasks: {
-      storage_path: storagePath,
-      claude_code_compat: false,
+type TestFixture = Readonly<{
+  storagePath: string
+  config: Readonly<{
+    sisyphus: Readonly<{
+      tasks: Readonly<{
+        storage_path: string
+        claude_code_compat: false
+      }>
+    }>
+  }>
+}>
+
+const fixturePaths = new Set<string>()
+
+function createTestFixture(): TestFixture {
+  const storagePath = mkdtempSync(join(tmpdir(), "hustler-lifecycle-"))
+  fixturePaths.add(storagePath)
+  return {
+    storagePath,
+    config: {
+      sisyphus: {
+        tasks: {
+          storage_path: storagePath,
+          claude_code_compat: false,
+        },
+      },
     },
-  },
-} as const
+  }
+}
 
 const approvedReview = TesterReviewSchema.parse({
   status: "approved",
@@ -35,13 +56,16 @@ const acceptedInput = ApproverInputSchema.parse({
   verification: { tests: "pass", build: "pass", lint: "pass", typecheck: "pass" },
 })
 
-afterEach(() => {
-  rmSync(storagePath, { recursive: true, force: true })
+afterAll(() => {
+  for (const storagePath of fixturePaths) {
+    rmSync(storagePath, { recursive: true, force: true })
+  }
 })
 
 describe("HUSTLER lifecycle identity", () => {
   test("maps the same session to stable workflow and task IDs across adapter instances", () => {
     // #given
+    const { config } = createTestFixture()
     const classification = classifyTask({ localized: true, expectedFiles: 1 })
     const first = createHustlerLifecycleAdapter(config).create({
       sessionId: "ses_stable",
@@ -61,6 +85,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("collapses a duplicate transition event to one persisted transition", () => {
     // #given
+    const { config } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_duplicate",
@@ -86,6 +111,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("reconstructs workflow state after a new adapter instance", () => {
     // #given
+    const { config } = createTestFixture()
     const firstAdapter = createHustlerLifecycleAdapter(config)
     const created = firstAdapter.create({
       sessionId: "ses_restart",
@@ -111,6 +137,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("persists only an atomic record and no temporary files", () => {
     // #given
+    const { config, storagePath } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_atomic",
@@ -129,6 +156,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("collapses concurrent duplicate transitions into one event", async () => {
     // #given
+    const { config, storagePath } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_concurrent",
@@ -168,6 +196,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("collapses duplicate tester review replay and rejects conflicting replay", () => {
     // #given
+    const { config } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_tester_replay",
@@ -193,6 +222,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("collapses duplicate approver replay and rejects conflicting replay", () => {
     // #given
+    const { config } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_approver_replay",
@@ -219,6 +249,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("preserves a valid record when create, load, or update receives a conflicting identity", () => {
     // #given
+    const { config } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_identity_conflict",
@@ -248,6 +279,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("rejects a conflicting replay without changing the valid record", () => {
     // #given
+    const { config } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_conflict",
@@ -266,6 +298,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("fails closed on malformed persisted data", () => {
     // #given
+    const { config } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_malformed",
@@ -284,6 +317,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("keeps terminal completion immutable and permits exact replay only", () => {
     // #given
+    const { config } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_complete",
@@ -306,6 +340,7 @@ describe("HUSTLER lifecycle identity", () => {
 
   test("records review, retry, and cancellation transitions with redacted review text", () => {
     // #given
+    const { config } = createTestFixture()
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses_retry",
