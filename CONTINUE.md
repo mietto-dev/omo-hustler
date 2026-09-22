@@ -59,12 +59,12 @@ fixes.
 Remaining implementation order:
 
 1. Todo 7: Tester review and Approver acceptance gates.
-3. Todo 8: Librarian modes and bounded Architect escalation.
-4. Todo 9: runtime consumer migration, excluding Team Mode creation/configuration.
-5. Todo 10: telemetry and deterministic benchmark fixtures.
-6. Todo 11: generated artifacts, documentation, and regression sweep.
-7. Todo 12: isolated real OpenCode topology probe and final evidence ledger.
-8. Final gates F1-F4: plan compliance, code quality, real QA, and scope fidelity.
+2. Todo 8: Librarian modes and bounded Architect escalation.
+3. Todo 9: runtime consumer migration, excluding Team Mode creation/configuration.
+4. Todo 10: telemetry and deterministic benchmark fixtures.
+5. Todo 11: generated artifacts, documentation, and regression sweep.
+6. Todo 12: isolated real OpenCode topology probe and final evidence ledger.
+7. Final gates F1-F4: plan compliance, code quality, real QA, and scope fidelity.
 
 For a first runnable HUSTLER loop, Todos 6 and 7 plus a thin Orchestrator
 entrypoint and a fake-model OpenCode probe are required. Telemetry,
