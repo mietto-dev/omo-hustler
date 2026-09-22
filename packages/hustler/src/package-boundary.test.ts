@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test"
 import { execFileSync } from "node:child_process"
 import { readdirSync, readFileSync } from "node:fs"
-import { join } from "node:path"
+import { dirname, join, normalize, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
+import * as ts from "typescript/unstable/ast"
 
 const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url))
 const rootPackageJsonPath = join(repositoryRoot, "package.json")
@@ -46,17 +47,78 @@ function packedPaths(): string[] {
     })
 }
 
+function importSpecifiers(source: string): string[] {
+  const scanner = ts.createScanner(true, ts.LanguageVariant.Standard, source)
+  const specifiers: string[] = []
+  let previousToken = ts.SyntaxKind.Unknown
+  let tokenBeforePrevious = ts.SyntaxKind.Unknown
+  let previousTokenValue: string | undefined
+  let previousTokenStart = -1
+
+  while (true) {
+    const token = scanner.scan()
+    const tokenStart = scanner.getTokenStart()
+    if (tokenStart <= previousTokenStart) {
+      scanner.setText(source, scanner.getTokenEnd() + 1)
+      previousToken = ts.SyntaxKind.Unknown
+      tokenBeforePrevious = ts.SyntaxKind.Unknown
+      previousTokenValue = undefined
+      continue
+    }
+    previousTokenStart = tokenStart
+    if (token === ts.SyntaxKind.EndOfFile) {
+      break
+    }
+    if (token === ts.SyntaxKind.StringLiteral) {
+      const isSideEffectImport = previousToken === ts.SyntaxKind.ImportKeyword
+      const isDynamicImport = previousToken === ts.SyntaxKind.OpenParenToken && tokenBeforePrevious === ts.SyntaxKind.ImportKeyword
+      const isFromClause = previousTokenValue === "from"
+      const tokenText = scanner.getTokenValue()
+      if (isSideEffectImport || isDynamicImport || isFromClause) {
+        specifiers.push(tokenText)
+      }
+    }
+    tokenBeforePrevious = previousToken
+    previousToken = token
+    previousTokenValue = scanner.getTokenValue()
+  }
+  return specifiers
+}
+
+function resolvesToHustlerFacade(sourcePath: string, specifier: string): boolean {
+  const facadePath = normalize(join(repositoryRoot, "packages/hustler/src/index.ts"))
+  if (specifier === "packages/hustler/src/index.ts") {
+    return true
+  }
+  if (!specifier.startsWith(".")) {
+    return false
+  }
+  const candidate = normalize(resolve(dirname(sourcePath), specifier))
+  return [candidate, `${candidate}.ts`, join(candidate, "index.ts")].includes(facadePath)
+}
+
 describe("Hustler package boundary", () => {
   test("#given the OpenCode source #when auditing imports #then it never imports the HUSTLER facade", () => {
     const opencodeSourceRoot = join(repositoryRoot, "packages/omo-opencode/src")
     const reverseImports = sourceFiles(opencodeSourceRoot).flatMap((path) => {
-      const source = readFileSync(path, "utf8")
-      return /packages\/hustler\/src\/index\.ts|\.\.\/.*hustler\/src\/index/.test(source)
-        ? [path]
-        : []
+      return importSpecifiers(readFileSync(path, "utf8")).some((specifier) => resolvesToHustlerFacade(path, specifier)) ? [path] : []
     })
 
     expect(reverseImports).toEqual([])
+  })
+
+  test("#given source text #when extracting imports #then only executable import syntax is audited", () => {
+    const fixtureSpecifiers = importSpecifiers(`
+      // import "packages/hustler/src/index.ts"
+      const text = "packages/hustler/src/index.ts"
+      import("packages/hustler/src/index.ts")
+      export { value } from "packages/hustler/src/index.ts"
+    `)
+
+    expect(fixtureSpecifiers).toEqual([
+      "packages/hustler/src/index.ts",
+      "packages/hustler/src/index.ts",
+    ])
   })
 
   test("#given the package manifest #when inspecting package metadata #then it is independently buildable", () => {
