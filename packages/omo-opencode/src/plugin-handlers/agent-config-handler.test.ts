@@ -330,7 +330,7 @@ describe("applyAgentConfig builtin override protection", () => {
       agents: {
         planner: {
           prompt: "You are Prometheus. Follow Atlas guidance.",
-          prompt_append: "Hephaestus and Sisyphus legacy instructions",
+          prompt_append: "PLANNER_PROMPT_APPEND_ONCE Hephaestus and Sisyphus legacy instructions",
         },
       },
     }
@@ -346,6 +346,7 @@ describe("applyAgentConfig builtin override protection", () => {
     // then custom content remains while active Planner identity is sanitized
     const planner = result.Planner as AgentConfig
     expect(planner.prompt).toContain("legacy instructions")
+    expect((planner.prompt?.match(/PLANNER_PROMPT_APPEND_ONCE/g) ?? []).length).toBe(1)
     expect(planner.prompt).not.toMatch(/Sisyphus|Hephaestus|Prometheus|Atlas/i)
   })
 

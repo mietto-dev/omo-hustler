@@ -65,6 +65,27 @@ describe("createBuiltinAgents with model overrides", () => {
     }
   })
 
+  test("applies a general role prompt override once", async () => {
+    // #given
+    const fetchSpy = spyOn(shared, "fetchAvailableModels").mockResolvedValue(new Set())
+    const overrides: AgentOverrides = {
+      architect: {
+        prompt_append: "PROMPT_APPEND_ONCE",
+        model: "openai/gpt-5.6-sol",
+      },
+    }
+
+    try {
+      // #when
+      const agents = await createBuiltinAgents([], overrides, undefined, TEST_DEFAULT_MODEL)
+
+      // #then
+      expect((agents.architect.prompt?.match(/PROMPT_APPEND_ONCE/g) ?? []).length).toBe(1)
+    } finally {
+      fetchSpy.mockRestore()
+    }
+  })
+
   test("user config models take priority when team_mode is enabled", async () => {
     // #given
     const providerModelsSpy = spyOn(connectedProvidersCache, "readProviderModelsCache").mockReturnValue(null)

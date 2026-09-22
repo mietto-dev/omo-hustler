@@ -14,9 +14,7 @@ import {
 import type { AgentSourceMap, AgentSources } from "./agent-config-types";
 import { buildPlanDemoteConfig } from "./plan-model-inheritance";
 import { buildPrometheusAgentConfig } from "./prometheus-agent-config-builder";
-import { applyOverrides } from "../agents/builtin-agents/agent-overrides";
 import { HUSTLER_ROLE_FACTORIES, sanitizeHustlerPrompt } from "../features/hustler/roles";
-import { mergeCategories } from "../shared/merge-categories";
 
 type BuiltinAgentMap = Record<string, AgentConfig | undefined>;
 
@@ -107,7 +105,6 @@ async function createCoreAgentConfig(
   params: AssembleAgentConfigParams,
 ): Promise<Record<string, unknown>> {
   const { builtinAgents, pluginConfig, sources, currentModel, useTaskSystem, disabledAgentNames } = params;
-  const mergedCategories = mergeCategories(pluginConfig.categories);
   const agentConfig: Record<string, unknown> = {};
 
   if (!disabledAgentNames.has("orchestrator") && builtinAgents.orchestrator) {
@@ -137,16 +134,10 @@ async function createCoreAgentConfig(
         typeof plannerConfig.prompt === "string" ? plannerConfig.prompt : undefined,
       ),
     };
-    const overriddenPlannerConfig = applyOverrides(
-      plannerIdentityConfig,
-      pluginConfig.agents?.planner,
-      mergedCategories,
-      undefined,
-    );
     agentConfig.planner = {
-      ...overriddenPlannerConfig,
+      ...plannerIdentityConfig,
       prompt: sanitizeHustlerPrompt(
-        typeof overriddenPlannerConfig.prompt === "string" ? overriddenPlannerConfig.prompt : undefined,
+        typeof plannerIdentityConfig.prompt === "string" ? plannerIdentityConfig.prompt : undefined,
       ),
     };
   }

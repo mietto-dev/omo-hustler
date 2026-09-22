@@ -19,8 +19,6 @@ import { CATEGORY_DESCRIPTIONS } from "../tools/delegate-task/constants"
 import { mergeCategories } from "../shared/merge-categories"
 import { buildAvailableSkills } from "./builtin-agents/available-skills"
 import { collectPendingBuiltinAgents } from "./builtin-agents/general-agents"
-import { applyOverrides } from "./builtin-agents/agent-overrides"
-import { resolveAgentSkills } from "./agent-skill-resolution"
 import { maybeCreateSisyphusConfig } from "./builtin-agents/sisyphus-agent"
 import { maybeCreateHephaestusConfig } from "./builtin-agents/hephaestus-agent"
 import { maybeCreateAtlasConfig } from "./builtin-agents/atlas-agent"
@@ -53,32 +51,10 @@ const agentMetadata: Partial<Record<BuiltinAgentName, AgentPromptMetadata>> = {
 
 function applyHustlerRoleIdentity(
   config: AgentConfig,
-  role: HustlerRole,
-  override: AgentOverrides[BuiltinAgentName],
-  mergedCategories: Record<string, CategoryConfig>,
-  gitMasterConfig: GitMasterConfig | undefined,
-  browserProvider: BrowserAutomationProvider | undefined,
-  disabledSkills: Set<string> | undefined,
-  teamModeEnabled: boolean,
-  directory?: string,
 ): AgentConfig {
-  const roleConfig = HUSTLER_ROLE_FACTORIES[role](config.model ?? "hustler/metadata").config
-  const identityConfig: AgentConfig = {
-    ...config,
-    description: roleConfig.description,
-    mode: roleConfig.mode,
-    prompt: sanitizeHustlerPrompt(config.prompt),
-  }
-  const overriddenConfig = applyOverrides(identityConfig, override, mergedCategories, directory)
-  const resolvedConfig = resolveAgentSkills(overriddenConfig, {
-    gitMasterConfig,
-    browserProvider,
-    disabledSkills,
-    teamModeEnabled,
-  })
   return {
-    ...resolvedConfig,
-    prompt: sanitizeHustlerPrompt(resolvedConfig.prompt),
+    ...config,
+    prompt: sanitizeHustlerPrompt(config.prompt),
   }
 }
 
@@ -206,22 +182,9 @@ export async function createBuiltinAgents(
   return Object.fromEntries(
     Object.entries(result).map(([role, config]) => {
       if (!HUSTLER_ROLES.includes(role as HustlerRole)) return [role, config]
-      const roleName = role as HustlerRole
-      const override = agentOverrides[roleName]
-        ?? Object.entries(agentOverrides).find(([key]) => key.toLowerCase() === roleName.toLowerCase())?.[1]
       return [
         role,
-        applyHustlerRoleIdentity(
-          config,
-          roleName,
-          override,
-          mergedCategories,
-          gitMasterConfig,
-          browserProvider,
-          disabledSkills,
-          teamModeEnabled,
-          directory,
-        ),
+        applyHustlerRoleIdentity(config),
       ]
     }),
   )
