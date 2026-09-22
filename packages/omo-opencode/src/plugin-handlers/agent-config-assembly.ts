@@ -137,12 +137,18 @@ async function createCoreAgentConfig(
         typeof plannerConfig.prompt === "string" ? plannerConfig.prompt : undefined,
       ),
     };
-    agentConfig.planner = applyOverrides(
+    const overriddenPlannerConfig = applyOverrides(
       plannerIdentityConfig,
       pluginConfig.agents?.planner,
       mergedCategories,
       undefined,
     );
+    agentConfig.planner = {
+      ...overriddenPlannerConfig,
+      prompt: sanitizeHustlerPrompt(
+        typeof overriddenPlannerConfig.prompt === "string" ? overriddenPlannerConfig.prompt : undefined,
+      ),
+    };
   }
 
   if (!disabledAgentNames.has("approver") && builtinAgents.approver) {

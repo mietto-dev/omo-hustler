@@ -70,12 +70,16 @@ function applyHustlerRoleIdentity(
     prompt: sanitizeHustlerPrompt(config.prompt),
   }
   const overriddenConfig = applyOverrides(identityConfig, override, mergedCategories, directory)
-  return resolveAgentSkills(overriddenConfig, {
+  const resolvedConfig = resolveAgentSkills(overriddenConfig, {
     gitMasterConfig,
     browserProvider,
     disabledSkills,
     teamModeEnabled,
   })
+  return {
+    ...resolvedConfig,
+    prompt: sanitizeHustlerPrompt(resolvedConfig.prompt),
+  }
 }
 
 export async function createBuiltinAgents(

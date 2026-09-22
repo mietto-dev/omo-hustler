@@ -322,6 +322,33 @@ describe("applyAgentConfig builtin override protection", () => {
     expect(Object.keys(result)).not.toContain("Tester")
   })
 
+  test("sanitizes legacy identifiers reintroduced by Planner overrides", async () => {
+    // given Planner overrides that replace and append legacy role identifiers
+    const pluginConfig = {
+      ...createPluginConfig(),
+      sisyphus_agent: { planner_enabled: true },
+      agents: {
+        planner: {
+          prompt: "You are Prometheus. Follow Atlas guidance.",
+          prompt_append: "Hephaestus and Sisyphus legacy instructions",
+        },
+      },
+    }
+
+    // when the real Planner assembly path is exercised
+    const result = await applyAgentConfig({
+      config: createBaseConfig(),
+      pluginConfig,
+      ctx: { directory: "/tmp" },
+      pluginComponents: createPluginComponents(),
+    })
+
+    // then custom content remains while active Planner identity is sanitized
+    const planner = result.Planner as AgentConfig
+    expect(planner.prompt).toContain("legacy instructions")
+    expect(planner.prompt).not.toMatch(/Sisyphus|Hephaestus|Prometheus|Atlas/i)
+  })
+
   test("resolved default_agent contains no zero-width invisible characters", async () => {
     // given canonical core ordering is now enforced by the agent sort shim, so
     // default_agent must not carry the legacy ZWSP prefix that earlier biased
