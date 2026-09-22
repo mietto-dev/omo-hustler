@@ -98,6 +98,22 @@ function resolvesToHustlerFacade(sourcePath: string, specifier: string): boolean
 }
 
 describe("Hustler package boundary", () => {
+  test("#given the standalone HUSTLER facade #when loading its public entrypoint #then it does not re-export the OpenCode plugin", async () => {
+    const facade = await import("./index")
+
+    expect("default" in facade).toBe(false)
+    expect("omoPlugin" in facade).toBe(false)
+    expect(facade.HUSTLER_ROLES).toEqual([
+      "orchestrator",
+      "planner",
+      "developer",
+      "tester",
+      "approver",
+      "librarian",
+      "architect",
+    ])
+  })
+
   test("#given the OpenCode source #when auditing imports #then it never imports the HUSTLER facade", () => {
     const opencodeSourceRoot = join(repositoryRoot, "packages/omo-opencode/src")
     const reverseImports = sourceFiles(opencodeSourceRoot).flatMap((path) => {
