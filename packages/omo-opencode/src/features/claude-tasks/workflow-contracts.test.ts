@@ -3,7 +3,9 @@ import {
   ApproverInputSchema,
   ApproverResultSchema,
   ActionableTesterIssueSchema,
+  ArchitectRequestSchema,
   DeveloperTaskContractSchema,
+  LibrarianTaskInputSchema,
   PlannerPlanSchema,
   resolveApproverResult,
   TesterReviewSchema,
@@ -189,5 +191,39 @@ describe("workflow contracts", () => {
   test("requires missing criteria only for an incomplete Approver result", () => {
     expect(ApproverResultSchema.safeParse({ status: "accepted", missingCriteria: ["criterion"] }).success).toBe(false)
     expect(ApproverResultSchema.safeParse({ status: "incomplete", missingCriteria: [] }).success).toBe(false)
+  })
+
+  test("accepts structured Librarian modes and read-only Architect consultation", () => {
+    expect(LibrarianTaskInputSchema.parse({
+      mode: "documentation",
+      query: "Find the official API contract",
+      readOnly: true,
+    }).mode).toBe("documentation")
+
+    expect(ArchitectRequestSchema.parse({
+      reason: "uncertain-external-contract",
+      question: "Which API response shape is authoritative?",
+      evidence: ["The local adapter and upstream docs disagree"],
+      attemptedResolution: "Compared the local schema with the current provider docs",
+      librarian: {
+        mode: "documentation",
+        query: "Verify the provider response schema",
+        readOnly: true,
+      },
+    }).librarian?.readOnly).toBe(true)
+  })
+
+  test("rejects non-read-only Librarian input and incomplete Architect requests", () => {
+    expect(LibrarianTaskInputSchema.safeParse({
+      mode: "repository",
+      query: "Inspect the implementation",
+      readOnly: false,
+    }).success).toBe(false)
+    expect(ArchitectRequestSchema.safeParse({
+      reason: "security",
+      question: "Is this safe?",
+      evidence: [],
+      attemptedResolution: "None",
+    }).success).toBe(false)
   })
 })

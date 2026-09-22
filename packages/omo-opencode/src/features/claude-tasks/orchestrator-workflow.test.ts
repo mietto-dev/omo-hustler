@@ -8,8 +8,10 @@ import {
   attachPlannerPlan,
   classifyTask,
   createWorkflowState,
+  getArchitectCallBudget,
   getWorkflowRouting,
   readWorkflowStateMetadata,
+  recordArchitectCall,
   recordApproverResult,
   recordTesterReview,
   resolveRetryRoute,
@@ -233,5 +235,34 @@ describe("orchestrator workflow state", () => {
     expect(routed.phase).toBe("implementation")
     expect(routed.acceptance?.status).toBe("incomplete")
     expect(routed.lastRetry?.workItemId).toBe("work-3")
+  })
+
+  test("keeps Architect consultation advisory and enforces tier budgets", () => {
+    const request = {
+      reason: "repeated-debug-failure" as const,
+      question: "Why does the retry still fail?",
+      evidence: ["Two targeted fixes failed"],
+      attemptedResolution: "Reproduced the failure and inspected the error path",
+    }
+    const state = createWorkflowState("task-1", 2)
+    const consulted = recordArchitectCall(state, request)
+
+    expect(getArchitectCallBudget(0)).toBe(0)
+    expect(getArchitectCallBudget(1)).toBe(0)
+    expect(getArchitectCallBudget(2)).toBe(1)
+    expect(consulted.architectCalls).toBe(1)
+    expect(consulted.phase).toBe("routing")
+    expect(() => recordArchitectCall(consulted, request)).toThrow("budget exhausted")
+  })
+
+  test("rejects Architect consultation for tiers without a budget", () => {
+    const request = {
+      reason: "architecture-conflict" as const,
+      question: "Which design should win?",
+      evidence: ["The two implementations conflict"],
+      attemptedResolution: "Compared both implementations",
+    }
+
+    expect(() => recordArchitectCall(createWorkflowState("task-1", 1), request)).toThrow("budget exhausted")
   })
 })

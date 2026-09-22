@@ -1,10 +1,12 @@
 import { z } from "zod"
 import {
   ActionableTesterIssueSchema,
+  ArchitectRequestSchema,
   ApproverMissingCriterionSchema,
   PlannerPlanSchema,
   VerificationStatusSchema,
   type PlannerPlan,
+  type ArchitectRequest,
 } from "./workflow-contracts"
 import type { WorkflowTier } from "./orchestrator-classification"
 
@@ -69,6 +71,8 @@ export type WorkflowStateErrorCode =
   | "INVALID_APPROVER_RESULT"
   | "ACCEPTANCE_REQUIRED"
   | "REVIEW_REQUIRED"
+  | "INVALID_ARCHITECT_REQUEST"
+  | "ARCHITECT_CALL_BUDGET_EXCEEDED"
 
 export class WorkflowStateError extends Error {
   readonly code: WorkflowStateErrorCode
@@ -136,6 +140,33 @@ export function transitionWorkflowState(state: WorkflowState, nextPhase: unknown
   }
 
   return WorkflowStateSchema.parse({ ...state, phase: parsedNextPhase.data })
+}
+
+const ARCHITECT_CALL_BUDGETS: Readonly<Record<WorkflowTier, number>> = {
+  0: 0,
+  1: 0,
+  2: 1,
+  3: 2,
+}
+
+export function getArchitectCallBudget(tier: WorkflowTier): number {
+  return ARCHITECT_CALL_BUDGETS[tier]
+}
+
+export function recordArchitectCall(state: WorkflowState, request: ArchitectRequest): WorkflowState {
+  if (!ArchitectRequestSchema.safeParse(request).success) {
+    throw new WorkflowStateError("INVALID_ARCHITECT_REQUEST", "Architect request does not satisfy the consultation contract")
+  }
+
+  const budget = getArchitectCallBudget(state.tier)
+  if (state.architectCalls >= budget) {
+    throw new WorkflowStateError(
+      "ARCHITECT_CALL_BUDGET_EXCEEDED",
+      `Architect call budget exhausted for Tier ${state.tier}`,
+    )
+  }
+
+  return WorkflowStateSchema.parse({ ...state, architectCalls: state.architectCalls + 1 })
 }
 
 const RetryFailureSchema = z.enum(["developer", "librarian", "architect", "tester", "approver"])

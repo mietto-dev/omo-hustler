@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { ArchitectReasonSchema } from "./orchestrator-classification"
 
 const nonEmptyString = z.string().trim().min(1)
 const relativePath = nonEmptyString.superRefine((value, ctx) => {
@@ -97,6 +98,28 @@ export const PlannerPlanSchema = z.object({
 })
 
 export type PlannerPlan = z.infer<typeof PlannerPlanSchema>
+
+export const LIBRARIAN_MODES = ["repository", "documentation", "ecosystem", "history"] as const
+export const LibrarianModeSchema = z.enum(LIBRARIAN_MODES)
+export type LibrarianMode = z.infer<typeof LibrarianModeSchema>
+
+export const LibrarianTaskInputSchema = z.object({
+  mode: LibrarianModeSchema,
+  query: nonEmptyString,
+  readOnly: z.literal(true),
+}).strict()
+
+export type LibrarianTaskInput = z.infer<typeof LibrarianTaskInputSchema>
+
+export const ArchitectRequestSchema = z.object({
+  reason: ArchitectReasonSchema,
+  question: nonEmptyString,
+  evidence: z.array(nonEmptyString).min(1),
+  attemptedResolution: nonEmptyString,
+  librarian: LibrarianTaskInputSchema.optional(),
+}).strict()
+
+export type ArchitectRequest = z.infer<typeof ArchitectRequestSchema>
 
 export const VerificationStatusSchema = z.object({
   tests: z.enum(["pass", "fail", "not-applicable"]),
