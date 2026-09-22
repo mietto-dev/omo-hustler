@@ -28,6 +28,7 @@ import { TmuxConfigSchema } from "./tmux"
 import { TuiConfigSchema } from "./tui"
 import { UlwExecuteConfigSchema } from "./ulw-execute"
 import { WebsearchConfigSchema } from "./websearch"
+import { OrchestratorWorkflowConfigSchema } from "./workflow"
 
 export const OhMyOpenCodeConfigSchema = z.object({
   $schema: z.string().optional(),
@@ -103,6 +104,7 @@ export const OhMyOpenCodeConfigSchema = z.object({
   start_work: UlwExecuteConfigSchema.optional(),
   /** Default mode auto-activation settings (ultrawork, goal) */
   default_mode: DefaultModeConfigSchema.optional(),
+  workflow: OrchestratorWorkflowConfigSchema.optional(),
   /** Migration history to prevent re-applying migrations (e.g., model version upgrades) */
   _migrations: z.array(z.string()).optional(),
 })

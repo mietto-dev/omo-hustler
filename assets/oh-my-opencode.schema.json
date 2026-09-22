@@ -7758,6 +7758,83 @@
       ],
       "additionalProperties": false
     },
+    "workflow": {
+      "type": "object",
+      "properties": {
+        "default_tier": {
+          "default": "auto",
+          "anyOf": [
+            {
+              "type": "string",
+              "const": "auto"
+            },
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            }
+          ]
+        },
+        "thresholds": {
+          "default": {
+            "layers": 2,
+            "workstreams": 2,
+            "expected_files": 5
+          },
+          "type": "object",
+          "properties": {
+            "layers": {
+              "default": 2,
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 1000
+            },
+            "workstreams": {
+              "default": 2,
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 1000
+            },
+            "expected_files": {
+              "default": 5,
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "layers",
+            "workstreams",
+            "expected_files"
+          ],
+          "additionalProperties": false
+        },
+        "architect": {
+          "default": {
+            "max_calls_per_task": 2
+          },
+          "type": "object",
+          "properties": {
+            "max_calls_per_task": {
+              "default": 2,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 16
+            }
+          },
+          "required": [
+            "max_calls_per_task"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "default_tier",
+        "thresholds",
+        "architect"
+      ],
+      "additionalProperties": false
+    },
     "_migrations": {
       "type": "array",
       "items": {

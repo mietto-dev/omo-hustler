@@ -43,10 +43,11 @@ Key implementation files:
 
 ## Current Status
 
-The HUSTLER work is at the end of the foundation phase. Todos 0-5 in
+The HUSTLER work is at the end of the foundation phase. Todos 0-6 in
 `.omo/plans/hustler-agent-topology.md` are complete. The current branch has
 the canonical seven-role roster, role restrictions, caller-aware delegation
-and bounded recursion, and validated Planner/Developer contracts.
+and bounded recursion, validated Planner/Developer contracts, and local Tier
+0-3 workflow classification/state helpers with isolated OpenCode QA evidence.
 
 The package builds and can be loaded by OpenCode, but the HUSTLER workflow is
 not yet runnable end to end. `packages/hustler/src/index.ts` currently
@@ -57,8 +58,7 @@ fixes.
 
 Remaining implementation order:
 
-1. Todo 6: deterministic Tier 0-3 classification and workflow state.
-2. Todo 7: Tester review and Approver acceptance gates.
+1. Todo 7: Tester review and Approver acceptance gates.
 3. Todo 8: Librarian modes and bounded Architect escalation.
 4. Todo 9: runtime consumer migration, excluding Team Mode creation/configuration.
 5. Todo 10: telemetry and deterministic benchmark fixtures.
@@ -77,7 +77,7 @@ policy and is not an instruction to create or configure teams.
 
 Verification evidence is stored under
 `.omo/evidence/20260911-hustler-agent-topology/`. Do not claim full feature
-completion while Todos 6-12 or F1-F4 remain pending.
+completion while Todos 7-12 or F1-F4 remain pending.
 
 ## Continuation Checklist
 
