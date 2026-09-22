@@ -15,18 +15,7 @@ import type {
   PlannerPlan,
   TesterReview,
 } from "../claude-tasks/workflow-contracts"
-
-export const HUSTLER_ROLES = [
-  "orchestrator",
-  "planner",
-  "developer",
-  "tester",
-  "approver",
-  "librarian",
-  "architect",
-] as const
-
-export type HustlerRole = typeof HUSTLER_ROLES[number]
+export { HUSTLER_ROLES, type HustlerRole } from "./role-constants"
 
 export type HustlerWorkflow = Readonly<{
   classification: WorkflowClassification
