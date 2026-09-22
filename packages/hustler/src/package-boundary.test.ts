@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
 import { execFileSync } from "node:child_process"
-import { readFileSync } from "node:fs"
+import { readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -21,6 +21,13 @@ const forbiddenPayloadPrefixes = [
   "packages/utils/src/",
 ]
 
+function sourceFiles(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name)
+    return entry.isDirectory() ? sourceFiles(path) : path.endsWith(".ts") ? [path] : []
+  })
+}
+
 function readJson(path: string): Record<string, unknown> {
   return JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>
 }
@@ -40,6 +47,18 @@ function packedPaths(): string[] {
 }
 
 describe("Hustler package boundary", () => {
+  test("#given the OpenCode source #when auditing imports #then it never imports the HUSTLER facade", () => {
+    const opencodeSourceRoot = join(repositoryRoot, "packages/omo-opencode/src")
+    const reverseImports = sourceFiles(opencodeSourceRoot).flatMap((path) => {
+      const source = readFileSync(path, "utf8")
+      return /packages\/hustler\/src\/index\.ts|\.\.\/.*hustler\/src\/index/.test(source)
+        ? [path]
+        : []
+    })
+
+    expect(reverseImports).toEqual([])
+  })
+
   test("#given the package manifest #when inspecting package metadata #then it is independently buildable", () => {
     const manifest = readJson(hustlerPackageJsonPath)
     expect(manifest.name).toBe("@oh-my-opencode/hustler")
