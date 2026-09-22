@@ -43,6 +43,16 @@ export type HustlerRoleDefinition = Readonly<{
   modelRequirement: ModelRequirement
 }>
 
+const LEGACY_ROLE_NAMES = ["Sisyphus", "Hephaestus", "Prometheus", "Atlas"] as const
+
+export function sanitizeHustlerPrompt(prompt: string | undefined): string | undefined {
+  if (prompt === undefined) return undefined
+  return LEGACY_ROLE_NAMES.reduce(
+    (current, legacyName) => current.replace(new RegExp(`\\b${legacyName}\\b`, "gi"), "HUSTLER"),
+    prompt,
+  )
+}
+
 type RoleSpec = Readonly<{
   mode: AgentMode
   capabilities: readonly HustlerCapability[]

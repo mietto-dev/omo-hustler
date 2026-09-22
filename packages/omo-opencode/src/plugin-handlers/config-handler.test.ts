@@ -1092,11 +1092,10 @@ describe("Prometheus direct override priority over category", () => {
     // #then - prompt_append is appended to base prompt, not overwriting it
     const agents = config.agent as Record<string, { prompt?: string }>
     const pKey = getAgentListDisplayName("planner")
-    const prometheusPrompt = agents[pKey]?.prompt
+    const plannerPrompt = agents[pKey]?.prompt
     expect(agents[pKey]).toBeDefined()
-    expect(prometheusPrompt).toContain("Prometheus")
-    expect(prometheusPrompt).toContain(customInstructions)
-    expect(prometheusPrompt?.endsWith(customInstructions)).toBe(true)
+    expect(plannerPrompt).toContain(customInstructions)
+    expect(plannerPrompt?.endsWith(customInstructions)).toBe(true)
   })
 })
 

@@ -14,6 +14,9 @@ import {
 import type { AgentSourceMap, AgentSources } from "./agent-config-types";
 import { buildPlanDemoteConfig } from "./plan-model-inheritance";
 import { buildPrometheusAgentConfig } from "./prometheus-agent-config-builder";
+import { applyOverrides } from "../agents/builtin-agents/agent-overrides";
+import { HUSTLER_ROLE_FACTORIES, sanitizeHustlerPrompt } from "../features/hustler/roles";
+import { mergeCategories } from "../shared/merge-categories";
 
 type BuiltinAgentMap = Record<string, AgentConfig | undefined>;
 
@@ -103,17 +106,20 @@ function orderedCustomAgentSources(
 async function createCoreAgentConfig(
   params: AssembleAgentConfigParams,
 ): Promise<Record<string, unknown>> {
-  const { builtinAgents, pluginConfig, sources, currentModel, useTaskSystem } = params;
-  const agentConfig: Record<string, unknown> = {
-    orchestrator: builtinAgents.orchestrator,
-  };
+  const { builtinAgents, pluginConfig, sources, currentModel, useTaskSystem, disabledAgentNames } = params;
+  const mergedCategories = mergeCategories(pluginConfig.categories);
+  const agentConfig: Record<string, unknown> = {};
 
-  if (builtinAgents.developer) {
+  if (!disabledAgentNames.has("orchestrator") && builtinAgents.orchestrator) {
+    agentConfig.orchestrator = builtinAgents.orchestrator;
+  }
+
+  if (!disabledAgentNames.has("developer") && builtinAgents.developer) {
     agentConfig.developer = builtinAgents.developer;
   }
 
-  if (pluginConfig.sisyphus_agent?.planner_enabled ?? true) {
-    agentConfig.planner = await buildPrometheusAgentConfig({
+  if ((pluginConfig.sisyphus_agent?.planner_enabled ?? true) && !disabledAgentNames.has("planner")) {
+    const plannerConfig = await buildPrometheusAgentConfig({
       configAgentPlan: sources.configAgent?.plan,
       pluginPrometheusOverride: pluginConfig.agents?.planner as
         | (Record<string, unknown> & { prompt_append?: string })
@@ -122,9 +128,24 @@ async function createCoreAgentConfig(
       currentModel,
       disabledTools: pluginConfig.disabled_tools,
     });
+    const plannerIdentity = HUSTLER_ROLE_FACTORIES.planner(currentModel ?? "hustler/metadata").config;
+    const plannerIdentityConfig = {
+      ...plannerConfig,
+      description: plannerIdentity.description,
+      mode: plannerIdentity.mode,
+      prompt: sanitizeHustlerPrompt(
+        typeof plannerConfig.prompt === "string" ? plannerConfig.prompt : undefined,
+      ),
+    };
+    agentConfig.planner = applyOverrides(
+      plannerIdentityConfig,
+      pluginConfig.agents?.planner,
+      mergedCategories,
+      undefined,
+    );
   }
 
-  if (builtinAgents.approver) {
+  if (!disabledAgentNames.has("approver") && builtinAgents.approver) {
     agentConfig.approver = builtinAgents.approver;
   }
 
@@ -194,10 +215,14 @@ async function assembleSisyphusEnabledConfig(params: AssembleAgentConfigParams):
       )
     : {};
 
+  const activeBuiltinAgents = Object.fromEntries(
+    Object.entries(params.builtinAgents).filter(([key]) => !params.disabledAgentNames.has(key.toLowerCase())),
+  );
+
   params.config.agent = {
     ...agentConfig,
     ...Object.fromEntries(
-      Object.entries(params.builtinAgents).filter(
+      Object.entries(activeBuiltinAgents).filter(
         ([key]) => !["orchestrator", "developer", "approver", "planner"].includes(key),
       ),
     ),
@@ -217,8 +242,12 @@ function assembleSisyphusDisabledConfig(params: AssembleAgentConfigParams): void
       )
     : {};
 
+  const activeBuiltinAgents = Object.fromEntries(
+    Object.entries(params.builtinAgents).filter(([key]) => !params.disabledAgentNames.has(key.toLowerCase())),
+  );
+
   params.config.agent = {
-    ...params.builtinAgents,
+    ...activeBuiltinAgents,
     ...orderedCustomAgentSources(filteredSources, params.disabledAgentNames),
     ...filteredConfigAgents,
   };
