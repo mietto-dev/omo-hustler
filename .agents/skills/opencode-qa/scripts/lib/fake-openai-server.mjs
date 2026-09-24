@@ -123,7 +123,7 @@ const server = http.createServer(async (req, res) => {
   if (process.env.HUSTLER_FAKE_PROVIDER === "1" && inputStr.includes("HUSTLER_E2E_")) {
     const scenario = hustlerScenarioIn(inputStr)
     if (scenario === "HUSTLER_E2E_PROVIDER_FAILURE") {
-      res.writeHead(503, { "content-type": "application/json" }).end(JSON.stringify({ error: { type: "server_error", message: "deterministic provider failure" } }))
+      res.writeHead(503, { "content-type": "application/json", "retry-after": "0" }).end(JSON.stringify({ error: { type: "server_error", message: "deterministic provider failure" } }))
       return
     }
     if (scenario === "HUSTLER_E2E_TOOL_FAILURE" && hustlerState.toolFailures++ === 0) {
