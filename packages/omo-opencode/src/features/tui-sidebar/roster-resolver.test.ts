@@ -62,6 +62,7 @@ describe("resolveRoster", () => {
       // then
       expect(rows.length).toBeGreaterThan(0)
       expect(rows.some((row) => row.label === "orchestrator")).toBe(true)
+      expect(rows.some((row) => row.label === "Orchestrator")).toBe(false)
       expect(rows.some((row) => row.label === "deep")).toBe(true)
     })
   })
