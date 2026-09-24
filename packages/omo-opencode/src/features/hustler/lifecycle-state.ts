@@ -46,7 +46,7 @@ export type CreateHustlerWorkflowInput = Readonly<{
 
 export type HustlerLifecycleEventInput = Readonly<{
   eventKey: string
-  kind: "session_idle" | "session_error" | "tool_result" | "delegated_work"
+  kind: "workflow_started" | "session_idle" | "session_error" | "tool_result" | "delegated_work"
   code?: string
 }>
 
