@@ -17,6 +17,7 @@ import {
   eventSignature,
   getHustlerWorkflowPath,
   prepareCreate,
+  prepareApproverResult,
   prepareEvent,
   prepareWorkItem,
   readWorkflowRecord,
@@ -54,7 +55,7 @@ export type HustlerWorkItemInput = Readonly<{
   workerId: string
   role: "orchestrator" | "planner" | "developer" | "tester" | "approver" | "librarian" | "architect"
   status: "pending" | "running" | "completed" | "failed"
-  workItemId: string
+  workItemId?: string
 }>
 
 export type HustlerLifecycleAdapter = Readonly<{
@@ -109,7 +110,10 @@ export function createHustlerLifecycleAdapter(config: HustlerLifecycleConfig = {
       return updateWorkflowRecord(config, reference, input.eventKey, "event", prepareEvent(input), current => ({ state: current.state }))
     },
     recordWorkItem(reference, input) {
-      return updateWorkflowRecord(config, reference, input.eventKey, "event", prepareWorkItem(input), current => {
+      const workflowId = workflowIdOf(reference)
+      const workItemId = input.workItemId ?? `WI-${eventSignature([workflowId, input.workerId])}`
+      const normalizedInput = { ...input, workItemId }
+      return updateWorkflowRecord(config, reference, input.eventKey, "event", prepareWorkItem(normalizedInput), current => {
         const workers = current.state.workers.filter(worker => worker.id !== input.workerId)
         const state = WorkflowStateSchema.parse({
           ...current.state,
@@ -117,7 +121,7 @@ export function createHustlerLifecycleAdapter(config: HustlerLifecycleConfig = {
             id: input.workerId,
             role: input.role,
             status: input.status,
-            workItemId: input.workItemId,
+            workItemId,
           }],
         })
         return { state }
@@ -132,7 +136,7 @@ export function createHustlerLifecycleAdapter(config: HustlerLifecycleConfig = {
     },
     recordApproverResult(reference, input) {
       const resultStatus = resolveApproverResult(input.result).status
-      return updateWorkflowRecord(config, reference, input.eventKey, "approver_result", eventSignature([resultStatus, input.workItemId]), current => {
+      return updateWorkflowRecord(config, reference, input.eventKey, "approver_result", eventSignature([resultStatus, input.workItemId, prepareApproverResult(input.result)]), current => {
         const state = recordApproverResult(current.state, input.result, input.workItemId)
         return { state, toPhase: state.phase, reviewStatus: resultStatus }
       })

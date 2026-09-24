@@ -135,6 +135,29 @@ describe("HUSTLER lifecycle identity", () => {
     expect(restored?.revision).toBe(1)
   })
 
+  test("derives a stable work-item ID when a delegated event omits one", () => {
+    // #given
+    const { config } = createTestFixture()
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({
+      sessionId: "ses_work_item_identity",
+      classification: classifyTask({ expectedFiles: 1 }),
+    })
+
+    // #when
+    const first = adapter.recordWorkItem(created.identity.workflowId, {
+      eventKey: "work-item:stable",
+      workerId: "worker-stable",
+      role: "developer",
+      status: "running",
+    })
+    const restored = createHustlerLifecycleAdapter(config).load(created.identity.workflowId)
+
+    // #then
+    expect(first.state.workers[0]?.workItemId).toBe(restored?.state.workers[0]?.workItemId)
+    expect(first.state.workers[0]?.workItemId).toMatch(/^WI-/)
+  })
+
   test("persists only an atomic record and no temporary files", () => {
     // #given
     const { config, storagePath } = createTestFixture()
@@ -175,7 +198,7 @@ describe("HUSTLER lifecycle identity", () => {
       const adapter = createHustlerLifecycleAdapter(config);
       adapter.transition(process.env.HUSTLER_TEST_WORKFLOW_ID, { eventKey: "idle:1", nextPhase: "implementation" });
     `
-    const child = Bun.spawn(["bun", "-e", childCode], {
+    const spawnContender = () => Bun.spawn(["bun", "-e", childCode], {
       env: {
         ...process.env,
         HUSTLER_TEST_STORAGE: storagePath,
@@ -184,14 +207,18 @@ describe("HUSTLER lifecycle identity", () => {
       stderr: "pipe",
       stdout: "pipe",
     })
+    const children = [spawnContender(), spawnContender()]
     const releaseTimer = setTimeout(() => heldLock.release(), 25)
-    const exitCode = await child.exited
+    const exitCodes = await Promise.all(children.map(child => child.exited))
     clearTimeout(releaseTimer)
     heldLock.release()
+    const persisted = adapter.load(created.identity.workflowId)
 
     // #then
-    expect(exitCode).toBe(0)
-    expect(adapter.load(created.identity.workflowId)?.events).toHaveLength(1)
+    expect(exitCodes).toEqual([0, 0])
+    expect(persisted?.revision).toBe(1)
+    expect(persisted?.state.phase).toBe("implementation")
+    expect(persisted?.events).toHaveLength(1)
   })
 
   test("collapses duplicate tester review replay and rejects conflicting replay", () => {
@@ -237,7 +264,7 @@ describe("HUSTLER lifecycle identity", () => {
     const replay = adapter.recordApproverResult(created.identity.workflowId, { eventKey: "approval:replay", result: acceptedInput })
     const conflicting = () => adapter.recordApproverResult(created.identity.workflowId, {
       eventKey: "approval:replay",
-      result: { ...acceptedInput, completedWork: [] },
+      result: { ...acceptedInput, completedWork: ["criterion", "different completed work"] },
     })
 
     // #then
@@ -277,6 +304,30 @@ describe("HUSTLER lifecycle identity", () => {
     expect(adapter.load(created.identity.workflowId)).toEqual(created)
   })
 
+  test("rejects a persisted workflow ID that disagrees with its storage path", () => {
+    // #given
+    const { config } = createTestFixture()
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({
+      sessionId: "ses_workflow_reference",
+      workflowId: "workflow-reference",
+      classification: classifyTask({ expectedFiles: 1 }),
+    })
+
+    const filePath = getHustlerWorkflowPath(config, created.identity.workflowId)
+    const persisted = JSON.parse(readFileSync(filePath, "utf8")) as { identity: { workflowId: string } }
+    persisted.identity.workflowId = "workflow-other"
+    const conflictingJson = JSON.stringify(persisted)
+    writeFileSync(filePath, conflictingJson, "utf8")
+
+    // #when
+    const attempt = () => adapter.load(created.identity.workflowId)
+
+    // #then
+    expect(attempt).toThrow(HustlerLifecycleError)
+    expect(readFileSync(filePath, "utf8")).toBe(conflictingJson)
+  })
+
   test("rejects a conflicting replay without changing the valid record", () => {
     // #given
     const { config } = createTestFixture()
@@ -313,6 +364,30 @@ describe("HUSTLER lifecycle identity", () => {
     // #then
     expect(attempt).toThrow(HustlerLifecycleError)
     expect(readFileSync(filePath, "utf8")).toBe("{broken")
+  })
+
+  test("fails closed on conflicting persisted event history without rewriting it", () => {
+    // #given
+    const { config } = createTestFixture()
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({
+      sessionId: "ses_conflicting_history",
+      classification: classifyTask({ expectedFiles: 1 }),
+    })
+    adapter.recordEvent(created.identity.workflowId, { eventKey: "idle:1", kind: "session_idle" })
+    const filePath = getHustlerWorkflowPath(config, created.identity.workflowId)
+    const persisted = JSON.parse(readFileSync(filePath, "utf8")) as { events: Array<{ eventKey: string; revision: number }>; revision: number }
+    persisted.events.push({ ...persisted.events[0], revision: 2 })
+    persisted.revision = 2
+    const conflictingJson = JSON.stringify(persisted)
+    writeFileSync(filePath, conflictingJson, "utf8")
+
+    // #when
+    const attempt = () => adapter.load(created.identity.workflowId)
+
+    // #then
+    expect(attempt).toThrow(HustlerLifecycleError)
+    expect(readFileSync(filePath, "utf8")).toBe(conflictingJson)
   })
 
   test("keeps terminal completion immutable and permits exact replay only", () => {
