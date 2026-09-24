@@ -9,6 +9,7 @@ import {
 } from "../claude-tasks/workflow-contracts"
 import { createHustlerLifecycleAdapter, createHustlerWorkflowIdentity, type HustlerLifecycleAdapter } from "./lifecycle-state"
 import type { HustlerLifecycleRecord } from "./lifecycle-state-schema"
+import { resolveSessionEventID } from "../../shared/event-session-id"
 import { log } from "../../shared/logger"
 
 type Metadata = Record<string, unknown>
@@ -42,8 +43,7 @@ function nestedMetadata(value: unknown): Metadata | undefined {
 }
 
 function sessionIDOf(properties: Metadata | undefined): string | undefined {
-  const value = properties?.sessionID ?? properties?.sessionId
-  return typeof value === "string" && value.length > 0 ? value : undefined
+  return resolveSessionEventID(properties)
 }
 
 function workflowContractOf(value: unknown): WorkflowContract | undefined {
@@ -102,9 +102,11 @@ function hasActiveWorkers(record: HustlerLifecycleRecord): boolean {
 function isToolError(input: ToolResultInput): boolean {
   const metadata = input.output?.metadata
   const status = metadata?.status
+  const exitCode = metadata?.exit
   return metadata?.error !== undefined
     || status === "error"
     || status === "failed"
+    || (typeof exitCode === "number" && exitCode !== 0)
     || /^error$/i.test(input.output?.title ?? "")
 }
 
@@ -153,6 +155,18 @@ export function createHustlerEventLifecycle(
         apply(eventKey, () => lifecycle.cancel(reference, { eventKey }))
       } else if (/error|fail/i.test(statusType ?? "")) {
         apply(eventKey, () => lifecycle.fail(reference, { eventKey, code: statusType }))
+      }
+      return
+    }
+    if (input.type === "message.updated") {
+      const info = record(properties?.info)
+      const error = record(info?.error ?? properties?.error)
+      if (error) {
+        const errorName = typeof error.name === "string" ? error.name : "message_error"
+        const isAbort = /abort|cancel|interrupt/i.test(`${errorName} ${String(error.message ?? "")}`)
+        apply(eventKey, () => isAbort
+          ? lifecycle.cancel(reference, { eventKey })
+          : lifecycle.fail(reference, { eventKey, code: errorName }))
       }
       return
     }
