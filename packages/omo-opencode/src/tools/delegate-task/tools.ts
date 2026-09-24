@@ -37,6 +37,13 @@ const LEGACY_ONLY_ROLE_KEYS = new Set([
   "explore",
 ])
 
+const CONTRACT_REQUIRED_ROLE_KEYS = new Set([
+  "planner",
+  "developer",
+  "tester",
+  "approver",
+])
+
 function policyErrorResult(error: unknown): string | undefined {
   if (!(error instanceof DelegationPolicyError)) return undefined
   return `Error: ${error.code}: ${error.message}`
@@ -254,7 +261,7 @@ export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefini
         } catch (error) {
           return `Invalid workflow contract: ${error instanceof Error ? error.message : String(error)}`
         }
-      } else if (isHustlerRole(targetRole) && !delegateTaskArgs.category) {
+      } else if (CONTRACT_REQUIRED_ROLE_KEYS.has(targetRole) && !delegateTaskArgs.category) {
         return `Invalid arguments: HUSTLER role "${targetRole}" requires a workflow contract.`
       }
 

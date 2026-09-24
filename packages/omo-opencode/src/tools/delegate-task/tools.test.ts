@@ -4065,7 +4065,7 @@ describe("sisyphus-task", () => {
       )
 
       //#then
-      expect(result).toContain("plan-family")
+      expect(result).toContain("legacy-only role")
     })
 
     test("plan cannot delegate to planner even when it is exposed as a primary agent", async () => {
@@ -4107,7 +4107,7 @@ describe("sisyphus-task", () => {
       
       //#when
       const result = await tool.execute(
-         { description: "test", prompt: "Create a plan", subagent_type: "developer", run_in_background: false, load_skills: [] },
+         { description: "test", prompt: "Create a plan", subagent_type: "developer", run_in_background: false, load_skills: [], workflow_contract: { kind: "developer", metadata: { role: "developer", workflowId: "wf-test", taskId: "task-test", workItemId: "work-test", tier: 0 }, contract: { id: "work-test", objective: "Create the plan", scope: ["packages/app"], acceptanceCriteria: ["The plan exists"] } } },
         { sessionID: "p", messageID: "m", agent: "orchestrator", abort: new AbortController().signal }
       )
       
@@ -4555,6 +4555,7 @@ describe("sisyphus-task", () => {
           description: "Test developer task permission",
           prompt: "Create a plan",
           subagent_type: "developer",
+          workflow_contract: { kind: "developer", metadata: { role: "developer", workflowId: "wf-test", taskId: "task-test", workItemId: "work-test", tier: 0 }, contract: { id: "work-test", objective: "Create the plan", scope: ["packages/app"], acceptanceCriteria: ["The plan exists"] } },
           run_in_background: false,
           load_skills: [],
         },
