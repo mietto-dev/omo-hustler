@@ -8,6 +8,9 @@ import { parseSnapshot } from "./snapshot-schema"
 import type { TuiRuntimeSnapshot } from "./snapshot-schema"
 
 export function writeMirror(projectDir: string, snapshot: TuiRuntimeSnapshot): void {
+  if (parseSnapshot(snapshot) === null) {
+    throw new Error("Cannot write an invalid TUI runtime snapshot")
+  }
   const filePath = mirrorFilePath(projectDir)
   const content = JSON.stringify(snapshot)
 
