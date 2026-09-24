@@ -100,7 +100,7 @@ export const TuiRuntimeSnapshotSchema = z.object({
   activeAgents: z.array(AgentRowSchema),
   jobBoard: z.array(JobRowSchema),
   loop: LoopLiveSchema.nullable(),
-  hustlerWorkflow: HustlerWorkflowSchema.nullable(),
+  hustlerWorkflow: HustlerWorkflowSchema.nullable().optional(),
 }).strict()
 
 export type TuiRuntimeSnapshot = z.infer<typeof TuiRuntimeSnapshotSchema>
