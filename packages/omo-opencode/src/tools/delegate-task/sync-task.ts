@@ -53,6 +53,7 @@ export async function executeSyncTask(
       description: args.description,
       defaultDirectory: directory,
       categoryModel,
+      workflowContract: args.workflow_contract,
     })
 
     if (!createSessionResult.ok) {

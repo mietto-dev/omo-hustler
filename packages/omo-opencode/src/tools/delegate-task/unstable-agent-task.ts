@@ -46,6 +46,7 @@ export async function executeUnstableAgentTask(
       category: args.category,
       sessionPermission: QUESTION_DENIED_SESSION_PERMISSION,
       delegationLineage: args.delegationLineage,
+      workflowContract: args.workflow_contract,
     })
     launchedTaskID = task.id
 
@@ -86,6 +87,7 @@ export async function executeUnstableAgentTask(
         sessionId: sessionID,
         command: args.command,
         model: resolveMetadataModel(categoryModel, parentContext.model),
+        ...(task.workflowContract ? { workflowContract: task.workflowContract } : {}),
       },
     }
     await publishToolMetadata(ctx, bgTaskMeta)

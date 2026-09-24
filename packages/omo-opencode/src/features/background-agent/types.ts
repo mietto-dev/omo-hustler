@@ -146,4 +146,5 @@ export interface ResumeInput {
   parentModel?: { providerID: string; modelID: string }
   parentAgent?: string
   parentTools?: Record<string, boolean>
+  workflowContract?: WorkflowContract
 }

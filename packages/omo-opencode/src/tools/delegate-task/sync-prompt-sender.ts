@@ -105,6 +105,7 @@ export async function sendSyncPrompt(
       agent: stripInvisibleAgentCharacters(input.agentToUse),
       system: input.systemContent,
       tools,
+      ...(input.args.workflow_contract ? { metadata: { workflowContract: input.args.workflow_contract } } : {}),
       parts: [createInternalAgentTextPart(effectivePrompt)],
       ...(input.categoryModel
         ? {

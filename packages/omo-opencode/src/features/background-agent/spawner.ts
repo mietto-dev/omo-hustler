@@ -68,6 +68,7 @@ export async function startTask(
     body: {
       parentID: input.parentSessionId,
       ...(input.sessionPermission ? { permission: input.sessionPermission } : {}),
+      ...(input.workflowContract ? { metadata: { workflowContract: input.workflowContract } } : {}),
     } as Record<string, unknown>,
     query: {
       directory: parentDirectory,
@@ -122,6 +123,7 @@ export async function startTask(
     model: input.model,
     prompt: input.prompt,
     includeTeamToolDenylist: input.teamRunId === undefined,
+    workflowContract: input.workflowContract,
   })
   setSessionTools(sessionID, promptBody.tools)
 
@@ -245,6 +247,7 @@ export async function resumeTask(
     model: task.model,
     prompt: input.prompt,
     includeTeamToolDenylist: task.teamRunId === undefined,
+    workflowContract: task.workflowContract,
   })
   setSessionTools(sessionID, resumeBody.tools)
 
