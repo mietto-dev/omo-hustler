@@ -93,7 +93,7 @@ async function main() {
 
     tmuxSession = `hustler_tui_${process.pid}`
     tmux(["new-session", "-d", "-s", tmuxSession, "-x", "200", "-y", "50"])
-    const tuiEnv = `HOME='${join(sandbox.root, "home")}' XDG_CONFIG_HOME='${join(sandbox.root, "config")}' XDG_DATA_HOME='${join(sandbox.root, "data")}' XDG_CACHE_HOME='${join(sandbox.root, "cache")}' XDG_STATE_HOME='${join(sandbox.root, "state")}' OPENCODE_SERVER_PASSWORD='${password}' OPENCODE_DISABLE_AUTOUPDATE=1 OPENCODE_DISABLE_MODELS_FETCH=1 opencode --attach ${baseUrl} '${join(sandbox.root, "project")}'`
+    const tuiEnv = `HOME='${join(sandbox.root, "home")}' XDG_CONFIG_HOME='${join(sandbox.root, "config")}' XDG_DATA_HOME='${join(sandbox.root, "data")}' XDG_CACHE_HOME='${join(sandbox.root, "cache")}' XDG_STATE_HOME='${join(sandbox.root, "state")}' OPENCODE_SERVER_PASSWORD='${password}' OPENCODE_DISABLE_AUTOUPDATE=1 OPENCODE_DISABLE_MODELS_FETCH=1 opencode attach ${baseUrl}`
     tmux(["send-keys", "-t", tmuxSession, tuiEnv, "Enter"])
     await waitFor("TUI render marker", () => {
       if (!tmuxHasSession(tmuxSession)) return false
