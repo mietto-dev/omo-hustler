@@ -12,6 +12,34 @@ export const latches = {
   parentHoldIssued: false,
 }
 
+export const hustlerState = {
+  scenario: "",
+  workflowId: "",
+  taskId: "",
+  parentCalls: 0,
+  providerFailures: 0,
+  toolFailures: 0,
+}
+
+export function configureHustler(input) {
+  hustlerState.scenario = typeof input.scenario === "string" ? input.scenario : ""
+  hustlerState.workflowId = typeof input.workflowId === "string" ? input.workflowId : ""
+  hustlerState.taskId = typeof input.taskId === "string" ? input.taskId : ""
+  hustlerState.parentCalls = 0
+  hustlerState.providerFailures = 0
+  hustlerState.toolFailures = 0
+}
+
+export function hustlerRoleIn(inputStr) {
+  const match = inputStr.match(/hustler\.(planner|developer|tester|approver)/)
+  return match?.[1] ?? undefined
+}
+
+export function hustlerScenarioIn(inputStr) {
+  const match = inputStr.match(/HUSTLER_E2E_[A-Z_]+/)
+  return match?.[0] ?? hustlerState.scenario
+}
+
 export function hasToolResult(inputStr) {
   return (
     inputStr.includes('"type":"function_call_output"') ||
