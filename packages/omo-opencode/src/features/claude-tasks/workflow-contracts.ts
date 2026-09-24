@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { ArchitectReasonSchema } from "./orchestrator-classification"
+import { HUSTLER_ROLES } from "../hustler/role-constants"
 
 const nonEmptyString = z.string().trim().min(1)
 const relativePath = nonEmptyString.superRefine((value, ctx) => {
@@ -49,6 +50,7 @@ export const DeveloperTaskContractSchema = z.object({
   forbiddenScope: z.array(relativePath).default([]),
   skills: z.array(nonEmptyString).default([]),
   dependencies: z.array(nonEmptyString).default([]),
+  plannerEvidence: z.lazy(() => PlannerPlanSchema).optional(),
 }).strict().superRefine((contract, ctx) => {
   for (const [index, file] of (contract.relevantFiles ?? []).entries()) {
     if (!contract.scope.some(scope => pathIsWithinScope(file, scope))) {
@@ -129,6 +131,15 @@ export const VerificationStatusSchema = z.object({
 }).strict()
 
 export type VerificationStatus = z.infer<typeof VerificationStatusSchema>
+
+export const DeveloperOutputSchema = z.object({
+  status: z.enum(["completed", "blocked"]),
+  summary: nonEmptyString,
+  changedFiles: z.array(relativePath),
+  verification: VerificationStatusSchema,
+}).strict()
+
+export type DeveloperOutput = z.infer<typeof DeveloperOutputSchema>
 
 const VERIFICATION_CHECKS = ["tests", "build", "lint", "typecheck"] as const
 
@@ -220,10 +231,70 @@ export function resolveApproverResult(input: ApproverInput): ApproverResult {
   })
 }
 
+export const HustlerRoleSchema = z.enum(HUSTLER_ROLES)
+export type HustlerRole = z.infer<typeof HustlerRoleSchema>
+const HUSTLER_ROLE_SET = new Set<string>(HUSTLER_ROLES)
+
+export function isHustlerRole(value: string): value is HustlerRole {
+  return HUSTLER_ROLE_SET.has(value)
+}
+
+export const WorkflowDelegationMetadataSchema = z.object({
+  role: HustlerRoleSchema,
+  workflowId: nonEmptyString,
+  taskId: nonEmptyString,
+  workItemId: nonEmptyString.optional(),
+  tier: z.number().int().min(0).max(3),
+}).strict()
+
+export type WorkflowDelegationMetadata = z.infer<typeof WorkflowDelegationMetadataSchema>
+
+const WorkflowContractBaseSchema = z.object({
+  metadata: WorkflowDelegationMetadataSchema,
+}).strict()
+
 export const WorkflowContractSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("developer"), contract: DeveloperTaskContractSchema }).strict(),
-  z.object({ kind: z.literal("planner"), contract: PlannerPlanSchema }).strict(),
-])
+  z.object({
+    kind: z.literal("developer"),
+    contract: DeveloperTaskContractSchema,
+    ...WorkflowContractBaseSchema.shape,
+  }).strict(),
+  z.object({
+    kind: z.literal("planner"),
+    contract: PlannerPlanSchema,
+    ...WorkflowContractBaseSchema.shape,
+  }).strict(),
+  z.object({
+    kind: z.literal("tester"),
+    contract: TesterReviewSchema,
+    ...WorkflowContractBaseSchema.shape,
+  }).strict(),
+  z.object({
+    kind: z.literal("approver"),
+    contract: ApproverInputSchema,
+    ...WorkflowContractBaseSchema.shape,
+  }).strict(),
+]).superRefine((contract, ctx) => {
+  if (contract.metadata.role !== contract.kind) {
+    ctx.addIssue({ code: "custom", path: ["metadata", "role"], message: "Contract role must match contract kind" })
+  }
+
+  if (contract.kind !== "planner" && contract.metadata.workItemId === undefined) {
+    ctx.addIssue({ code: "custom", path: ["metadata", "workItemId"], message: `${contract.kind} contract requires a work item ID` })
+  }
+
+  if (contract.kind === "developer") {
+    if (contract.metadata.workItemId !== contract.contract.id) {
+      ctx.addIssue({ code: "custom", path: ["metadata", "workItemId"], message: "Developer work item ID must match the developer contract ID" })
+    }
+    if (contract.metadata.tier >= 2 && contract.contract.plannerEvidence === undefined) {
+      ctx.addIssue({ code: "custom", path: ["contract", "plannerEvidence"], message: "Tier 2 implementation requires planner evidence" })
+    }
+    if (contract.contract.plannerEvidence !== undefined && !contract.contract.plannerEvidence.workItems.some(item => item.id === contract.metadata.workItemId)) {
+      ctx.addIssue({ code: "custom", path: ["contract", "plannerEvidence"], message: "Planner evidence must contain the delegated work item" })
+    }
+  }
+})
 
 export type WorkflowContract = z.infer<typeof WorkflowContractSchema>
 
@@ -231,4 +302,16 @@ export const DeveloperTaskSchema = DeveloperTaskContractSchema
 
 export function parseWorkflowContract(value: unknown): WorkflowContract {
   return WorkflowContractSchema.parse(value)
+}
+
+export function validateWorkflowContractForDelegation(value: unknown, targetRole: string): WorkflowContract {
+  const contract = parseWorkflowContract(value)
+  const normalizedTargetRole = targetRole.trim().toLowerCase()
+  if (!isHustlerRole(normalizedTargetRole)) {
+    throw new Error(`Invalid HUSTLER delegation role: ${targetRole}`)
+  }
+  if (contract.kind !== normalizedTargetRole || contract.metadata.role !== normalizedTargetRole) {
+    throw new Error(`Workflow contract role ${contract.kind} does not match target role ${targetRole}`)
+  }
+  return contract
 }

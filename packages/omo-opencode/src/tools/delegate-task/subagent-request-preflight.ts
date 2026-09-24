@@ -55,7 +55,8 @@ Create the work plan directly - that's your job as the planning agent.`,
     }
   }
 
-  if (isCoordinatorAgent(agentName)) {
+  const isWorkflowPlanner = args.workflow_contract?.kind === "planner"
+  if (isCoordinatorAgent(agentName) && !isWorkflowPlanner) {
     return {
       kind: "invalid",
       result: {
