@@ -54,7 +54,7 @@ export async function makeSandbox(repoRoot) {
     model: "openai/gpt-fake",
     provider: { openai: { options: { apiKey: "fake-key", baseURL: "http://127.0.0.1:__FAKE_PORT__/v1" }, models: { "gpt-fake": { tool_call: true, limit: { context: 200000, output: 8192 } } } } },
     permission: { bash: "allow", task: "allow", call_omo_agent: "allow" },
-  }, null, 2)}
+  }, null, 2)}\n`)
   await writeFile(omoConfigPath, `${JSON.stringify({ team_mode: { enabled: false }, sisyphus: { tasks: { storage_path: join(root, "tasks") } } }, null, 2)}\n`)
   return { root, configPath, omoConfigPath, pluginPath }
 }
