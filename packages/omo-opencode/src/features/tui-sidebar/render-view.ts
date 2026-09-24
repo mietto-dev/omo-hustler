@@ -24,13 +24,15 @@ type ThemeLike = {
   readonly borderSubtle?: unknown
 }
 
+const NO_HUSTLER_WORKFLOW: HustlerWorkflowState = { kind: "none" }
+
 export function buildViewNodes(view: SidebarView, theme: ThemeLike): ViewNode[] {
   switch (view.kind) {
     case "active":
       return [
         box({ flexDirection: "column", gap: 1 }, [
           ...configBannerNodes(view.configBanner, theme),
-          ...buildHustlerNodes(view.hustler, theme),
+          ...buildHustlerNodes(view.hustler ?? NO_HUSTLER_WORKFLOW, theme),
           ...loopNodes(view.loop, theme),
           ...agentNodes(view.agents, theme),
           ...jobNodes(view.jobs, theme),
@@ -39,7 +41,7 @@ export function buildViewNodes(view: SidebarView, theme: ThemeLike): ViewNode[] 
     case "broken":
       return brokenNodes(view.messages, theme)
     case "idle":
-      return idleNodes(view.roster, view.hustler, theme)
+      return idleNodes(view.roster, view.hustler ?? NO_HUSTLER_WORKFLOW, theme)
     default:
       return assertNever(view)
   }
@@ -54,7 +56,7 @@ function linesForView(view: SidebarView): string[] {
     case "active":
       return [
         ...configBannerLines(view.configBanner),
-        ...describeHustler(view.hustler),
+        ...describeHustler(view.hustler ?? NO_HUSTLER_WORKFLOW),
         ...loopLines(view.loop),
         ...agentLines(view.agents),
         ...jobLines(view.jobs),
@@ -62,7 +64,7 @@ function linesForView(view: SidebarView): string[] {
     case "broken":
       return ["config invalid - run doctor", ...view.messages]
     case "idle":
-      return [...describeHustler(view.hustler), ...rosterLines(view.roster)]
+      return [...describeHustler(view.hustler ?? NO_HUSTLER_WORKFLOW), ...rosterLines(view.roster)]
     default:
       return assertNever(view)
   }

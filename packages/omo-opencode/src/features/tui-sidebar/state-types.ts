@@ -61,13 +61,13 @@ export type SidebarView =
   | {
       readonly kind: "active"
       readonly loop: LoopState
-      readonly hustler: HustlerWorkflowState
+      readonly hustler?: HustlerWorkflowState
       readonly agents: AgentsState
       readonly jobs: JobBoardState
       readonly configBanner: ConfigBanner
     }
   | { readonly kind: "broken"; readonly messages: readonly string[] }
-  | { readonly kind: "idle"; readonly roster: RosterState; readonly hustler: HustlerWorkflowState }
+  | { readonly kind: "idle"; readonly roster: RosterState; readonly hustler?: HustlerWorkflowState }
 
 export function assertNever(value: never): never {
   throw new Error(`Unexpected variant: ${JSON.stringify(value)}`)
