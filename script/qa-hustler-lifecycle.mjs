@@ -1,14 +1,13 @@
 #!/usr/bin/env bun
 
 import { join, resolve } from "node:path"
-import { readFile, writeFile } from "node:fs/promises"
+import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import {
   assert,
   assertExact,
   cleanupProcess,
   cleanupSandbox,
-  fail,
   hostSessionCount,
   makeSandbox,
   openSse,
@@ -36,6 +35,12 @@ const { createHustlerLifecycleAdapter, createHustlerWorkflowIdentity, getHustler
 
 function jsonBody(value) {
   return { headers: { "content-type": "application/json" }, body: JSON.stringify(value) }
+}
+
+function scenarioPrompt(scenario) {
+  return scenario.tier >= 2
+    ? `${scenario.marker}: implement a multi-file frontend, backend, and database change across modules`
+    : scenario.marker
 }
 
 function workflowConfig(tasksPath) {
@@ -74,11 +79,11 @@ async function advanceToReview(adapter, workflowId, record, tasksPath) {
     assert(current?.state.plan?.summary === plan.summary, "Planner evidence was not persisted")
   }
   if (current?.state.phase === "implementation" && current.classification.tier >= 2) {
-    adapter.transition(workflowId, { eventKey: "qa:integration", nextPhase: "integration" })
+    adapter.transition(workflowId, { eventKey: `qa:integration:${current.revision}`, nextPhase: "integration" })
     current = adapter.load(workflowId)
   }
   if (current?.state.phase === "implementation" || current?.state.phase === "integration") {
-    adapter.transition(workflowId, { eventKey: "qa:review", nextPhase: "review" })
+    adapter.transition(workflowId, { eventKey: `qa:review:${current.revision}`, nextPhase: "review" })
     current = adapter.load(workflowId)
   }
   assert(current?.state.phase === "review", `Expected review phase, received ${current?.state.phase}`)
@@ -116,39 +121,94 @@ async function createSession(baseUrl, password, directory, title) {
 }
 
 async function runScenario(baseUrl, password, sandbox, scenario, fakePort) {
-  const sessionId = await createSession(baseUrl, password, join(sandbox.root, "project"), `HUSTLER ${scenario.name}`)
-  const identity = createHustlerWorkflowIdentity({ sessionId })
-  await fetch(`http://127.0.0.1:${fakePort}/control`, { method: "POST", ...jsonBody({ scenario: scenario.marker, workflowId: identity.workflowId, taskId: identity.taskId }) })
   const sse = await openSse(baseUrl, password, join(sandbox.root, "project"))
   await sse.ready
-  await request(baseUrl, password, `/session/${sessionId}/prompt_async?directory=${encodeURIComponent(join(sandbox.root, "project"))}`, { method: "POST", ...jsonBody({ parts: [{ type: "text", text: scenario.marker }] }) })
-  if (scenario.marker === "HUSTLER_E2E_CANCEL") await request(baseUrl, password, `/session/${sessionId}/abort?directory=${encodeURIComponent(join(sandbox.root, "project"))}`, { method: "POST", ...jsonBody({}) })
-  const adapter = createHustlerLifecycleAdapter(workflowConfig(join(sandbox.root, "tasks")))
-  const persisted = await waitFor(`${scenario.name} persisted workflow state`, () => {
-    const record = adapter.load(identity.workflowId)
-    return scenario.terminal === "completed"
-      ? (record?.status === "active" || record?.status === "completed" ? record : false)
-      : (record?.status === scenario.terminal ? record : false)
-  })
-  const lifecycleEvents = sse.events.filter(event => ["session.created", "session.idle", "session.error", "message.updated", "message.part.updated"].includes(event.type))
-  assert(lifecycleEvents.some(event => event.type === "session.created"), `${scenario.name} emitted no session.created SSE event`)
-  assert(scenario.terminal === "completed" ? lifecycleEvents.some(event => event.type === "session.idle" || event.type === "message.updated") : lifecycleEvents.some(event => event.type === "session.error" || event.type === "session.idle"), `${scenario.name} emitted no terminal lifecycle SSE event`)
-  await sse.close()
-  const final = scenario.terminal === "completed" ? await finishWorkflow(adapter, identity.workflowId, persisted, join(sandbox.root, "tasks")) : persisted
-  assert(final.status === scenario.terminal, `${scenario.name} persisted status mismatch`)
-  assert(final.classification.tier === scenario.tier, `${scenario.name} classification tier mismatch`)
-  assert(final.events.length > 0, `${scenario.name} persisted no lifecycle events`)
-  if (scenario.testerReject || scenario.approverReject) assert(final.state.retryCount > 0, `${scenario.name} persisted no retry transition`)
-  if (scenario.terminal === "failed") assert(final.events.some(event => event.operation === "fail"), `${scenario.name} persisted no fail operation`)
-  if (scenario.terminal === "cancelled") assert(final.events.some(event => event.operation === "cancel"), `${scenario.name} persisted no cancel operation`)
-  return { sessionId, workflowId: identity.workflowId, status: final.status, revision: final.revision, sseTypes: [...new Set(lifecycleEvents.map(event => event.type))] }
+  try {
+    const sessionId = await createSession(baseUrl, password, join(sandbox.root, "project"), `HUSTLER ${scenario.name}`)
+    const identity = createHustlerWorkflowIdentity({ sessionId })
+    const controlResponse = await fetch(`http://127.0.0.1:${fakePort}/control`, { method: "POST", ...jsonBody({ scenario: scenario.marker, workflowId: identity.workflowId, taskId: identity.taskId }) })
+    assert(controlResponse.status === 204, `${scenario.name} fake provider control returned ${controlResponse.status}, expected 204`)
+    await request(baseUrl, password, `/session/${sessionId}/prompt_async?directory=${encodeURIComponent(join(sandbox.root, "project"))}`, { method: "POST", ...jsonBody({ parts: [{ type: "text", text: scenarioPrompt(scenario) }] }) })
+    if (scenario.marker === "HUSTLER_E2E_CANCEL") await request(baseUrl, password, `/session/${sessionId}/abort?directory=${encodeURIComponent(join(sandbox.root, "project"))}`, { method: "POST", ...jsonBody({}) })
+    const lifecycleEvents = await waitFor(`${scenario.name} terminal lifecycle SSE event`, () => {
+      const events = sse.events.filter(event => ["session.created", "session.idle", "session.error", "message.updated", "message.part.updated"].includes(event.type))
+      const terminalObserved = scenario.terminal === "completed"
+        ? events.some(event => event.type === "session.idle" || event.type === "message.updated")
+        : events.some(event => event.type === "session.error" || event.type === "session.idle")
+      return terminalObserved ? events : false
+    })
+    assert(sse.errors.length === 0, `${scenario.name} SSE observer failed: ${sse.errors.join("; ")}`)
+    const adapter = createHustlerLifecycleAdapter(workflowConfig(join(sandbox.root, "tasks")))
+    const persisted = await waitFor(`${scenario.name} persisted workflow state`, () => {
+      const record = adapter.load(identity.workflowId)
+      return scenario.terminal === "completed"
+        ? (record?.status === "active" || record?.status === "completed" ? record : false)
+        : (record?.status === scenario.terminal ? record : false)
+    })
+    const final = scenario.terminal === "completed" ? await finishWorkflow(adapter, identity.workflowId, scenario, join(sandbox.root, "tasks")) : persisted
+    assert(final.status === scenario.terminal, `${scenario.name} persisted status mismatch`)
+    assert(final.classification.tier === scenario.tier, `${scenario.name} classification tier mismatch`)
+    assert(final.events.length > 0, `${scenario.name} persisted no lifecycle events`)
+    if (scenario.testerReject || scenario.approverReject) assert(final.state.retryCount > 0, `${scenario.name} persisted no retry transition`)
+    if (scenario.terminal === "failed") assert(final.events.some(event => event.operation === "fail"), `${scenario.name} persisted no fail operation`)
+    if (scenario.terminal === "cancelled") assert(final.events.some(event => event.operation === "cancel"), `${scenario.name} persisted no cancel operation`)
+    return {
+      name: scenario.name,
+      expectedTerminal: scenario.terminal,
+      api: { sessionCreated: true, control: { status: controlResponse.status, accepted: controlResponse.ok }, promptSubmitted: true },
+      sse: { types: [...new Set(lifecycleEvents.map(event => event.type))].sort(), terminalObserved: true },
+      persisted: { workflowId: identity.workflowId, status: final.status, phase: final.state.phase, revision: final.revision, lifecycleEventCount: final.events.length, retryCount: final.state.retryCount },
+    }
+  } catch (error) {
+    const eventShapes = sse.events.map(event => ({
+      type: event.type,
+      propertyKeys: Object.keys(event.properties ?? {}).sort(),
+    }))
+    throw new Error(`${errorText(error)}; observed SSE event shapes: ${JSON.stringify(eventShapes)}`)
+  } finally {
+    await sse.close()
+  }
+}
+
+function evidenceDirectory(argv) {
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index]
+    if (argument.startsWith("--evidence-dir=")) return resolve(argument.slice("--evidence-dir=".length))
+    if (argument === "--evidence-dir") {
+      const value = argv[index + 1]
+      if (!value || value.startsWith("--")) throw new Error("--evidence-dir requires a path")
+      return resolve(value)
+    }
+  }
+  return undefined
+}
+
+function errorText(error) {
+  return redact(error instanceof Error ? error.stack ?? error.message : error)
+}
+
+async function writeReceipt(directory, receipt) {
+  if (!directory) return undefined
+  try {
+    await mkdir(directory, { recursive: true })
+    await writeFile(join(directory, "lifecycle-receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`)
+    return undefined
+  } catch (error) {
+    return errorText(error)
+  }
 }
 
 async function main() {
+  const evidenceDir = evidenceDirectory(process.argv.slice(2))
   const hostBefore = await hostSessionCount()
   const sandbox = await makeSandbox(repoRoot)
   const fake = startProcess("bun", ["run", "--bun", fakeProvider], { ...process.env, HUSTLER_FAKE_PROVIDER: "1", FAKE_LLM_LOG: join(sandbox.root, "fake-provider.log") }, sandbox.root)
   const server = { child: null, getStderr: () => "" }
+  let results = []
+  let roster = []
+  let hostAfter = { count: null }
+  let failure
+  let receiptError
   try {
     const fakePort = Number(await waitForPort(fake, /fake-openai listening on (\d+)/))
     await updateOpenCodeConfig(sandbox, fakePort)
@@ -162,28 +222,59 @@ async function main() {
     await waitFor("OpenCode health", async () => {
       try { return (await request(baseUrl, "hustler-qa-local", "/global/health")).body?.healthy === true } catch { return false }
     })
-    const agents = (await request(baseUrl, "hustler-qa-local", `/agent?directory=${encodeURIComponent(join(sandbox.root, "project"))}`)).body
+    const agents = (await request(baseUrl, "hustler-qa-local", `/agent?directory=${encodeURIComponent(join(sandbox.root, "project"))}`, {
+      signal: AbortSignal.timeout(15_000),
+    })).body
     const agentValues = Array.isArray(agents) ? agents : Array.isArray(agents?.data) ? agents.data : Object.values(agents ?? {})
-    const names = agentValues.map(agent => String(agent.name ?? agent.id ?? agent).toLowerCase()).filter(Boolean)
-    assertExact(names.filter(name => !String(name).includes("legacy")), ["orchestrator", "planner", "developer", "tester", "approver", "librarian", "architect"], "active HUSTLER roster")
-    assert(!names.some(name => /^team[_-]/i.test(String(name))), "Team Mode agent leaked into active roster")
-    const results = []
+    roster = agentValues.map(agent => String(agent.name ?? agent.id ?? agent).toLowerCase()).filter(Boolean)
+    const hustlerRoles = ["orchestrator", "planner", "developer", "tester", "approver", "librarian", "architect"]
+    assertExact(roster.filter(name => hustlerRoles.includes(name)), hustlerRoles, "active HUSTLER roster")
+    assert(!roster.some(name => /^team[_-]/i.test(String(name))), "Team Mode agent leaked into active roster")
     for (const scenario of scenarios) results.push(await runScenario(baseUrl, "hustler-qa-local", sandbox, scenario, fakePort))
     const log = await readFile(join(sandbox.root, "fake-provider.log"), "utf8").catch(() => "")
     assert(!/team_[a-z0-9_-]+/i.test(log), "Fake-provider request log observed a team tool")
-    const hostAfter = await hostSessionCount()
+    hostAfter = await hostSessionCount()
     assert(hostBefore.count === hostAfter.count, `Host OpenCode session count changed: ${hostBefore.count} -> ${hostAfter.count}`)
-    process.stdout.write(JSON.stringify({ roster: names, teamMode: false, hostSessionCount: { before: hostBefore.count, after: hostAfter.count }, scenarios: results, logs: { fakeProvider: "redacted sandbox log inspected" } }) + "\n")
   } catch (error) {
-    fail(redact(error instanceof Error ? error.stack ?? error.message : error))
+    failure = errorText(error)
+    throw error
   } finally {
-    await cleanupProcess(server.child ? server.child : undefined)
-    await cleanupProcess(fake)
-    await cleanupSandbox(sandbox.root)
+    const cleanup = { serverStopped: false, fakeProviderStopped: false, sandboxRemoved: false, receiptWrittenBeforeSandboxRemoval: false }
+    try {
+      await cleanupProcess(server.child ? server.child : undefined)
+    } catch (error) {
+      cleanup.serverError = errorText(error)
+    }
+    cleanup.serverStopped = server.child?.exitCode !== null
+    try {
+      await cleanupProcess(fake)
+    } catch (error) {
+      cleanup.fakeProviderError = errorText(error)
+    }
+    cleanup.fakeProviderStopped = fake.child?.exitCode !== null
+    hostAfter = await hostSessionCount().catch(error => ({ count: null, error: errorText(error) }))
+    const completedAllScenarios = results.length === scenarios.length
+    receiptError = await writeReceipt(evidenceDir, {
+      status: failure || !completedAllScenarios ? "failed" : "passed",
+      testedScenarios: scenarios.map(scenario => ({ name: scenario.name, expectedTerminal: scenario.terminal })),
+      observed: { roster: completedAllScenarios ? "validated" : "not reached", teamMode: false, scenarios: results, fakeProviderLog: "redacted sandbox log inspected" },
+      hostDb: { before: hostBefore.count, after: hostAfter.count, unchanged: hostAfter.count === hostBefore.count },
+      cleanup: { ...cleanup, receiptWrittenBeforeSandboxRemoval: true, sandboxRemoval: "performed immediately after receipt write" },
+      omissions: ["Provider secrets, raw logs, prompt contents, and sandbox files were omitted."],
+      error: failure ?? null,
+    })
+    try {
+      await cleanupSandbox(sandbox.root)
+      cleanup.sandboxRemoved = true
+    } catch (error) {
+      cleanup.sandboxRemovalError = errorText(error)
+    }
+    if (receiptError && !failure) throw new Error(`Unable to write lifecycle evidence receipt: ${receiptError}`)
   }
+  process.stdout.write(JSON.stringify({ roster, teamMode: false, hostSessionCount: { before: hostBefore.count, after: hostAfter.count }, scenarios: results, evidenceDir: evidenceDir ?? null }) + "\n")
 }
 
 main().catch(error => {
-  process.stderr.write(`${redact(error instanceof Error ? error.stack ?? error.message : error)}\n`)
+  process.stderr.write(`${errorText(error)}\n`)
   process.exitCode = 1
 })

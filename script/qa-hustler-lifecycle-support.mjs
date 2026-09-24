@@ -44,18 +44,23 @@ export async function waitFor(label, predicate, timeoutMs = WAIT_MS) {
 
 export async function makeSandbox(repoRoot) {
   const root = await mkdtemp(join("/tmp", "hustler-lifecycle-"))
-  await Promise.all(["config/opencode", "data", "cache", "state", "home", "project", "tasks"]
+  await Promise.all(["config/opencode", "data", "cache", "state", "home", "project/.omo", "tasks"]
     .map(path => mkdir(join(root, path), { recursive: true })))
   const pluginPath = join(repoRoot, "packages", "omo-opencode", "src", "index.ts")
   const configPath = join(root, "config", "opencode", "opencode.jsonc")
-  const omoConfigPath = join(root, "config", "opencode", "oh-my-openagent.json")
+  const omoConfigPath = join(root, "project", ".omo", "omo.jsonc")
   await writeFile(configPath, `${JSON.stringify({
     plugin: [`file://${pluginPath}`],
     model: "openai/gpt-fake",
     provider: { openai: { options: { apiKey: "fake-key", baseURL: "http://127.0.0.1:__FAKE_PORT__/v1" }, models: { "gpt-fake": { tool_call: true, limit: { context: 200000, output: 8192 } } } } },
     permission: { bash: "allow", task: "allow", call_omo_agent: "allow" },
   }, null, 2)}\n`)
-  await writeFile(omoConfigPath, `${JSON.stringify({ team_mode: { enabled: false }, sisyphus: { tasks: { storage_path: join(root, "tasks") } } }, null, 2)}\n`)
+  await writeFile(omoConfigPath, `${JSON.stringify({
+    "[opencode]": {
+      team_mode: { enabled: false },
+      sisyphus: { tasks: { storage_path: join(root, "tasks") } },
+    },
+  }, null, 2)}\n`)
   return { root, configPath, omoConfigPath, pluginPath }
 }
 
@@ -101,6 +106,7 @@ export async function cleanupSandbox(root) {
 export async function openSse(baseUrl, password, directory) {
   const controller = new AbortController()
   const events = []
+  const errors = []
   const stream = await fetch(`${baseUrl}/event?directory=${encodeURIComponent(directory)}`, {
     headers: authHeaders(password),
     signal: controller.signal,
@@ -124,10 +130,12 @@ export async function openSse(baseUrl, password, directory) {
         }
       }
     } catch (error) {
-      if (!(error instanceof Error) || error.name !== "AbortError") throw error
+      if (!controller.signal.aborted && (!(error instanceof Error) || error.name !== "AbortError")) {
+        errors.push(redact(error instanceof Error ? error.message : error))
+      }
     }
   })()
-  return { events, ready: waitFor("server.connected", () => events.some(event => event.type === "server.connected")), close: async () => { controller.abort(); await task.catch(() => {}) } }
+  return { events, errors, ready: waitFor("server.connected", () => events.some(event => event.type === "server.connected")), close: async () => { controller.abort(); await task } }
 }
 
 export async function hostSessionCount() {
