@@ -12,6 +12,7 @@ import type { PluginContext } from "./types"
 import { handleGoalMessage } from "./chat-message/loop-commands"
 import { notifyWhenModelCacheIsMissing } from "./chat-message/model-cache-warning"
 import { recordSessionModel, getStoredMainSessionModel } from "./chat-message/session-model"
+import type { HustlerChatWorkflowAdapter } from "./chat-message/hustler-workflow"
 import { runUlwExecuteHookIfApplicable } from "./chat-message/ulw-execute-message"
 import { consumeNativeGoalCommandMarker } from "./command-execute-before"
 import { stopContinuation } from "./stop-continuation"
@@ -80,11 +81,12 @@ export function createChatMessageHandler(args: {
   pluginConfig: OhMyOpenCodeConfig
   firstMessageVariantGate: FirstMessageVariantGate
   hooks: ChatMessageHooks
+  hustlerWorkflow?: HustlerChatWorkflowAdapter
 }): (
   input: ChatMessageInput,
   output: ChatMessageHandlerOutput
 ) => Promise<void> {
-  const { ctx, pluginConfig, firstMessageVariantGate, hooks } = args
+  const { ctx, pluginConfig, firstMessageVariantGate, hooks, hustlerWorkflow } = args
   const pluginContext = ctx as PluginContextWithTui
   const runtimeFallbackEnabled = isRuntimeFallbackEnabled(hooks, pluginConfig)
 
@@ -105,6 +107,20 @@ export function createChatMessageHandler(args: {
 
     if (input.agent) {
       updateSessionAgent(input.sessionID, input.agent)
+    } else if (hustlerWorkflow) {
+      updateSessionAgent(input.sessionID, "orchestrator")
+    }
+
+    if (hustlerWorkflow) {
+      const workflow = hustlerWorkflow.startOrReuse({
+        sessionID: input.sessionID,
+        text: extractPromptText(output.parts),
+      })
+      const metadata = output.message["metadata"]
+      output.message["metadata"] = {
+        ...(metadata && typeof metadata === "object" ? metadata : {}),
+        omoHustlerWorkflow: workflow,
+      }
     }
 
     const slashCommand = detectSlashCommand(extractPromptText(output.parts))

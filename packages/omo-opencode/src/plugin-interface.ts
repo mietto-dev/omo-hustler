@@ -5,6 +5,7 @@ import { applyAgentVariant } from "./shared/agent-variant"
 import { createChatParamsHandler } from "./plugin/chat-params"
 import { createChatHeadersHandler } from "./plugin/chat-headers"
 import { createChatMessageHandler } from "./plugin/chat-message"
+import { createHustlerChatWorkflowAdapter } from "./plugin/chat-message/hustler-workflow"
 import { createCommandExecuteBeforeHandler } from "./plugin/command-execute-before"
 import { createMessagesTransformHandler } from "./plugin/messages-transform"
 import { createSystemTransformHandler } from "./plugin/system-transform"
@@ -70,6 +71,7 @@ export function createPluginInterface(args: {
       pluginConfig,
       firstMessageVariantGate,
       hooks,
+      hustlerWorkflow: createHustlerChatWorkflowAdapter(pluginConfig),
     }),
 
     "experimental.chat.messages.transform": createMessagesTransformHandler({
