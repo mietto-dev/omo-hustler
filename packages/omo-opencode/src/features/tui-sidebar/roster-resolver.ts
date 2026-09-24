@@ -2,6 +2,7 @@ import { getModelResolutionInfoWithOverrides } from "../../cli/doctor/checks/mod
 import type { OmoConfig } from "../../cli/doctor/checks/model-resolution-types"
 import type { OhMyOpenCodeConfig } from "../../config"
 import { validatePluginConfig } from "../../config/validate"
+import { getAgentListDisplayName } from "../../shared/agent-display-names"
 import type { RosterRow } from "./state-types"
 
 type ResolutionEntry = {
@@ -30,7 +31,7 @@ function formatModelLabel(model: string): string {
 
 function toRosterRow(entry: ResolutionEntry): RosterRow {
   return {
-    label: entry.name,
+    label: getAgentListDisplayName(entry.name),
     model: formatModelLabel(entry.effectiveModel),
   }
 }

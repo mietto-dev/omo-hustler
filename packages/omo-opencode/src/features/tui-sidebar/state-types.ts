@@ -1,4 +1,5 @@
 import type { BackgroundTaskStatus } from "../background-agent/types"
+import type { TuiHustlerWorkflow } from "./snapshot-schema"
 
 export type AgentStatus = "busy" | "idle" | "error" | "running" | "retry"
 
@@ -48,6 +49,10 @@ export type LoopLive = {
 
 export type LoopState = { readonly kind: "none" } | LoopLive
 
+export type HustlerWorkflowState =
+  | { readonly kind: "none" }
+  | { readonly kind: "workflow"; readonly workflow: TuiHustlerWorkflow }
+
 export type ConfigBanner =
   | { readonly kind: "none" }
   | { readonly kind: "invalid" }
@@ -56,12 +61,13 @@ export type SidebarView =
   | {
       readonly kind: "active"
       readonly loop: LoopState
+      readonly hustler: HustlerWorkflowState
       readonly agents: AgentsState
       readonly jobs: JobBoardState
       readonly configBanner: ConfigBanner
     }
   | { readonly kind: "broken"; readonly messages: readonly string[] }
-  | { readonly kind: "idle"; readonly roster: RosterState }
+  | { readonly kind: "idle"; readonly roster: RosterState; readonly hustler: HustlerWorkflowState }
 
 export function assertNever(value: never): never {
   throw new Error(`Unexpected variant: ${JSON.stringify(value)}`)

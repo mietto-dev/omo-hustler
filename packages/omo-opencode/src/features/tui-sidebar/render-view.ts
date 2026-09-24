@@ -1,10 +1,12 @@
 import { LABEL_MAX } from "./constants"
 import { box, text } from "./element-helpers"
 import type { ViewNode } from "./element-helpers"
+import { buildHustlerNodes, describeHustler } from "./hustler-view"
 import { assertNever } from "./state-types"
 import type {
   AgentsState,
   ConfigBanner,
+  HustlerWorkflowState,
   JobBoardState,
   LoopState,
   RosterState,
@@ -28,6 +30,7 @@ export function buildViewNodes(view: SidebarView, theme: ThemeLike): ViewNode[] 
       return [
         box({ flexDirection: "column", gap: 1 }, [
           ...configBannerNodes(view.configBanner, theme),
+          ...buildHustlerNodes(view.hustler, theme),
           ...loopNodes(view.loop, theme),
           ...agentNodes(view.agents, theme),
           ...jobNodes(view.jobs, theme),
@@ -36,7 +39,7 @@ export function buildViewNodes(view: SidebarView, theme: ThemeLike): ViewNode[] 
     case "broken":
       return brokenNodes(view.messages, theme)
     case "idle":
-      return idleNodes(view.roster, theme)
+      return idleNodes(view.roster, view.hustler, theme)
     default:
       return assertNever(view)
   }
@@ -51,6 +54,7 @@ function linesForView(view: SidebarView): string[] {
     case "active":
       return [
         ...configBannerLines(view.configBanner),
+        ...describeHustler(view.hustler),
         ...loopLines(view.loop),
         ...agentLines(view.agents),
         ...jobLines(view.jobs),
@@ -58,7 +62,7 @@ function linesForView(view: SidebarView): string[] {
     case "broken":
       return ["config invalid - run doctor", ...view.messages]
     case "idle":
-      return rosterLines(view.roster)
+      return [...describeHustler(view.hustler), ...rosterLines(view.roster)]
     default:
       return assertNever(view)
   }
@@ -193,8 +197,11 @@ function brokenNodes(messages: readonly string[], theme: ThemeLike): ViewNode[] 
   ]
 }
 
-function idleNodes(roster: RosterState, theme: ThemeLike): ViewNode[] {
-  return [section("Models", theme, rosterLines(roster).map((line) => text({ fg: theme.text }, line)))]
+function idleNodes(roster: RosterState, workflow: HustlerWorkflowState, theme: ThemeLike): ViewNode[] {
+  return [
+    ...buildHustlerNodes(workflow, theme),
+    section("Models", theme, rosterLines(roster).map((line) => text({ fg: theme.text }, line))),
+  ]
 }
 
 function rosterLines(roster: RosterState): string[] {
