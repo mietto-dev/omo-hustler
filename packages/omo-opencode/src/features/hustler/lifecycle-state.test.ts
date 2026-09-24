@@ -247,6 +247,45 @@ describe("HUSTLER lifecycle identity", () => {
     expect(adapter.load(created.identity.workflowId)?.revision).toBe(first.revision)
   })
 
+  test("collapses concurrent duplicate tester reviews into one persisted review", async () => {
+    // #given
+    const { config, storagePath } = createTestFixture()
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({ sessionId: "ses_concurrent_tester", classification: classifyTask({ expectedFiles: 1 }) })
+    adapter.transition(created.identity.workflowId, { eventKey: "phase:implementation", nextPhase: "implementation" })
+    adapter.transition(created.identity.workflowId, { eventKey: "phase:review", nextPhase: "review" })
+    const directory = join(storagePath, "hustler-workflows")
+    const heldLock = acquireLock(directory)
+    expect(heldLock.acquired).toBe(true)
+    const lifecycleModule = JSON.stringify(join(process.cwd(), "packages/omo-opencode/src/features/hustler/lifecycle-state.ts"))
+    const reviewJson = JSON.stringify(approvedReview)
+    const childCode = `
+      import { createHustlerLifecycleAdapter } from ${lifecycleModule};
+      const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE, claude_code_compat: false } } };
+      const adapter = createHustlerLifecycleAdapter(config);
+      adapter.recordTesterReview(process.env.HUSTLER_TEST_WORKFLOW_ID, { eventKey: "review:concurrent", review: JSON.parse(process.env.HUSTLER_TEST_REVIEW) });
+    `
+    const spawnContender = () => Bun.spawn(["bun", "-e", childCode], {
+      env: { ...process.env, HUSTLER_TEST_STORAGE: storagePath, HUSTLER_TEST_WORKFLOW_ID: created.identity.workflowId, HUSTLER_TEST_REVIEW: reviewJson },
+      stderr: "pipe",
+      stdout: "pipe",
+    })
+
+    // #when
+    const children = [spawnContender(), spawnContender()]
+    const releaseTimer = setTimeout(() => heldLock.release(), 25)
+    const exitCodes = await Promise.all(children.map(child => child.exited))
+    clearTimeout(releaseTimer)
+    heldLock.release()
+    const persisted = adapter.load(created.identity.workflowId)
+
+    // #then
+    expect(exitCodes).toEqual([0, 0])
+    expect(persisted?.revision).toBe(3)
+    expect(persisted?.events.filter(event => event.operation === "tester_review")).toHaveLength(1)
+    expect(persisted?.state.review?.status).toBe("approved")
+  })
+
   test("collapses duplicate approver replay and rejects conflicting replay", () => {
     // #given
     const { config } = createTestFixture()
@@ -272,6 +311,46 @@ describe("HUSTLER lifecycle identity", () => {
     expect(replay.events).toHaveLength(4)
     expect(conflicting).toThrow(HustlerLifecycleError)
     expect(adapter.load(created.identity.workflowId)?.revision).toBe(first.revision)
+  })
+
+  test("collapses concurrent duplicate approver results into one persisted approval", async () => {
+    // #given
+    const { config, storagePath } = createTestFixture()
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({ sessionId: "ses_concurrent_approver", classification: classifyTask({ expectedFiles: 1 }) })
+    adapter.transition(created.identity.workflowId, { eventKey: "phase:implementation", nextPhase: "implementation" })
+    adapter.transition(created.identity.workflowId, { eventKey: "phase:review", nextPhase: "review" })
+    adapter.recordTesterReview(created.identity.workflowId, { eventKey: "review:approved", review: approvedReview })
+    const directory = join(storagePath, "hustler-workflows")
+    const heldLock = acquireLock(directory)
+    expect(heldLock.acquired).toBe(true)
+    const lifecycleModule = JSON.stringify(join(process.cwd(), "packages/omo-opencode/src/features/hustler/lifecycle-state.ts"))
+    const approvalJson = JSON.stringify(acceptedInput)
+    const childCode = `
+      import { createHustlerLifecycleAdapter } from ${lifecycleModule};
+      const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE, claude_code_compat: false } } };
+      const adapter = createHustlerLifecycleAdapter(config);
+      adapter.recordApproverResult(process.env.HUSTLER_TEST_WORKFLOW_ID, { eventKey: "approval:concurrent", result: JSON.parse(process.env.HUSTLER_TEST_APPROVAL) });
+    `
+    const spawnContender = () => Bun.spawn(["bun", "-e", childCode], {
+      env: { ...process.env, HUSTLER_TEST_STORAGE: storagePath, HUSTLER_TEST_WORKFLOW_ID: created.identity.workflowId, HUSTLER_TEST_APPROVAL: approvalJson },
+      stderr: "pipe",
+      stdout: "pipe",
+    })
+
+    // #when
+    const children = [spawnContender(), spawnContender()]
+    const releaseTimer = setTimeout(() => heldLock.release(), 25)
+    const exitCodes = await Promise.all(children.map(child => child.exited))
+    clearTimeout(releaseTimer)
+    heldLock.release()
+    const persisted = adapter.load(created.identity.workflowId)
+
+    // #then
+    expect(exitCodes).toEqual([0, 0])
+    expect(persisted?.revision).toBe(4)
+    expect(persisted?.events.filter(event => event.operation === "approver_result")).toHaveLength(1)
+    expect(persisted?.state.acceptance?.status).toBe("accepted")
   })
 
   test("preserves a valid record when create, load, or update receives a conflicting identity", () => {
@@ -449,5 +528,31 @@ describe("HUSTLER lifecycle identity", () => {
       "retry",
       "cancel",
     ])
+  })
+
+  test("fails every active worker on cancellation and rejects later mutation", () => {
+    // #given
+    const { config } = createTestFixture()
+    const adapter = createHustlerLifecycleAdapter(config)
+    const created = adapter.create({ sessionId: "ses_cancel_workers", classification: classifyTask({ expectedFiles: 1 }) })
+    adapter.recordWorkItem(created.identity.workflowId, { eventKey: "worker:pending", workerId: "pending", role: "developer", status: "pending", workItemId: "work-pending" })
+    adapter.recordWorkItem(created.identity.workflowId, { eventKey: "worker:running", workerId: "running", role: "tester", status: "running", workItemId: "work-running" })
+    adapter.recordWorkItem(created.identity.workflowId, { eventKey: "worker:completed", workerId: "completed", role: "planner", status: "completed", workItemId: "work-completed" })
+    adapter.recordWorkItem(created.identity.workflowId, { eventKey: "worker:failed", workerId: "failed", role: "approver", status: "failed", workItemId: "work-failed" })
+
+    // #when
+    const cancelled = adapter.cancel(created.identity.workflowId, { eventKey: "cancel:workers" })
+    const mutation = () => adapter.recordWorkItem(created.identity.workflowId, { eventKey: "worker:after-cancel", workerId: "new-worker", role: "developer", status: "running", workItemId: "work-after-cancel" })
+
+    // #then
+    expect(cancelled.state.workers.map(worker => [worker.id, worker.status])).toEqual([
+      ["pending", "failed"],
+      ["running", "failed"],
+      ["completed", "completed"],
+      ["failed", "failed"],
+    ])
+    expect(cancelled.status).toBe("cancelled")
+    expect(mutation).toThrow(HustlerLifecycleError)
+    expect(adapter.load(created.identity.workflowId)?.events).toHaveLength(5)
   })
 })
