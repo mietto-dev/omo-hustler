@@ -1,6 +1,6 @@
 import { createHash } from "crypto"
 import { existsSync } from "fs"
-import { join } from "path"
+import { basename, join } from "path"
 import {
   acquireLock,
   ensureDir,
@@ -15,6 +15,7 @@ import {
   type WorkflowState,
 } from "../claude-tasks/orchestrator-state"
 import type { WorkflowClassification } from "../claude-tasks/orchestrator-classification"
+import type { ApproverInput } from "../claude-tasks/workflow-contracts"
 import {
   HUSTLER_LIFECYCLE_RECORD_VERSION,
   HustlerLifecycleRecordSchema,
@@ -94,7 +95,39 @@ export function readWorkflowRecord(filePath: string): HustlerLifecycleRecord | n
   if (!existsSync(filePath)) return null
   const record = readJsonSafe(filePath, HustlerLifecycleRecordSchema)
   if (record === null) throw new HustlerLifecycleError("MALFORMED_RECORD", `Malformed workflow record: ${filePath}`)
+  validateWorkflowRecord(record, filePath)
   return record
+}
+
+function validateWorkflowRecord(record: HustlerLifecycleRecord, filePath: string): void {
+  if (sanitizePathSegment(record.identity.workflowId) !== basename(filePath, ".json")) {
+    throw new HustlerLifecycleError("MALFORMED_RECORD", `Workflow identity does not match its storage path: ${filePath}`)
+  }
+  if (record.identity.taskId !== record.state.taskId || record.classification.tier !== record.state.tier) {
+    throw new HustlerLifecycleError("MALFORMED_RECORD", `Conflicting workflow identity or classification: ${filePath}`)
+  }
+  if (record.revision !== record.events.length) {
+    throw new HustlerLifecycleError("MALFORMED_RECORD", `Workflow revision does not match event history: ${filePath}`)
+  }
+  const eventKeys = new Set<string>()
+  for (const [index, event] of record.events.entries()) {
+    if (event.revision !== index + 1 || eventKeys.has(event.eventKey)) {
+      throw new HustlerLifecycleError("MALFORMED_RECORD", `Conflicting workflow event history: ${filePath}`)
+    }
+    eventKeys.add(event.eventKey)
+  }
+  const workerIds = new Set<string>()
+  const workItemIds = new Set<string>()
+  for (const worker of record.state.workers) {
+    if (workerIds.has(worker.id) || (worker.workItemId !== undefined && workItemIds.has(worker.workItemId))) {
+      throw new HustlerLifecycleError("MALFORMED_RECORD", `Conflicting workflow workers: ${filePath}`)
+    }
+    workerIds.add(worker.id)
+    if (worker.workItemId !== undefined) workItemIds.add(worker.workItemId)
+  }
+  if (record.status === "completed" && record.state.phase !== "complete") {
+    throw new HustlerLifecycleError("MALFORMED_RECORD", `Completed workflow is not in complete phase: ${filePath}`)
+  }
 }
 
 export function redactState(state: WorkflowState): WorkflowState {
@@ -159,6 +192,21 @@ export function prepareEvent(input: HustlerLifecycleEventInput): string {
   return eventSignature([input.kind, input.code])
 }
 
+export function prepareApproverResult(input: ApproverInput): string {
+  return JSON.stringify({
+    originalRequest: input.originalRequest,
+    acceptanceCriteria: input.acceptanceCriteria,
+    completedWork: input.completedWork,
+    unresolvedIssues: input.unresolvedIssues,
+    verification: {
+      tests: input.verification.tests,
+      build: input.verification.build,
+      lint: input.verification.lint,
+      typecheck: input.verification.typecheck,
+    },
+  })
+}
+
 export function terminalStatus(status: HustlerLifecycleStatus): boolean {
   return status !== "active"
 }
@@ -209,7 +257,8 @@ export function assertReferenceIdentity(
   if (typeof reference === "string") return
   const identity = record.identity
   if (
-    (reference.sessionId !== undefined && reference.sessionId !== identity.sessionId)
+    reference.workflowId !== identity.workflowId
+    || (reference.sessionId !== undefined && reference.sessionId !== identity.sessionId)
     || (reference.taskId !== undefined && reference.taskId !== identity.taskId)
   ) {
     throw new HustlerLifecycleError("CONFLICTING_RECORD", `Workflow identity conflicts: ${identity.workflowId}`)
