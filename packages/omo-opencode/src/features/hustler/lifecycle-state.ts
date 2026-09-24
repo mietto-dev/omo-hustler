@@ -68,6 +68,7 @@ export type HustlerLifecycleAdapter = Readonly<{
   recordApproverResult(reference: HustlerWorkflowReference, input: Readonly<{ eventKey: string; result: ApproverInput; workItemId?: string }>): HustlerLifecycleRecord
   retry(reference: HustlerWorkflowReference, input: Readonly<{ eventKey: string; failure: "developer" | "tester" | "approver" | "librarian" | "architect"; workItemId?: string; planInvalidated?: boolean }>): HustlerLifecycleRecord
   cancel(reference: HustlerWorkflowReference, input: Readonly<{ eventKey: string }>): HustlerLifecycleRecord
+  fail(reference: HustlerWorkflowReference, input: Readonly<{ eventKey: string; code?: string }>): HustlerLifecycleRecord
   complete(reference: HustlerWorkflowReference, input: Readonly<{ eventKey: string }>): HustlerLifecycleRecord
 }>
 
@@ -167,6 +168,12 @@ export function createHustlerLifecycleAdapter(config: HustlerLifecycleConfig = {
             : worker),
         }),
         status: "cancelled",
+      }))
+    },
+    fail(reference, input) {
+      return updateWorkflowRecord(config, reference, input.eventKey, "fail", eventSignature([input.code]), current => ({
+        state: current.state,
+        status: "failed",
       }))
     },
     complete(reference, input) {

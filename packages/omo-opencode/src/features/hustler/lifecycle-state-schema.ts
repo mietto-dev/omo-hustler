@@ -35,6 +35,7 @@ export const HustlerLifecycleOperationSchema = z.enum([
   "approver_result",
   "retry",
   "cancel",
+  "fail",
   "complete",
 ])
 export type HustlerLifecycleOperation = z.infer<typeof HustlerLifecycleOperationSchema>

@@ -5,7 +5,9 @@ import { applyAgentVariant } from "./shared/agent-variant"
 import { createChatParamsHandler } from "./plugin/chat-params"
 import { createChatHeadersHandler } from "./plugin/chat-headers"
 import { createChatMessageHandler } from "./plugin/chat-message"
-import { createHustlerChatWorkflowAdapter } from "./plugin/chat-message/hustler-workflow"
+import { createHustlerChatWorkflowAdapterFromLifecycle } from "./plugin/chat-message/hustler-workflow"
+import { createHustlerEventLifecycle } from "./features/hustler/event-lifecycle"
+import { createHustlerLifecycleAdapter } from "./features/hustler/lifecycle-state"
 import { createCommandExecuteBeforeHandler } from "./plugin/command-execute-before"
 import { createMessagesTransformHandler } from "./plugin/messages-transform"
 import { createSystemTransformHandler } from "./plugin/system-transform"
@@ -33,6 +35,8 @@ export function createPluginInterface(args: {
 }): PluginInterface {
   const { ctx, pluginConfig, firstMessageVariantGate, managers, hooks, tools } =
     args
+  const hustlerLifecycleAdapter = createHustlerLifecycleAdapter(pluginConfig)
+  const hustlerLifecycle = createHustlerEventLifecycle(pluginConfig, hustlerLifecycleAdapter)
 
   return {
     tool: tools,
@@ -71,7 +75,7 @@ export function createPluginInterface(args: {
       pluginConfig,
       firstMessageVariantGate,
       hooks,
-      hustlerWorkflow: createHustlerChatWorkflowAdapter(pluginConfig),
+      hustlerWorkflow: createHustlerChatWorkflowAdapterFromLifecycle(hustlerLifecycleAdapter),
     }),
 
     "experimental.chat.messages.transform": createMessagesTransformHandler({
@@ -91,6 +95,7 @@ export function createPluginInterface(args: {
       firstMessageVariantGate,
       managers,
       hooks,
+      hustlerLifecycle,
     }),
 
     "tool.definition": createToolDefinitionHandler({
@@ -106,6 +111,7 @@ export function createPluginInterface(args: {
     "tool.execute.after": createToolExecuteAfterHandler({
       ctx,
       hooks,
+      hustlerLifecycle,
     }),
   }
 }
