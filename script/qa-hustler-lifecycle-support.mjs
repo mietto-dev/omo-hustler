@@ -32,6 +32,123 @@ export function redact(value) {
     .replace(/Bearer\s+[^\s]+/gi, "Bearer <redacted>")
 }
 
+export function jsonBody(value) {
+  return { headers: { "content-type": "application/json" }, body: JSON.stringify(value) }
+}
+
+function redactedField(value) { return typeof value === "string" ? redact(value) : value }
+
+function selectedFields(value, keys) {
+  if (!value || typeof value !== "object") return redactedField(value)
+  return Object.fromEntries(keys.filter(key => value[key] !== undefined).map(key => [key, key === "error" && value[key] && typeof value[key] === "object"
+    ? selectedFields(value[key], ["name", "type", "code", "status", "message"])
+    : redactedField(value[key])]))
+}
+
+export function cancellationEventTimeline(events, sessionId) {
+  return events
+    .filter(event => event.type === "server.connected"
+      || event.properties?.sessionID === sessionId
+      || event.properties?.sessionId === sessionId)
+    .map((event, sequence) => {
+      const properties = event.properties ?? {}
+      return {
+        sequence,
+        type: redactedField(event.type),
+        sessionID: redactedField(properties.sessionID ?? properties.sessionId),
+        status: selectedFields(properties.status, ["type", "status", "reason", "message"]),
+        error: selectedFields(properties.error, ["name", "type", "code", "status", "message"]),
+        message: selectedFields(properties.message, ["id", "role", "status", "finish", "error"]),
+      }
+    })
+}
+
+export function persistedSummary(record) {
+  if (!record) return null
+  return {
+    workflowId: redactedField(record.identity?.workflowId),
+    status: redactedField(record.status),
+    phase: redactedField(record.state?.phase),
+    revision: record.revision,
+    retryCount: record.state?.retryCount,
+    lifecycleEventCount: Array.isArray(record.events) ? record.events.length : undefined,
+    lastLifecycleOperation: redactedField(record.events?.at(-1)?.operation),
+  }
+}
+
+export function abortResponseSummary(result) {
+  if (!result) return null
+  return {
+    status: result.response.status,
+    ok: result.response.ok,
+    body: selectedFields(result.body, ["code", "status", "message", "error"]),
+  }
+}
+
+export function review(status) { return {
+    status,
+    issues: status === "approved" ? [] : [{ severity: "medium", description: "fixture issue", requiredFix: "fixture retry", workItemId: "work-1" }],
+    reviewSummary: "fixture review",
+    verification: { tests: status === "approved" ? "pass" : "fail", build: "pass", lint: "pass", typecheck: "pass" },
+  }
+}
+
+export function approval(accepted) { return {
+    originalRequest: "HUSTLER_E2E",
+    acceptanceCriteria: ["fixture work is complete"],
+    completedWork: accepted ? ["fixture work is complete"] : [],
+    unresolvedIssues: accepted ? [] : ["fixture approval rejection"],
+    verification: { tests: accepted ? "pass" : "fail", build: "pass", lint: "pass", typecheck: "pass" },
+  }
+}
+
+export async function advanceToReview(adapter, workflowId, record, tasksPath, getWorkflowPath) {
+  let current = record
+  if (current.state.phase === "planning") {
+    const plan = { summary: "fixture plan", workItems: [{ id: "work-1", objective: "complete fixture work", scope: ["README.md"], dependencies: [], skills: [], acceptanceCriteria: ["fixture work is complete"] }], parallelGroups: [], risks: [], finalAcceptance: ["fixture work is complete"] }
+    const path = getWorkflowPath({ sisyphus: { tasks: { storage_path: tasksPath } } }, workflowId)
+    const persisted = JSON.parse(await readFile(path, "utf8"))
+    persisted.state.plan = plan
+    await writeFile(path, `${JSON.stringify(persisted, null, 2)}\n`)
+    adapter.transition(workflowId, { eventKey: "qa:planner-attached", nextPhase: "implementation" })
+    current = adapter.load(workflowId)
+    assert(current?.state.plan?.summary === plan.summary, "Planner evidence was not persisted")
+  }
+  if (current?.state.phase === "implementation" && current.classification.tier >= 2) {
+    adapter.transition(workflowId, { eventKey: `qa:integration:${current.revision}`, nextPhase: "integration" })
+    current = adapter.load(workflowId)
+  }
+  if (current?.state.phase === "implementation" || current?.state.phase === "integration") {
+    adapter.transition(workflowId, { eventKey: `qa:review:${current.revision}`, nextPhase: "review" })
+    current = adapter.load(workflowId)
+  }
+  assert(current?.state.phase === "review", `Expected review phase, received ${current?.state.phase}`)
+  return current
+}
+
+export async function finishWorkflow(adapter, workflowId, scenario, tasksPath, getWorkflowPath) {
+  let current = adapter.load(workflowId)
+  assert(current !== null, `Missing persisted workflow ${workflowId}`)
+  current = await advanceToReview(adapter, workflowId, current, tasksPath, getWorkflowPath)
+  if (scenario.testerReject) {
+    current = adapter.recordTesterReview(workflowId, { eventKey: "qa:tester-reject", review: review("changes_requested"), workItemId: "work-1" })
+    assert(current.state.retryCount === 1 && current.state.phase === "implementation", "Tester rejection did not create a retry route")
+    current = await advanceToReview(adapter, workflowId, current, tasksPath, getWorkflowPath)
+  }
+  current = adapter.recordTesterReview(workflowId, { eventKey: scenario.testerReject ? "qa:tester-accept-after-retry" : "qa:tester-accept", review: review("approved"), workItemId: "work-1" })
+  assert(current.state.phase === "acceptance", "Tester approval did not open acceptance")
+  if (scenario.approverReject) {
+    current = adapter.recordApproverResult(workflowId, { eventKey: "qa:approver-reject", result: approval(false), workItemId: "work-1" })
+    assert(current.state.retryCount === 1 && current.state.phase === "implementation", "Approver rejection did not create a retry route")
+    current = await advanceToReview(adapter, workflowId, current, tasksPath, getWorkflowPath)
+    current = adapter.recordTesterReview(workflowId, { eventKey: "qa:tester-after-approver-retry", review: review("approved"), workItemId: "work-1" })
+  }
+  current = adapter.recordApproverResult(workflowId, { eventKey: scenario.approverReject ? "qa:approver-accept-after-retry" : "qa:approver-accept", result: approval(true), workItemId: "work-1" })
+  current = adapter.complete(workflowId, { eventKey: "qa:complete" })
+  assert(current.status === "completed" && current.state.phase === "complete", "Workflow did not reach terminal completion")
+  return current
+}
+
 export async function waitFor(label, predicate, timeoutMs = WAIT_MS) {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {

@@ -6,11 +6,16 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 import {
   assert,
   assertExact,
+  abortResponseSummary,
   cleanupProcess,
   cleanupSandbox,
+  cancellationEventTimeline,
+  finishWorkflow,
   hostSessionCount,
+  jsonBody,
   makeSandbox,
   openSse,
+  persistedSummary,
   redact,
   request,
   startProcess,
@@ -33,10 +38,6 @@ const scenarios = [
 
 const { createHustlerLifecycleAdapter, createHustlerWorkflowIdentity, getHustlerWorkflowPath } = await import(pathToFileURL(join(repoRoot, "packages", "omo-opencode", "src", "features", "hustler", "lifecycle-state.ts")).href)
 
-function jsonBody(value) {
-  return { headers: { "content-type": "application/json" }, body: JSON.stringify(value) }
-}
-
 function scenarioPrompt(scenario) {
   return scenario.tier >= 2
     ? `${scenario.marker}: implement a multi-file frontend, backend, and database change across modules`
@@ -45,72 +46,6 @@ function scenarioPrompt(scenario) {
 
 function workflowConfig(tasksPath) {
   return { sisyphus: { tasks: { storage_path: tasksPath } } }
-}
-
-function review(status) {
-  return {
-    status,
-    issues: status === "approved" ? [] : [{ severity: "medium", description: "fixture issue", requiredFix: "fixture retry", workItemId: "work-1" }],
-    reviewSummary: "fixture review",
-    verification: { tests: status === "approved" ? "pass" : "fail", build: "pass", lint: "pass", typecheck: "pass" },
-  }
-}
-
-function approval(accepted) {
-  return {
-    originalRequest: "HUSTLER_E2E",
-    acceptanceCriteria: ["fixture work is complete"],
-    completedWork: accepted ? ["fixture work is complete"] : [],
-    unresolvedIssues: accepted ? [] : ["fixture approval rejection"],
-    verification: { tests: accepted ? "pass" : "fail", build: "pass", lint: "pass", typecheck: "pass" },
-  }
-}
-
-async function advanceToReview(adapter, workflowId, record, tasksPath) {
-  let current = record
-  if (current.state.phase === "planning") {
-    const plan = { summary: "fixture plan", workItems: [{ id: "work-1", objective: "complete fixture work", scope: ["README.md"], dependencies: [], skills: [], acceptanceCriteria: ["fixture work is complete"] }], parallelGroups: [], risks: [], finalAcceptance: ["fixture work is complete"] }
-    const path = getHustlerWorkflowPath(workflowConfig(tasksPath), workflowId)
-    const persisted = JSON.parse(await readFile(path, "utf8"))
-    persisted.state.plan = plan
-    await writeFile(path, `${JSON.stringify(persisted, null, 2)}\n`)
-    adapter.transition(workflowId, { eventKey: "qa:planner-attached", nextPhase: "implementation" })
-    current = adapter.load(workflowId)
-    assert(current?.state.plan?.summary === plan.summary, "Planner evidence was not persisted")
-  }
-  if (current?.state.phase === "implementation" && current.classification.tier >= 2) {
-    adapter.transition(workflowId, { eventKey: `qa:integration:${current.revision}`, nextPhase: "integration" })
-    current = adapter.load(workflowId)
-  }
-  if (current?.state.phase === "implementation" || current?.state.phase === "integration") {
-    adapter.transition(workflowId, { eventKey: `qa:review:${current.revision}`, nextPhase: "review" })
-    current = adapter.load(workflowId)
-  }
-  assert(current?.state.phase === "review", `Expected review phase, received ${current?.state.phase}`)
-  return current
-}
-
-async function finishWorkflow(adapter, workflowId, scenario, tasksPath) {
-  let current = adapter.load(workflowId)
-  assert(current !== null, `Missing persisted workflow ${workflowId}`)
-  current = await advanceToReview(adapter, workflowId, current, tasksPath)
-  if (scenario.testerReject) {
-    current = adapter.recordTesterReview(workflowId, { eventKey: "qa:tester-reject", review: review("changes_requested"), workItemId: "work-1" })
-    assert(current.state.retryCount === 1 && current.state.phase === "implementation", "Tester rejection did not create a retry route")
-    current = await advanceToReview(adapter, workflowId, current, tasksPath)
-  }
-  current = adapter.recordTesterReview(workflowId, { eventKey: scenario.testerReject ? "qa:tester-accept-after-retry" : "qa:tester-accept", review: review("approved"), workItemId: "work-1" })
-  assert(current.state.phase === "acceptance", "Tester approval did not open acceptance")
-  if (scenario.approverReject) {
-    current = adapter.recordApproverResult(workflowId, { eventKey: "qa:approver-reject", result: approval(false), workItemId: "work-1" })
-    assert(current.state.retryCount === 1 && current.state.phase === "implementation", "Approver rejection did not create a retry route")
-    current = await advanceToReview(adapter, workflowId, current, tasksPath)
-    current = adapter.recordTesterReview(workflowId, { eventKey: "qa:tester-after-approver-retry", review: review("approved"), workItemId: "work-1" })
-  }
-  current = adapter.recordApproverResult(workflowId, { eventKey: scenario.approverReject ? "qa:approver-accept-after-retry" : "qa:approver-accept", result: approval(true), workItemId: "work-1" })
-  current = adapter.complete(workflowId, { eventKey: "qa:complete" })
-  assert(current.status === "completed" && current.state.phase === "complete", "Workflow did not reach terminal completion")
-  return current
 }
 
 async function createSession(baseUrl, password, directory, title) {
@@ -123,13 +58,20 @@ async function createSession(baseUrl, password, directory, title) {
 async function runScenario(baseUrl, password, sandbox, scenario, fakePort) {
   const sse = await openSse(baseUrl, password, join(sandbox.root, "project"))
   await sse.ready
+  let abortResult
+  let persistedSnapshot
   try {
     const sessionId = await createSession(baseUrl, password, join(sandbox.root, "project"), `HUSTLER ${scenario.name}`)
     const identity = createHustlerWorkflowIdentity({ sessionId })
     const controlResponse = await fetch(`http://127.0.0.1:${fakePort}/control`, { method: "POST", ...jsonBody({ scenario: scenario.marker, workflowId: identity.workflowId, taskId: identity.taskId }) })
     assert(controlResponse.status === 204, `${scenario.name} fake provider control returned ${controlResponse.status}, expected 204`)
     await request(baseUrl, password, `/session/${sessionId}/prompt_async?directory=${encodeURIComponent(join(sandbox.root, "project"))}`, { method: "POST", ...jsonBody({ parts: [{ type: "text", text: scenarioPrompt(scenario) }] }) })
-    if (scenario.marker === "HUSTLER_E2E_CANCEL") await request(baseUrl, password, `/session/${sessionId}/abort?directory=${encodeURIComponent(join(sandbox.root, "project"))}`, { method: "POST", ...jsonBody({}) })
+    if (scenario.marker === "HUSTLER_E2E_CANCEL") {
+      await waitFor(`${scenario.name} session busy`, () => sse.events.some(event => event.type === "session.status"
+        && event.properties?.sessionID === sessionId
+        && event.properties?.status?.type === "busy"))
+      abortResult = await request(baseUrl, password, `/session/${sessionId}/abort?directory=${encodeURIComponent(join(sandbox.root, "project"))}`, { method: "POST", ...jsonBody({}) })
+    }
     const lifecycleEvents = await waitFor(`${scenario.name} terminal lifecycle SSE event`, () => {
       const events = sse.events.filter(event => ["session.created", "session.idle", "session.error", "message.updated", "message.part.updated"].includes(event.type))
       const terminalObserved = scenario.terminal === "completed"
@@ -141,11 +83,12 @@ async function runScenario(baseUrl, password, sandbox, scenario, fakePort) {
     const adapter = createHustlerLifecycleAdapter(workflowConfig(join(sandbox.root, "tasks")))
     const persisted = await waitFor(`${scenario.name} persisted workflow state`, () => {
       const record = adapter.load(identity.workflowId)
+      if (record) persistedSnapshot = record
       return scenario.terminal === "completed"
         ? (record?.status === "active" || record?.status === "completed" ? record : false)
         : (record?.status === scenario.terminal ? record : false)
     })
-    const final = scenario.terminal === "completed" ? await finishWorkflow(adapter, identity.workflowId, scenario, join(sandbox.root, "tasks")) : persisted
+    const final = scenario.terminal === "completed" ? await finishWorkflow(adapter, identity.workflowId, scenario, join(sandbox.root, "tasks"), getHustlerWorkflowPath) : persisted
     assert(final.status === scenario.terminal, `${scenario.name} persisted status mismatch`)
     assert(final.classification.tier === scenario.tier, `${scenario.name} classification tier mismatch`)
     assert(final.events.length > 0, `${scenario.name} persisted no lifecycle events`)
@@ -158,13 +101,28 @@ async function runScenario(baseUrl, password, sandbox, scenario, fakePort) {
       api: { sessionCreated: true, control: { status: controlResponse.status, accepted: controlResponse.ok }, promptSubmitted: true },
       sse: { types: [...new Set(lifecycleEvents.map(event => event.type))].sort(), terminalObserved: true },
       persisted: { workflowId: identity.workflowId, status: final.status, phase: final.state.phase, revision: final.revision, lifecycleEventCount: final.events.length, retryCount: final.state.retryCount },
+      ...(scenario.marker === "HUSTLER_E2E_CANCEL" ? {
+        cancellation: {
+          abortResponse: abortResponseSummary(abortResult),
+          sseTimeline: cancellationEventTimeline(sse.events, sessionId),
+          persisted: persistedSummary(final),
+        },
+      } : {}),
     }
   } catch (error) {
     const eventShapes = sse.events.map(event => ({
       type: event.type,
       propertyKeys: Object.keys(event.properties ?? {}).sort(),
     }))
-    throw new Error(`${errorText(error)}; observed SSE event shapes: ${JSON.stringify(eventShapes)}`)
+    const wrapped = new Error(`${errorText(error)}; observed SSE event shapes: ${JSON.stringify(eventShapes)}`)
+    if (scenario.marker === "HUSTLER_E2E_CANCEL") {
+      wrapped.cancellationEvidence = {
+        abortResponse: abortResponseSummary(abortResult),
+        sseTimeline: cancellationEventTimeline(sse.events, sessionId),
+        persisted: persistedSummary(persistedSnapshot),
+      }
+    }
+    throw wrapped
   } finally {
     await sse.close()
   }
@@ -208,6 +166,7 @@ async function main() {
   let roster = []
   let hostAfter = { count: null }
   let failure
+  let cancellationEvidence
   let receiptError
   try {
     const fakePort = Number(await waitForPort(fake, /fake-openai listening on (\d+)/))
@@ -237,6 +196,7 @@ async function main() {
     assert(hostBefore.count === hostAfter.count, `Host OpenCode session count changed: ${hostBefore.count} -> ${hostAfter.count}`)
   } catch (error) {
     failure = errorText(error)
+    cancellationEvidence = error.cancellationEvidence
     throw error
   } finally {
     const cleanup = { serverStopped: false, fakeProviderStopped: false, sandboxRemoved: false, receiptWrittenBeforeSandboxRemoval: false }
@@ -257,7 +217,7 @@ async function main() {
     receiptError = await writeReceipt(evidenceDir, {
       status: failure || !completedAllScenarios ? "failed" : "passed",
       testedScenarios: scenarios.map(scenario => ({ name: scenario.name, expectedTerminal: scenario.terminal })),
-      observed: { roster: completedAllScenarios ? "validated" : "not reached", teamMode: false, scenarios: results, fakeProviderLog: "redacted sandbox log inspected" },
+      observed: { roster: completedAllScenarios ? "validated" : "not reached", teamMode: false, scenarios: results, cancellation: cancellationEvidence ?? results.find(result => result.name === "cancel")?.cancellation ?? null, fakeProviderLog: "redacted sandbox log inspected" },
       hostDb: { before: hostBefore.count, after: hostAfter.count, unchanged: hostAfter.count === hostBefore.count },
       cleanup: { ...cleanup, receiptWrittenBeforeSandboxRemoval: true, sandboxRemoval: "performed immediately after receipt write" },
       omissions: ["Provider secrets, raw logs, prompt contents, and sandbox files were omitted."],
