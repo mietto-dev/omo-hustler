@@ -1,5 +1,5 @@
-import { spawn } from "@oh-my-opencode/utils/runtime"
-import { isCmuxCompatEnvironment } from "@oh-my-opencode/tmux-core"
+import { spawn } from "@omo-hustler/utils/runtime"
+import { isCmuxCompatEnvironment } from "@omo-hustler/tmux-core"
 
 let tmuxPath: string | null = null
 let initPromise: Promise<string | null> | null = null

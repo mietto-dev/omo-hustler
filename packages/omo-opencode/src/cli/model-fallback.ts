@@ -4,7 +4,7 @@ import {
 } from "./model-fallback-requirements"
 import type { FallbackModelObject } from "../config/schema/fallback-models"
 import type { FallbackEntry } from "../shared/model-requirements"
-import { getModelCapabilities, resolveCompatibleModelSettings } from "@oh-my-opencode/model-core"
+import { getModelCapabilities, resolveCompatibleModelSettings } from "@omo-hustler/model-core"
 import type { InstallConfig } from "./types"
 
 import type { AgentConfig, CategoryConfig, GeneratedOmoConfig } from "./model-fallback-types"
@@ -23,7 +23,7 @@ import { isExcludedFallbackLaneModel } from "./fallback-lane-policy"
 export type { GeneratedOmoConfig } from "./model-fallback-types"
 
 export const ULTIMATE_FALLBACK = "opencode/gpt-5-nano"
-const SCHEMA_URL = "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json"
+const SCHEMA_URL = "urn:omo-hustler:schema:omo"
 
 type CompatibleFallbackSettings = {
   variant?: string

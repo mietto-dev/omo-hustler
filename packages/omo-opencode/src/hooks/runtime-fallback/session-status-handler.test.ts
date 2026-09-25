@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import { RUNTIME_FALLBACK_RETRYABLE_ERROR_PATTERNS } from "@oh-my-opencode/model-core"
+import { RUNTIME_FALLBACK_RETRYABLE_ERROR_PATTERNS } from "@omo-hustler/model-core"
 import type { HookDeps, RuntimeFallbackPluginInput } from "./types"
 import type { AutoRetryHelpers } from "./auto-retry"
 import { RETRYABLE_ERROR_PATTERNS } from "./constants"

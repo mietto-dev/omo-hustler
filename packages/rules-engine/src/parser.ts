@@ -1,4 +1,4 @@
-import { parseFrontmatter, type RuleFrontmatterData } from "@oh-my-opencode/utils";
+import { parseFrontmatter, type RuleFrontmatterData } from "@omo-hustler/utils";
 import type { RuleFrontmatterResult } from "./types";
 
 export function parseRuleFrontmatter(content: string): RuleFrontmatterResult {

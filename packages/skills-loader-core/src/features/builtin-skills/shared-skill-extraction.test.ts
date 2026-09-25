@@ -3,7 +3,7 @@
 import { describe, expect, test } from "bun:test"
 import { readdirSync, statSync } from "node:fs"
 import { join } from "node:path"
-import { parseFrontmatter } from "@oh-my-opencode/utils"
+import { parseFrontmatter } from "@omo-hustler/utils"
 import type { BuiltinSkill } from "./types"
 
 declare const Bun: {

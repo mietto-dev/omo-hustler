@@ -1,4 +1,4 @@
-import { isPlainRecord } from "@oh-my-opencode/utils"
+import { isPlainRecord } from "@omo-hustler/utils"
 import type { RuntimeSkillConfig } from "../../types"
 import { securityResearchSkill, securityReviewSkill } from "../builtin-skills/skills/index"
 import { collectDisabledSkillAliases } from "../opencode-skill-loader/skill-disable-config"

@@ -1,4 +1,4 @@
-import { isProviderExhaustionFallbackEligible } from "@oh-my-opencode/model-core"
+import { isProviderExhaustionFallbackEligible } from "@omo-hustler/model-core"
 import { createSyncSession } from "./sync-session-creator"
 import { sendSyncPrompt } from "./sync-prompt-sender"
 import { pollSyncSession } from "./sync-session-poller"

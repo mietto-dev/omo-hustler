@@ -2,4 +2,4 @@ export {
   toHashlineContent,
   generateUnifiedDiff,
   countLineDiffs,
-} from "@oh-my-opencode/hashline-core"
+} from "@omo-hustler/hashline-core"

@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 import { log } from "../../shared/logger"
 
 export interface TaskLink {

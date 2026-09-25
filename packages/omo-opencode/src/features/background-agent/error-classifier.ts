@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 export { isRecord }
 
 export function isAbortedSessionError(error: unknown): boolean {

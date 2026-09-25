@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/command-executor/shell-path"
+export * from "@omo-hustler/utils/command-executor/shell-path"

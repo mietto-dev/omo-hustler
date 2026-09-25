@@ -1,4 +1,4 @@
 export {
   buildTmuxAttachCommand,
   buildTmuxPlaceholderCommand,
-} from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"

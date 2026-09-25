@@ -8,7 +8,7 @@ import {
   loadOpenCodeProjectCommands,
 } from "../features/opencode-command-loader";
 import { loadBuiltinCommands } from "../features/builtin-commands";
-import { resolveActiveBuiltinSkills } from "@oh-my-opencode/skills-loader-core/builtin-skills";
+import { resolveActiveBuiltinSkills } from "@omo-hustler/skills-loader-core/builtin-skills";
 import { getSystemMcpServerNames } from "../features/opencode-mcp-loader";
 import {
   builtinSkillsToCommandDefinitionRecord,

@@ -1,4 +1,4 @@
-import { TEAM_MODE_PROMPT } from "@oh-my-opencode/prompts-core"
+import { TEAM_MODE_PROMPT } from "@omo-hustler/prompts-core"
 
 /**
  * Team mode keyword detector.

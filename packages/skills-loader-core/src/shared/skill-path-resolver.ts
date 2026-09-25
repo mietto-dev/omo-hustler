@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/skill-path-resolver"
+export * from "@omo-hustler/utils/skill-path-resolver"

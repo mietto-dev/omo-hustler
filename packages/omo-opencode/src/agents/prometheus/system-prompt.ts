@@ -1,4 +1,4 @@
-import { loadPromptSync, prometheusPromptVariants } from "@oh-my-opencode/prompts-core"
+import { loadPromptSync, prometheusPromptVariants } from "@omo-hustler/prompts-core"
 
 export const PROMETHEUS_PERMISSION = {
   edit: "allow" as const,

@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/mcp-client-core/mcp-oauth/oauth-authorization-flow"
+export * from "@omo-hustler/mcp-client-core/mcp-oauth/oauth-authorization-flow"

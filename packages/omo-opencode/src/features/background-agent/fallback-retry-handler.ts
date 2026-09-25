@@ -2,7 +2,7 @@ import type { BackgroundTask, LaunchInput } from "./types"
 import type { FallbackEntry } from "../../shared/model-requirements"
 import type { ConcurrencyManager } from "./concurrency"
 import type { OpencodeClient, QueueItem } from "./constants"
-import { isProviderExhaustionFallbackEligible } from "@oh-my-opencode/model-core"
+import { isProviderExhaustionFallbackEligible } from "@omo-hustler/model-core"
 import { log, readConnectedProvidersCache, readProviderModelsCache } from "../../shared"
 import {
   shouldRetryError,

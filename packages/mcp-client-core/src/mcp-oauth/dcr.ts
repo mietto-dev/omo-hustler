@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 export type ClientRegistrationRequest = {
   redirect_uris: string[]
   client_name: string

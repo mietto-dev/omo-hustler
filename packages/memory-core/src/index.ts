@@ -1,4 +1,4 @@
-// @oh-my-opencode/memory-core - harness-neutral agent memory engine. Barrel exports only.
+// @omo-hustler/memory-core - harness-neutral agent memory engine. Barrel exports only.
 export * from "./git"
 export * from "./identity"
 export * from "./locks"

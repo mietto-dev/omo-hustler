@@ -1,4 +1,4 @@
-import { HYPERPLAN_MODE_PROMPT } from "@oh-my-opencode/prompts-core"
+import { HYPERPLAN_MODE_PROMPT } from "@omo-hustler/prompts-core"
 
 /**
  * Hyperplan keyword detector.

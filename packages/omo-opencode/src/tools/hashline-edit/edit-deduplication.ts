@@ -1,1 +1,1 @@
-export { dedupeEdits } from "@oh-my-opencode/hashline-core"
+export { dedupeEdits } from "@omo-hustler/hashline-core"

@@ -1,5 +1,5 @@
 import { getOpenCodeConfigPaths } from "../../shared"
-import { resolveUserOmoConfigPath } from "@oh-my-opencode/omo-config-core"
+import { resolveUserOmoConfigPath } from "@omo-hustler/omo-config-core"
 import type {
   OpenCodeBinaryType,
   OpenCodeConfigPaths,

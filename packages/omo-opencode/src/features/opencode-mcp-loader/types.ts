@@ -5,7 +5,7 @@ import type {
   McpServerConfig,
   LoadedMcpServer,
   McpLoadResult,
-} from "@oh-my-opencode/mcp-client-core/skill-mcp-manager/mcp-types"
+} from "@omo-hustler/mcp-client-core/skill-mcp-manager/mcp-types"
 
 export type { McpLocalConfig, McpOAuthConfig, McpRemoteConfig, McpServerConfig, LoadedMcpServer, McpLoadResult }
 

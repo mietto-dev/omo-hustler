@@ -1,2 +1,2 @@
-export { createHashlineChunkFormatter } from "@oh-my-opencode/hashline-core"
-export type { HashlineChunkFormatter } from "@oh-my-opencode/hashline-core"
+export { createHashlineChunkFormatter } from "@omo-hustler/hashline-core"
+export type { HashlineChunkFormatter } from "@omo-hustler/hashline-core"

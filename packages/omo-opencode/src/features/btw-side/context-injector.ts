@@ -1,5 +1,5 @@
 import type { Message, Part, Session } from "@opencode-ai/sdk"
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 
 import type { PluginContext } from "../../plugin/types"
 import { log, normalizeSDKResponse } from "../../shared"

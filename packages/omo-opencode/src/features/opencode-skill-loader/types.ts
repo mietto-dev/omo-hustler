@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/skills-loader-core/opencode-skill-loader/types"
+export * from "@omo-hustler/skills-loader-core/opencode-skill-loader/types"

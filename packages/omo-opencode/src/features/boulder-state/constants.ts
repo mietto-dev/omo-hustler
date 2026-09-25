@@ -5,4 +5,4 @@ export {
   NOTEPAD_BASE_PATH,
   NOTEPAD_DIR,
   PROMETHEUS_PLANS_DIR,
-} from "@oh-my-opencode/boulder-state"
+} from "@omo-hustler/boulder-state"

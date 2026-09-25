@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { createConnection } from "node:net"
 import { clearTimeout as clearNativeTimeout, setTimeout as setNativeTimeout } from "node:timers"
 
-import { findAvailablePort as findAvailablePortShared } from "@oh-my-opencode/utils"
+import { findAvailablePort as findAvailablePortShared } from "@omo-hustler/utils"
 import { log } from "../logger"
 
 const DEFAULT_PORT = 19877

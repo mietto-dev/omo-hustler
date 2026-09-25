@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/lsp-core/mcp";
+export * from "@omo-hustler/lsp-core/mcp";

@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/archive-entry-validator"
+export * from "@omo-hustler/utils/archive-entry-validator"

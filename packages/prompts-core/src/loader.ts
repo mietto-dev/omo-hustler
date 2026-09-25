@@ -1,4 +1,4 @@
-import { parseFrontmatter } from "@oh-my-opencode/utils"
+import { parseFrontmatter } from "@omo-hustler/utils"
 import { readFile } from "node:fs/promises"
 import { isAbsolute, relative, resolve } from "node:path"
 import type {

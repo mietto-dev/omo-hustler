@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 import type { TeamModeConfig } from "../config"
 import { log } from "../logger"
 import type { TeamSessionContext } from "../session-client"

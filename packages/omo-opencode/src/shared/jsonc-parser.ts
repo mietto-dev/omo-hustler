@@ -4,4 +4,4 @@ export {
   parseJsoncSafe,
   readJsoncFile,
   type JsoncParseResult,
-} from "@oh-my-opencode/utils"
+} from "@omo-hustler/utils"

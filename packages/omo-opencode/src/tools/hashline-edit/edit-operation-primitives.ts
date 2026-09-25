@@ -5,4 +5,4 @@ export {
   applyInsertBefore,
   applyAppend,
   applyPrepend,
-} from "@oh-my-opencode/hashline-core"
+} from "@omo-hustler/hashline-core"

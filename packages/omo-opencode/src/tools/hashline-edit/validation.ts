@@ -4,5 +4,5 @@ export {
   validateLineRefs,
   HashlineMismatchError,
   normalizeLineRef,
-} from "@oh-my-opencode/hashline-core"
-export type { LineRef } from "@oh-my-opencode/hashline-core"
+} from "@omo-hustler/hashline-core"
+export type { LineRef } from "@omo-hustler/hashline-core"

@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs"
 import { join } from "node:path"
-import { getHomeDirectory } from "@oh-my-opencode/utils"
+import { getHomeDirectory } from "@omo-hustler/utils"
 import { matchSkillByName } from "../../tools/skill/skill-matcher"
 import {
 	findProjectAgentsSkillDirs,

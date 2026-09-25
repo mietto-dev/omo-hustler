@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 import { log } from "./logger"
 import * as dataPath from "./data-path"
 import { createJsonFileCacheStore } from "./json-file-cache-store"

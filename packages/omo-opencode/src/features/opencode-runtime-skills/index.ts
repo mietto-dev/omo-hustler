@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/skills-loader-core/opencode-runtime-skills/index"
+export * from "@omo-hustler/skills-loader-core/opencode-runtime-skills/index"

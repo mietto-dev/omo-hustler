@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
-import type { ClaudeCodeMcpServer } from "@oh-my-opencode/mcp-client-core/skill-mcp-manager/mcp-types"
+import type { ClaudeCodeMcpServer } from "@omo-hustler/mcp-client-core/skill-mcp-manager/mcp-types"
 import type { McpClient, McpTransport, SkillMcpClientInfo, SkillMcpManagerState } from "./types"
 import { disconnectAll } from "./cleanup"
 import { getOrCreateClient } from "./connection"

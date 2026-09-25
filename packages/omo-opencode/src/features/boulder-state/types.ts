@@ -8,4 +8,4 @@ export type {
   PlanProgress,
   TaskSessionState,
   TopLevelTaskRef,
-} from "@oh-my-opencode/boulder-state"
+} from "@omo-hustler/boulder-state"

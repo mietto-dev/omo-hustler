@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/migration/hook-names"
+export * from "@omo-hustler/utils/migration/hook-names"

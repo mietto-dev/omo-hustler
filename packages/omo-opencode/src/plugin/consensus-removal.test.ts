@@ -19,7 +19,7 @@ const REPO_ROOT = __repoRootFrom(import.meta.dir)
 describe("#given PR 4703 consensus removal", () => {
   test("#when the generated schema is inspected #then consensus is not exposed to users", () => {
     // given
-    const schemaPath = join(REPO_ROOT, "assets", "oh-my-opencode.schema.json")
+  const schemaPath = join(REPO_ROOT, "assets", "omo-hustler.schema.json")
     const schemaContent = readFileSync(schemaPath, "utf8")
 
     // when

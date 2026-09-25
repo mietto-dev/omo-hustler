@@ -1,4 +1,4 @@
-import { OmoReasoningSchema } from "@oh-my-opencode/omo-config-core"
+import { OmoReasoningSchema } from "@omo-hustler/omo-config-core"
 import { z } from "zod"
 import { FallbackModelObjectSchema, FallbackModelsSchema } from "./fallback-models"
 import { AgentPermissionSchema } from "./internal/permission"

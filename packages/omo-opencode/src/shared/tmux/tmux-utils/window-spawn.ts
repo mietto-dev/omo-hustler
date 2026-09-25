@@ -1,5 +1,5 @@
-import { spawnTmuxWindow as spawnTmuxWindowCore } from "@oh-my-opencode/tmux-core"
-import type { SpawnTmuxWindowDeps, TmuxConfig } from "@oh-my-opencode/tmux-core"
+import { spawnTmuxWindow as spawnTmuxWindowCore } from "@omo-hustler/tmux-core"
+import type { SpawnTmuxWindowDeps, TmuxConfig } from "@omo-hustler/tmux-core"
 import type { SpawnPaneResult } from "../types"
 import { withWindowSpawnDeps } from "./adapter-deps"
 

@@ -1,4 +1,4 @@
-import { getRuntimeFallbackRetryableSignal, getRuntimeFallbackStatusCode } from "@oh-my-opencode/model-core"
+import { getRuntimeFallbackRetryableSignal, getRuntimeFallbackStatusCode } from "@omo-hustler/model-core"
 
 const UNRECOVERABLE_REQUEST_STATUS_CODES = new Set([400, 422])
 

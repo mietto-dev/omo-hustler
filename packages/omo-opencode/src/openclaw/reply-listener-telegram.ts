@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/openclaw-core/reply-listener-telegram"
+export * from "@omo-hustler/openclaw-core/reply-listener-telegram"

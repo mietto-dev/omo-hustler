@@ -2,7 +2,7 @@ import fs from "node:fs/promises"
 import path from "node:path"
 
 import type { TeamModeConfig } from "./manager"
-import { spawn as bunSpawn } from "@oh-my-opencode/utils/runtime"
+import { spawn as bunSpawn } from "@omo-hustler/utils/runtime"
 
 async function runGit(args: string[]): Promise<{ code: number; stderr: string }> {
   const process = bunSpawn({ cmd: ["git", ...args], stdout: "pipe", stderr: "pipe" })

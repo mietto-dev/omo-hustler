@@ -1,4 +1,4 @@
-import { ULTRAWORK_DEFAULT_PROMPT } from "@oh-my-opencode/prompts-core"
+import { ULTRAWORK_DEFAULT_PROMPT } from "@omo-hustler/prompts-core"
 
 export const ULTRAWORK_DEFAULT_MESSAGE = ULTRAWORK_DEFAULT_PROMPT
 

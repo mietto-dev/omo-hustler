@@ -5,8 +5,8 @@ export {
   isDuplicateByRealPath,
   resetMatcherCache,
   shouldApplyRule,
-} from "@oh-my-opencode/rules-engine";
-export type { MatchResult } from "@oh-my-opencode/rules-engine";
+} from "@omo-hustler/rules-engine";
+export type { MatchResult } from "@omo-hustler/rules-engine";
 
 export interface MatcherCacheStats {
   readonly entries: number;

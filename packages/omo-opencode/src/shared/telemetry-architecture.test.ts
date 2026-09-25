@@ -6,11 +6,11 @@ import { join } from "node:path"
 import {
   DEFAULT_POSTHOG_API_KEY,
   type TelemetryProductConfig,
-} from "@oh-my-opencode/telemetry-core"
+} from "@omo-hustler/telemetry-core"
 import { createOpencodeTelemetryProductConfig } from "./telemetry-product-identity"
 
 const REPO_ROOT = join(import.meta.dir, "../../..", "..")
-const TELEMETRY_CORE_PACKAGE = "@oh-my-opencode/telemetry-core"
+const TELEMETRY_CORE_PACKAGE = "@omo-hustler/telemetry-core"
 
 function readText(path: string): string {
   return readFileSync(path, "utf-8")

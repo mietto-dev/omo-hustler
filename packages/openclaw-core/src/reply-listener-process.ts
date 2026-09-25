@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
-import { spawn } from "@oh-my-opencode/utils/runtime"
+import { spawn } from "@omo-hustler/utils/runtime"
 
 export const REPLY_LISTENER_DAEMON_IDENTITY_MARKER = "--openclaw-reply-listener-daemon"
 

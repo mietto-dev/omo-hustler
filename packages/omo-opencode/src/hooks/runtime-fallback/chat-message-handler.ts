@@ -1,6 +1,6 @@
 import type { HookDeps } from "./types"
 import type { RuntimeFallbackTimeout } from "./types"
-import { parseModelString } from "@oh-my-opencode/model-core"
+import { parseModelString } from "@omo-hustler/model-core"
 import { HOOK_NAME } from "./constants"
 import { log } from "../../shared/logger"
 import { createFallbackState, isModelInCooldown, stringifyRuntimeModelWithVariant } from "./fallback-state"

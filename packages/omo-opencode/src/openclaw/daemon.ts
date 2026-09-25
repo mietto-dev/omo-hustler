@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/openclaw-core/daemon"
+export * from "@omo-hustler/openclaw-core/daemon"

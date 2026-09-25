@@ -1,11 +1,11 @@
 import {
   _setModelResolutionLogImplementationForTesting,
   resolveModelPipeline as resolveModelPipelineFromCore,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"
 import type {
   PipelineModelResolutionRequest,
   PipelineModelResolutionResult,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"
 import * as connectedProvidersCache from "./connected-providers-cache"
 
 export { _setModelResolutionLogImplementationForTesting }
@@ -19,4 +19,4 @@ export type {
   PipelineModelResolutionRequest as ModelResolutionRequest,
   PipelineModelResolutionProvenance as ModelResolutionProvenance,
   PipelineModelResolutionResult as ModelResolutionResult,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"

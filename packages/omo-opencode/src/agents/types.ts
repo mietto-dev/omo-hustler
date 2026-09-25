@@ -17,7 +17,7 @@ import {
   isKimiK27Model,
   isKimiK3Model,
   isMiniMaxModel,
-} from "@oh-my-opencode/model-core";
+} from "@omo-hustler/model-core";
 
 export {
   isClaudeFable5Model,

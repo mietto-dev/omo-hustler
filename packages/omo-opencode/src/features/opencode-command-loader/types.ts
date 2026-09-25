@@ -1,6 +1,6 @@
-export type { CommandDefinition, CommandScope } from "@oh-my-opencode/skills-loader-core/command-types"
+export type { CommandDefinition, CommandScope } from "@omo-hustler/skills-loader-core/command-types"
 
-import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
+import type { CommandDefinition } from "@omo-hustler/skills-loader-core/command-types"
 
 export interface CommandFrontmatter {
   description?: string

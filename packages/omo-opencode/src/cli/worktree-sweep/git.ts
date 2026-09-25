@@ -1,4 +1,4 @@
-import { spawn } from "@oh-my-opencode/utils/runtime"
+import { spawn } from "@omo-hustler/utils/runtime"
 
 export interface GitResult {
   readonly code: number

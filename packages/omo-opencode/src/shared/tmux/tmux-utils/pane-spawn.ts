@@ -1,5 +1,5 @@
-import { spawnTmuxPane as spawnTmuxPaneCore } from "@oh-my-opencode/tmux-core"
-import type { SpawnTmuxPaneDeps, TmuxConfig } from "@oh-my-opencode/tmux-core"
+import { spawnTmuxPane as spawnTmuxPaneCore } from "@omo-hustler/tmux-core"
+import type { SpawnTmuxPaneDeps, TmuxConfig } from "@omo-hustler/tmux-core"
 import type { SpawnPaneResult } from "../types"
 import type { SplitDirection } from "./environment"
 import { withPaneSpawnDeps } from "./adapter-deps"

@@ -169,7 +169,7 @@ export function buildEnvPrefix(
  * const cmd = `/bin/sh -c "opencode attach ${escaped} --session ${sessionId}"`
  * ```
  */
-export { shellEscapeForDoubleQuotedCommand } from "@oh-my-opencode/utils"
+export { shellEscapeForDoubleQuotedCommand } from "@omo-hustler/utils"
 
 export function shellSingleQuote(value: string): string {
   return `'${value.replace(/'/g, "'\\''")}'`

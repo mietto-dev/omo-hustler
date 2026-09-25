@@ -1,8 +1,8 @@
 import {
   sweepStaleOmoAgentSessionsWith,
   sweepTmuxSessionsWith,
-} from "@oh-my-opencode/tmux-core"
-import type { SweepDeps, SweepTmuxSessionsDeps, SweepTmuxSessionsOptions } from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"
+import type { SweepDeps, SweepTmuxSessionsDeps, SweepTmuxSessionsOptions } from "@omo-hustler/tmux-core"
 
 function processAlive(pid: number): boolean {
   try {

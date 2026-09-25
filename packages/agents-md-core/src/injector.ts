@@ -2,7 +2,7 @@ import {
   findAgentsMdUp,
   type AgentsMdCache,
   type FindAgentsMdUpInput,
-} from "@oh-my-opencode/rules-engine";
+} from "@omo-hustler/rules-engine";
 import { promises as fsPromises } from "node:fs";
 import { dirname } from "node:path";
 

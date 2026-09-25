@@ -7,7 +7,7 @@ import type {
   SpawnTmuxPaneDeps,
   SpawnTmuxSessionDeps,
   SpawnTmuxWindowDeps,
-} from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"
 
 import { getTmuxPath } from "../../../tools/interactive-bash/tmux-path-resolver"
 import { log } from "../../logger"

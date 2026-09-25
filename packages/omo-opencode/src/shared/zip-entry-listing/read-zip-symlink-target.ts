@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/zip-entry-listing/read-zip-symlink-target"
+export * from "@omo-hustler/utils/zip-entry-listing/read-zip-symlink-target"

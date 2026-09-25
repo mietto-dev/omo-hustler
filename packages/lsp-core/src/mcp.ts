@@ -11,7 +11,7 @@ import {
 	type JsonRpcResult,
 	type McpToolDescriptor,
 	type ParentWatchdogConfig,
-} from "@oh-my-opencode/mcp-stdio-core";
+} from "@omo-hustler/mcp-stdio-core";
 import { coerceToolArguments, executeLspTool, LSP_MCP_TOOLS } from "./tools.js";
 import { createStandaloneMcpRequestContext, runWithRequestContext } from "./request-context.js";
 

@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/lsp-core/lsp/server-install-state";
+export * from "@omo-hustler/lsp-core/lsp/server-install-state";

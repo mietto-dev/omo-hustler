@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/openclaw-core/session-registry-paths"
+export * from "@omo-hustler/openclaw-core/session-registry-paths"

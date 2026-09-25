@@ -2,7 +2,7 @@ import {
   DEFAULT_POSTHOG_API_KEY,
   DEFAULT_POSTHOG_HOST,
   type TelemetryProductConfig,
-} from "@oh-my-opencode/telemetry-core"
+} from "@omo-hustler/telemetry-core"
 import packageJson from "../../../../package.json" with { type: "json" }
 import { CACHE_DIR_NAME, PLUGIN_NAME, PUBLISHED_PACKAGE_NAME } from "./plugin-identity"
 

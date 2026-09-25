@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { AGENTS_FILENAME } from "@oh-my-opencode/agents-md-core";
+import { AGENTS_FILENAME } from "@omo-hustler/agents-md-core";
 
 describe("agents-md-core constants", () => {
   it("#given the public package barrel #when AGENTS_FILENAME is imported #then the AGENTS.md contract is stable", () => {

@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test"
 import {
   transformModelForProvider as transformRuntimeModelForProvider,
   transformModelForProviderDisplay as transformModelForProvider,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"
 
 describe("transformModelForProvider", () => {
   describe("kimi-for-coding provider", () => {

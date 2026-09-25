@@ -6,5 +6,5 @@ export {
   isNativeTmuxEnvironment,
   isTmuxPaneCompatible,
   isTmuxPaneCompatibleEnvironment,
-} from "@oh-my-opencode/tmux-core"
-export type { SplitDirection } from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"
+export type { SplitDirection } from "@omo-hustler/tmux-core"

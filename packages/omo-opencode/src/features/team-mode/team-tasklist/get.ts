@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/team-core/team-tasklist/get"
+export * from "@omo-hustler/team-core/team-tasklist/get"

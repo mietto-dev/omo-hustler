@@ -39,7 +39,7 @@ describe("memory-core fs boundary", () => {
     const allowed = [
       'import { readFile } from "../fs/resilient"',
       'import { x } from "node:fstream"',
-      'from "@oh-my-opencode/memory-core/fs"',
+      'from "@omo-hustler/memory-core/fs"',
     ]
     for (const sample of allowed) {
       expect(DIRECT_NODE_FS.test(sample)).toBe(false)

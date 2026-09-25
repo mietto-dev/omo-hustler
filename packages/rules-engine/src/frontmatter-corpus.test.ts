@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "bun:test";
 
-import { parseFrontmatter } from "@oh-my-opencode/utils";
+import { parseFrontmatter } from "@omo-hustler/utils";
 
 import { parseRuleFrontmatter } from "./parser";
 const corpusPaths = [

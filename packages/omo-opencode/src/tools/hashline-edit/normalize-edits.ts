@@ -1,2 +1,2 @@
-export { normalizeHashlineEdits } from "@oh-my-opencode/hashline-core"
-export type { RawHashlineEdit } from "@oh-my-opencode/hashline-core"
+export { normalizeHashlineEdits } from "@omo-hustler/hashline-core"
+export type { RawHashlineEdit } from "@omo-hustler/hashline-core"

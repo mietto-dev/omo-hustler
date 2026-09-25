@@ -9,7 +9,7 @@ export type TeamSweepDeps = {
 }
 
 async function listTeamSessionsViaTmux(tmuxPath: string): Promise<string[]> {
-	const { runTmuxCommand } = await import("@oh-my-opencode/tmux-core")
+	const { runTmuxCommand } = await import("@omo-hustler/tmux-core")
 	const result = await runTmuxCommand(tmuxPath, ["list-sessions", "-F", "#{session_name}"])
 
 	if (!result.success) {
@@ -23,7 +23,7 @@ async function listTeamSessionsViaTmux(tmuxPath: string): Promise<string[]> {
 }
 
 async function killTeamSessionViaTmux(tmuxPath: string, sessionName: string): Promise<void> {
-	const { runTmuxCommand } = await import("@oh-my-opencode/tmux-core")
+	const { runTmuxCommand } = await import("@omo-hustler/tmux-core")
 	const result = await runTmuxCommand(tmuxPath, ["kill-session", "-t", sessionName])
 
 	if (!result.success) {
@@ -35,7 +35,7 @@ export async function sweepStaleTeamSessionsWith(
 	activeTeamRunIds: ReadonlySet<string>,
 	deps: TeamSweepDeps,
 ): Promise<string[]> {
-	const { sweepTmuxSessionsWith } = await import("@oh-my-opencode/tmux-core")
+	const { sweepTmuxSessionsWith } = await import("@omo-hustler/tmux-core")
 
 	return sweepTmuxSessionsWith(
 		{

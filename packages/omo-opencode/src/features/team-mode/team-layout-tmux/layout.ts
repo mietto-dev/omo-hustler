@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/team-core/team-layout-tmux/layout"
+export * from "@omo-hustler/team-core/team-layout-tmux/layout"

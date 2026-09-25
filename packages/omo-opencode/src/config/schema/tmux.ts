@@ -1,6 +1,6 @@
 import { z } from "zod"
-import { TMUX_ISOLATION_VALUES, TMUX_LAYOUT_VALUES } from "@oh-my-opencode/tmux-core"
-import type { TmuxConfig, TmuxIsolation, TmuxLayout } from "@oh-my-opencode/tmux-core"
+import { TMUX_ISOLATION_VALUES, TMUX_LAYOUT_VALUES } from "@omo-hustler/tmux-core"
+import type { TmuxConfig, TmuxIsolation, TmuxLayout } from "@omo-hustler/tmux-core"
 
 export const TmuxLayoutSchema = z.enum(TMUX_LAYOUT_VALUES)
 

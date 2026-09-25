@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "bun:test"
 import {
   bunFile as sharedBunFile,
   bunWrite as sharedBunWrite,
-} from "@oh-my-opencode/utils/runtime"
+} from "@omo-hustler/utils/runtime"
 
 import { bunFile, bunWrite } from "./bun-file-shim"
 

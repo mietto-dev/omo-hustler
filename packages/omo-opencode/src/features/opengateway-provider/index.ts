@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 
 import { getProviderAuthType } from "../../shared/opencode-provider-auth"
 import catalog from "./opengateway-models.json"

@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs"
-import { parseFrontmatter } from "@oh-my-opencode/utils"
+import { parseFrontmatter } from "@omo-hustler/utils"
 import type { LoadedSkill } from "./types"
 
 export function extractSkillTemplate(skill: LoadedSkill): string {

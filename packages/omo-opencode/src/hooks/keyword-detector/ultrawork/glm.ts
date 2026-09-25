@@ -1,4 +1,4 @@
-import { ULTRAWORK_GLM_PROMPT } from "@oh-my-opencode/prompts-core"
+import { ULTRAWORK_GLM_PROMPT } from "@omo-hustler/prompts-core"
 
 export const ULTRAWORK_GLM_MESSAGE = ULTRAWORK_GLM_PROMPT
 

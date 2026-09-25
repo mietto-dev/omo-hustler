@@ -4,7 +4,7 @@
  * Default values and configuration constants for the runtime fallback feature.
  */
 
-import { RUNTIME_FALLBACK_RETRYABLE_ERROR_PATTERNS } from "@oh-my-opencode/model-core"
+import { RUNTIME_FALLBACK_RETRYABLE_ERROR_PATTERNS } from "@omo-hustler/model-core"
 import type { RuntimeFallbackConfig } from "../../config"
 
 /**

@@ -1,5 +1,5 @@
 import agentBrowserSkillFile from "../agent-browser/SKILL.md" with { type: "text" }
-import { parseFrontmatter } from "@oh-my-opencode/utils"
+import { parseFrontmatter } from "@omo-hustler/utils"
 
 const EM_DASH = "\u2014"
 

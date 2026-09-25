@@ -1,4 +1,4 @@
-import { isServerRunning, runTmuxCommand, type TmuxCommandResult } from "@oh-my-opencode/tmux-core"
+import { isServerRunning, runTmuxCommand, type TmuxCommandResult } from "@omo-hustler/tmux-core"
 import { log } from "../logger"
 import { shellSingleQuote } from "../shell-quote"
 import { resolveCallerTmuxSession } from "./resolve-caller-tmux-session"

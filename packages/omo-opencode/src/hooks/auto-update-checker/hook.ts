@@ -1,5 +1,5 @@
 import type { PluginInput } from "@opencode-ai/plugin"
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 import { log } from "../../shared/logger"
 import type { AutoUpdateCheckerOptions } from "./types"
 import { getBundledVersion, getCachedVersion, getLocalDevVersion } from "./checker"

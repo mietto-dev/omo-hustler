@@ -1,4 +1,4 @@
-import { isPlainRecord } from "@oh-my-opencode/utils"
+import { isPlainRecord } from "@omo-hustler/utils"
 import {
   loadOmoConfig,
   mergeOmoConfigRecords,
@@ -6,7 +6,7 @@ import {
   type OmoConfigEnv,
   resolveModelReferences,
   resolveOmoConfigView,
-} from "@oh-my-opencode/omo-config-core"
+} from "@omo-hustler/omo-config-core"
 
 export type OmoOpenCodeConfigView = {
   readonly config: Record<string, unknown>

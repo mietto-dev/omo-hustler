@@ -1,6 +1,6 @@
 import { join } from "path"
-import { getHomeDirectory } from "@oh-my-opencode/utils"
-import { sharedSkillsRootPath } from "@oh-my-opencode/shared-skills"
+import { getHomeDirectory } from "@omo-hustler/utils"
+import { sharedSkillsRootPath } from "@omo-hustler/shared-skills"
 import {
   findProjectAgentsSkillDirs,
   findProjectClaudeSkillDirs,
@@ -10,7 +10,7 @@ import {
 } from "../../shared"
 import {
   type CommandDefinition,
-} from "@oh-my-opencode/skills-loader-core/command-types"
+} from "@omo-hustler/skills-loader-core/command-types"
 import { matchSkillByName } from "../../tools/skill/skill-matcher"
 import type { LoadedSkill } from "./types"
 import { skillsToCommandDefinitionRecord } from "./skill-definition-record"

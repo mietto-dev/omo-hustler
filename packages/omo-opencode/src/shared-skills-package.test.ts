@@ -8,14 +8,14 @@ describe("shared skills package manifest", () => {
 
     // when
     const workspaces = rootPackageJson.workspaces
-    const devDependency = rootPackageJson.devDependencies["@oh-my-opencode/shared-skills"]
+    const devDependency = rootPackageJson.devDependencies["@omo-hustler/shared-skills"]
     const sharedPackageJson = await Bun.file("packages/shared-skills/package.json").json()
 
     // then
     expect(workspaces).toContain("packages/shared-skills")
     expect(devDependency).toBe("workspace:*")
     expect(sharedPackageJson).toEqual({
-      name: "@oh-my-opencode/shared-skills",
+      name: "@omo-hustler/shared-skills",
       version: "0.1.0",
       type: "module",
       private: true,

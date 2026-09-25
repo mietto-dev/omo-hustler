@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/lsp-core/request-context";
+export * from "@omo-hustler/lsp-core/request-context";

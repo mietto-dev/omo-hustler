@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/lsp-core/lsp/transport";
+export * from "@omo-hustler/lsp-core/lsp/transport";

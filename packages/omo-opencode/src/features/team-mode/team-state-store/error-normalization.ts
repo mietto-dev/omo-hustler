@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/team-core/team-state-store/error-normalization"
+export * from "@omo-hustler/team-core/team-state-store/error-normalization"

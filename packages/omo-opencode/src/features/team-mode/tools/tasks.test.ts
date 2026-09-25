@@ -5,7 +5,7 @@ import type { ToolContext } from "@opencode-ai/plugin/tool"
 
 import type { TeamModeConfig } from "../../../config/schema/team-mode"
 import type { OpencodeClient } from "../../../tools/delegate-task/types"
-import type { RuntimeState, Task } from "@oh-my-opencode/team-core/types"
+import type { RuntimeState, Task } from "@omo-hustler/team-core/types"
 
 const mockClient = {} as OpencodeClient
 

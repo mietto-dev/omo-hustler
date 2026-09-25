@@ -1,9 +1,9 @@
-import { configureSharedSubunitLogger } from "@oh-my-opencode/utils"
+import { configureSharedSubunitLogger } from "@omo-hustler/utils"
 import {
   LIVE_ROUTE_DISPATCH_LOG,
   LIVE_ROUTE_UNAVAILABLE_LOG,
   configurePromptDispatchRouteResolver,
-} from "@oh-my-opencode/utils/prompt-async-gate/route-resolver"
+} from "@omo-hustler/utils/prompt-async-gate/route-resolver"
 
 import {
   isPreSendConnectionFailure,
@@ -25,4 +25,4 @@ export {
   LIVE_ROUTE_DISPATCH_LOG,
   LIVE_ROUTE_UNAVAILABLE_LOG,
 }
-export * from "@oh-my-opencode/utils/prompt-async-gate"
+export * from "@omo-hustler/utils/prompt-async-gate"

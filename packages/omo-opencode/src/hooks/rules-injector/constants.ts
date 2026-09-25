@@ -10,4 +10,4 @@ export {
   PROJECT_RULE_SUBDIRS,
   RULE_EXTENSIONS,
   USER_RULE_DIR,
-} from "@oh-my-opencode/rules-engine";
+} from "@omo-hustler/rules-engine";

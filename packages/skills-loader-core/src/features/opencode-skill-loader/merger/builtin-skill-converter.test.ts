@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { existsSync } from "node:fs"
 import { join } from "node:path"
 import { builtinToLoadedSkill } from "./builtin-skill-converter"
-import { sharedSkillsRootPath } from "@oh-my-opencode/shared-skills"
+import { sharedSkillsRootPath } from "@omo-hustler/shared-skills"
 import { devBrowserSkill } from "../../builtin-skills/skills/dev-browser"
 import type { BuiltinSkill } from "../../builtin-skills/types"
 

@@ -3,11 +3,11 @@ import {
 	resolveModelWithFallback as resolveModelWithFallbackFromCore,
 	normalizeFallbackModels,
 	flattenToFallbackModelStrings,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"
 import type {
 	ModelResolutionInput,
 	ExtendedModelResolutionInput,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"
 import * as connectedProvidersCache from "./connected-providers-cache"
 
 export { resolveModel, normalizeFallbackModels, flattenToFallbackModelStrings }

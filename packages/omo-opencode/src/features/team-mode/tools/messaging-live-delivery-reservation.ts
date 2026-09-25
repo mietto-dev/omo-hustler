@@ -4,7 +4,7 @@ import {
   type DeliveryReservation as TeamMailboxDeliveryReservation,
   releaseDeliveryReservation,
   reserveMessageForDelivery,
-} from "@oh-my-opencode/team-core/team-mailbox/reservation"
+} from "@omo-hustler/team-core/team-mailbox/reservation"
 
 export type DeliveryReservation = TeamMailboxDeliveryReservation
 export type NullableDeliveryReservation = DeliveryReservation | null

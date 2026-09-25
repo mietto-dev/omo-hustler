@@ -1,4 +1,4 @@
-import { shellEscapeForDoubleQuotedCommand } from "@oh-my-opencode/utils"
+import { shellEscapeForDoubleQuotedCommand } from "@omo-hustler/utils"
 
 const TMUX_COMMAND_SHELL = "/bin/sh"
 

@@ -4,5 +4,5 @@ export {
   isServerRunning,
   markServerRunningInProcess,
   resetServerCheck,
-} from "@oh-my-opencode/tmux-core"
-export type { ServerHealthState } from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"
+export type { ServerHealthState } from "@omo-hustler/tmux-core"

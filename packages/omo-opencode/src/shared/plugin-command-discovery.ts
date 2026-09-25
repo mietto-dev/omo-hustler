@@ -1,4 +1,4 @@
-import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
+import type { CommandDefinition } from "@omo-hustler/skills-loader-core/command-types"
 
 export interface PluginCommandDiscoveryOptions {
   pluginsEnabled?: boolean

@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/git-worktree/index"
+export * from "@omo-hustler/utils/git-worktree/index"

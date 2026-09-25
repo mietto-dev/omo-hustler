@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 import type { BackgroundTask } from "../../features/background-agent"
 import { normalizeAgentForPrompt } from "../../shared/agent-display-names"
 

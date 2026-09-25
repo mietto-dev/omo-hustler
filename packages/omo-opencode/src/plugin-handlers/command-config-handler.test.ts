@@ -9,7 +9,7 @@ import { OhMyOpenCodeConfigSchema, type OhMyOpenCodeConfig } from "../config";
 import type { LoadedSkill } from "../features/opencode-skill-loader/types";
 import type { PluginComponents } from "./plugin-components-loader";
 import { applyCommandConfig } from "./command-config-handler";
-import { initDeepSkill } from "@oh-my-opencode/skills-loader-core/builtin-skills/skills/init-deep";
+import { initDeepSkill } from "@omo-hustler/skills-loader-core/builtin-skills/skills/init-deep";
 import {
   getAgentDisplayName,
   getAgentListDisplayName,

@@ -6,4 +6,4 @@ export {
   type SpawnedProcess,
   type SpawnOptions,
   type SpawnSyncResult,
-} from "@oh-my-opencode/utils/runtime"
+} from "@omo-hustler/utils/runtime"

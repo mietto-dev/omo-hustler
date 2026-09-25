@@ -33,7 +33,7 @@ describe("config.jsonc migration transform", () => {
 
     // then
     expect(result.document).toEqual({
-      $schema: "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
+      $schema: "urn:omo-hustler:schema:omo",
       "[opencode]": { nested: { value: true } },
       "[codex]": { disabled_hooks: ["startup-toast"] },
       "[senpi]": { agents: { oracle: { model: "current" } } },

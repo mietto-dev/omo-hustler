@@ -4,7 +4,7 @@ import type {
   OpenClawGateway as CoreOpenClawGateway,
   OpenClawHook as CoreOpenClawHook,
   OpenClawReplyListenerConfig as CoreOpenClawReplyListenerConfig,
-} from "@oh-my-opencode/openclaw-core"
+} from "@omo-hustler/openclaw-core"
 
 export const OpenClawGatewaySchema = z.object({
   type: z.enum(["http", "command"]).default("http"),

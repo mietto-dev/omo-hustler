@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 import { OMO_INTERNAL_INITIATOR_MARKER } from "../shared"
 import type { PluginContext } from "./types"
 

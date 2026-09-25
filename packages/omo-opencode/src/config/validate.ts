@@ -1,6 +1,6 @@
 import { relative } from "node:path"
 
-import type { OmoConfigEnv } from "@oh-my-opencode/omo-config-core"
+import type { OmoConfigEnv } from "@omo-hustler/omo-config-core"
 
 import { applyDisabledProviders } from "../shared/disabled-providers"
 import { log } from "../shared/logger"

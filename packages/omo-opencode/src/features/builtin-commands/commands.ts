@@ -1,4 +1,4 @@
-import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
+import type { CommandDefinition } from "@omo-hustler/skills-loader-core/command-types"
 import { isAgentRegistered } from "../opencode-session-state"
 import type { BuiltinCommandName, BuiltinCommands } from "./types"
 import { GOAL_TEMPLATE } from "./templates/goal"

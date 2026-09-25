@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-36 non-test schema files composing `OhMyOpenCodeConfigSchema` (plus `schema/internal/permission.ts` for shared internal helpers). Zod v4 validation with `safeParse()`. All fields optional; omitted fields use defaults from the schema. Auto-emitted to `assets/oh-my-opencode.schema.json` via `bun run build:schema`.
+36 non-test schema files composing `OhMyOpenCodeConfigSchema` (plus `schema/internal/permission.ts` for shared internal helpers). Zod v4 validation with `safeParse()`. All fields optional; omitted fields use defaults from the schema. Auto-emitted to `assets/omo-hustler.schema.json` via `bun run build:schema`.
 
 ## SCHEMA TREE
 
@@ -92,4 +92,4 @@ When `enabled: true`:
 2. Add field to `oh-my-opencode-config.ts` root schema
 3. Reference via `z.infer<typeof YourSchema>` for the TypeScript type
 4. Access in handlers via `pluginConfig.{field_name}` (snake_case JSON, snake_case TS field)
-5. Run `bun run build:schema` to regenerate `assets/oh-my-opencode.schema.json`
+5. Run `bun run build:schema` to regenerate `assets/omo-hustler.schema.json`

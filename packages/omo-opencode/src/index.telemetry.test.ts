@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
-import type { TelemetryCaptureMessage, TelemetryTransportFactory } from "@oh-my-opencode/telemetry-core"
+import type { TelemetryCaptureMessage, TelemetryTransportFactory } from "@omo-hustler/telemetry-core"
 import { createPluginModule, type PluginModuleDeps } from "./testing/create-plugin-module"
 import * as posthogModule from "./shared/posthog"
 

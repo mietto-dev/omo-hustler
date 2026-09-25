@@ -1,7 +1,7 @@
 import * as fs from "node:fs"
 import * as path from "node:path"
 
-import { parseJsoncSafe } from "@oh-my-opencode/utils"
+import { parseJsoncSafe } from "@omo-hustler/utils"
 import { getOpenCodeConfigDirs } from "../../shared"
 
 interface OpencodeConfigWithSkills {

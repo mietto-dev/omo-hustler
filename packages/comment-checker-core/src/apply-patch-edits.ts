@@ -1,7 +1,7 @@
-import { isRecord } from "@oh-my-opencode/utils/record-type-guard"
+import { isRecord } from "@omo-hustler/utils/record-type-guard"
 import type { ApplyPatchAccumulator, ApplyPatchFileMetadata, CheckerEdit } from "./types"
 
-export { isRecord } from "@oh-my-opencode/utils/record-type-guard"
+export { isRecord } from "@omo-hustler/utils/record-type-guard"
 
 export function extractApplyPatchEdits(
   details: unknown,

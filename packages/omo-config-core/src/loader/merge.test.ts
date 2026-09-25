@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { parseJsoncSafe } from "@oh-my-opencode/utils"
+import { parseJsoncSafe } from "@omo-hustler/utils"
 import { mergeOmoConfigRecords } from "./merge"
 
 function toRecord(value: unknown, label: string): Record<string, unknown> {

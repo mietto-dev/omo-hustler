@@ -1,8 +1,8 @@
 import {
   applyLayout,
   enforceMainPaneWidth as enforceMainPaneWidthCore,
-} from "@oh-my-opencode/tmux-core"
-import type { MainPaneWidthOptions } from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"
+import type { MainPaneWidthOptions } from "@omo-hustler/tmux-core"
 
 export async function enforceMainPaneWidth(
 	mainPaneId: string,

@@ -53,7 +53,7 @@ export async function rebalanceTeamWindow(
 ): Promise<boolean> {
   const [{ log }, { runTmuxCommand }] = await Promise.all([
     import("../logger"),
-    import("@oh-my-opencode/tmux-core"),
+    import("@omo-hustler/tmux-core"),
   ])
   const tmuxPath = "tmux"
 

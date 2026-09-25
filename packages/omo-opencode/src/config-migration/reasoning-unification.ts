@@ -1,4 +1,4 @@
-import { normalizeLegacyModelEntry, normalizeLegacyModelFields } from "@oh-my-opencode/omo-config-core"
+import { normalizeLegacyModelEntry, normalizeLegacyModelFields } from "@omo-hustler/omo-config-core"
 
 import { copyRecord, isPlainRecord } from "./record-values"
 import type { ConfigMigrationTransformResult } from "./transform-types"

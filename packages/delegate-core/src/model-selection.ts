@@ -4,9 +4,9 @@ import {
   parseModelString,
   parseVariantFromModelID,
   transformModelForProvider,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"
 
-export { transformModelForProvider } from "@oh-my-opencode/model-core"
+export { transformModelForProvider } from "@omo-hustler/model-core"
 
 export type DelegateFallbackEntry = {
   readonly providers: string[]

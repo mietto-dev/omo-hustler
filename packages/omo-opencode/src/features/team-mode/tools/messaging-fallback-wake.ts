@@ -6,9 +6,9 @@ import {
 import { isPreSendConnectionFailure } from "../../../shared/live-server-route"
 import { log } from "../../../shared/logger"
 import { buildMemberPromptBody } from "../member-session-routing"
-import { readUnreadMessageById } from "@oh-my-opencode/team-core/team-mailbox/inbox"
-import { loadRuntimeState } from "@oh-my-opencode/team-core/team-state-store/store"
-import type { RuntimeState } from "@oh-my-opencode/team-core/types"
+import { readUnreadMessageById } from "@omo-hustler/team-core/team-mailbox/inbox"
+import { loadRuntimeState } from "@omo-hustler/team-core/team-state-store/store"
+import type { RuntimeState } from "@omo-hustler/team-core/types"
 import type { LiveDeliveryClient } from "./messaging-live-delivery-client"
 import type { TeamSendMessageDispatchTiming } from "./messaging-runtime"
 

@@ -138,7 +138,7 @@ describe("Hustler package boundary", () => {
 
   test("#given the package manifest #when inspecting package metadata #then it is independently buildable", () => {
     const manifest = readJson(hustlerPackageJsonPath)
-    expect(manifest.name).toBe("@oh-my-opencode/hustler")
+    expect(manifest.name).toBe("@omo-hustler/hustler")
     expect(manifest.private).toBe(true)
     expect(manifest.type).toBe("module")
     expect(manifest.main).toBe("./dist/index.js")
@@ -161,7 +161,7 @@ describe("Hustler package boundary", () => {
       "THIRD-PARTY-NOTICES.md",
       "dist",
       "bin/hustler-opencode.js",
-      "assets/oh-my-opencode.schema.json",
+      "assets/omo-hustler.schema.json",
       "packages/hustler/package.json",
       "packages/hustler/dist",
       "packages/lsp-tools-mcp/package.json",

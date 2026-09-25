@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs"
 
-import { resolveUserOmoConfigPath, updateOmoConfig } from "@oh-my-opencode/omo-config-core"
+import { resolveUserOmoConfigPath, updateOmoConfig } from "@omo-hustler/omo-config-core"
 
 import { parseJsonc } from "../../shared"
 import { runOpenCodeStartupMigration } from "../../startup-migration"

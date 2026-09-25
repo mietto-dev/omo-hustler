@@ -1,1 +1,1 @@
-export type { ReplaceEdit, AppendEdit, PrependEdit, HashlineEdit } from "@oh-my-opencode/hashline-core"
+export type { ReplaceEdit, AppendEdit, PrependEdit, HashlineEdit } from "@omo-hustler/hashline-core"

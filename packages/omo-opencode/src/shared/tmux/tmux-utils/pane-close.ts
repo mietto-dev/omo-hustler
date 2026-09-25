@@ -1,7 +1,7 @@
 import {
   closeTmuxPaneWithDependencies,
   type CloseTmuxPaneDependencies,
-} from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds))

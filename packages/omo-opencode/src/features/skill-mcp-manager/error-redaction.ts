@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/mcp-client-core/skill-mcp-manager/error-redaction"
+export * from "@omo-hustler/mcp-client-core/skill-mcp-manager/error-redaction"

@@ -1,7 +1,7 @@
 /// <reference path="../../../../../../bun-test.d.ts" />
 
 import { describe, expect, test } from "bun:test"
-import { parseFrontmatter } from "@oh-my-opencode/utils"
+import { parseFrontmatter } from "@omo-hustler/utils"
 import { agentBrowserSkill as directAgentBrowserSkill } from "./agent-browser-skill"
 import { createBuiltinSkills } from "../skills"
 import * as playwrightFacade from "./playwright"

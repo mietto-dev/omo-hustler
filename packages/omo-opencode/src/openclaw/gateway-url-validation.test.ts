@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/openclaw-core/gateway-url-validation.test"
+export * from "@omo-hustler/openclaw-core/gateway-url-validation.test"

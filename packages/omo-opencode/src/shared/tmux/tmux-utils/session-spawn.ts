@@ -1,8 +1,8 @@
 import {
 	getIsolatedSessionName,
 	spawnTmuxSession as spawnTmuxSessionCore,
-} from "@oh-my-opencode/tmux-core"
-import type { SpawnTmuxSessionDeps, TmuxConfig } from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"
+import type { SpawnTmuxSessionDeps, TmuxConfig } from "@omo-hustler/tmux-core"
 import type { SpawnPaneResult } from "../types"
 import { withSessionSpawnDeps } from "./adapter-deps"
 

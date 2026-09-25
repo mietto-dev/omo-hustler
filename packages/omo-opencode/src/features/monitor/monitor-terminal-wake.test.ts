@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test"
 import { hasInternalNoReplyMarker } from "../../shared"
 import { MonitorBatcher } from "./batcher"
 import { MonitorOutputInjector } from "./output-injector"
-import type { InternalPromptDispatchResult, PromptAsyncInput, PromptDispatchClient } from "@oh-my-opencode/utils/prompt-async-gate/types"
+import type { InternalPromptDispatchResult, PromptAsyncInput, PromptDispatchClient } from "@omo-hustler/utils/prompt-async-gate/types"
 import type { MonitorCounters, MonitorRecord, OutputBatch } from "./types"
 
 type DispatchCall = {

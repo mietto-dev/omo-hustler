@@ -3,7 +3,7 @@ import { createRequire } from "node:module"
 import { homedir } from "node:os"
 import { dirname, join } from "node:path"
 
-import { astGrepRuntimeDir, findSgBinarySync } from "@oh-my-opencode/utils"
+import { astGrepRuntimeDir, findSgBinarySync } from "@omo-hustler/utils"
 
 import type { DependencyInfo } from "../framework/types"
 import { spawnWithTimeout } from "../framework/spawn-with-timeout"

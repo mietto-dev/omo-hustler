@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 import { extractSessionMessages } from "./session-messages"
 
 export type RetryPromptPart = { type: "text"; text: string; id?: string }

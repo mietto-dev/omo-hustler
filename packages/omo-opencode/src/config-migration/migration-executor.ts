@@ -2,7 +2,7 @@ import {
   runMigration,
   type MigrationRunResult,
   type RunMigrationOptions,
-} from "@oh-my-opencode/omo-config-core"
+} from "@omo-hustler/omo-config-core"
 
 import type { LegacyConfigMigrationPlan } from "./migration-plans"
 

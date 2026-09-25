@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/lsp-core/lsp/config-loader";
+export * from "@omo-hustler/lsp-core/lsp/config-loader";

@@ -27,4 +27,4 @@ export {
   upsertTaskSessionState,
   upsertTaskSessionStateForWork,
   writeBoulderState,
-} from "@oh-my-opencode/boulder-state"
+} from "@omo-hustler/boulder-state"

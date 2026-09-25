@@ -19,7 +19,7 @@ import {
   normalizeSkillAliasName,
   readOpencodeConfigSkills,
 } from "../features/opencode-skill-loader"
-import { resolveActiveBuiltinSkills } from "@oh-my-opencode/skills-loader-core/builtin-skills"
+import { resolveActiveBuiltinSkills } from "@omo-hustler/skills-loader-core/builtin-skills"
 import { getSystemMcpServerNames } from "../features/opencode-mcp-loader"
 import { adaptHostSkillConfig } from "../shared/host-skill-config"
 

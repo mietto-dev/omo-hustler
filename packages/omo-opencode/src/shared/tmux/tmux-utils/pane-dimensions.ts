@@ -1,5 +1,5 @@
-import { getPaneDimensions as getPaneDimensionsCore } from "@oh-my-opencode/tmux-core"
-import type { PaneDimensions } from "@oh-my-opencode/tmux-core"
+import { getPaneDimensions as getPaneDimensionsCore } from "@omo-hustler/tmux-core"
+import type { PaneDimensions } from "@omo-hustler/tmux-core"
 
 export async function getPaneDimensions(
 	paneId: string,

@@ -3,14 +3,14 @@ import {
   createTelemetryClient,
   getDefaultTelemetryOsProvider,
   getTelemetryDistinctId,
-} from "@oh-my-opencode/telemetry-core"
+} from "@omo-hustler/telemetry-core"
 import type {
   PostHogActivityCaptureState,
   TelemetryDiagnosticInput,
   TelemetryEnv,
   TelemetryOsProvider,
   TelemetryTransportFactory,
-} from "@oh-my-opencode/telemetry-core"
+} from "@omo-hustler/telemetry-core"
 import { getPostHogActivityCaptureState } from "./posthog-activity-state"
 import { log } from "./logger"
 import { createOpencodeTelemetryProductConfig } from "./telemetry-product-identity"

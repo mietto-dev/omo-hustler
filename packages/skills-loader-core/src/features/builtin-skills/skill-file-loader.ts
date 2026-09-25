@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
-import { sharedSkillsRootPath } from "@oh-my-opencode/shared-skills"
-import { parseFrontmatter } from "@oh-my-opencode/utils"
+import { sharedSkillsRootPath } from "@omo-hustler/shared-skills"
+import { parseFrontmatter } from "@omo-hustler/utils"
 
 type SkillFileReader = (path: string, encoding: "utf8") => string
 

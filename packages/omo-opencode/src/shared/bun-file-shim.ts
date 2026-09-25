@@ -1,1 +1,1 @@
-export { bunFile, bunWrite, type BunFileLike } from "@oh-my-opencode/utils/runtime"
+export { bunFile, bunWrite, type BunFileLike } from "@omo-hustler/utils/runtime"

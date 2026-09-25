@@ -1,8 +1,8 @@
 import {
 	getBundledModelCapabilitiesSnapshot,
 	getModelCapabilities as getModelCapabilitiesFromCore,
-} from "@oh-my-opencode/model-core"
-import type { GetModelCapabilitiesInput, ModelCapabilities } from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"
+import type { GetModelCapabilitiesInput, ModelCapabilities } from "@omo-hustler/model-core"
 import * as connectedProvidersCache from "../connected-providers-cache"
 import bundledModelCapabilitiesSnapshotJson from "../../generated/model-capabilities.generated.json"
 
@@ -29,4 +29,4 @@ export type {
   ModelCapabilitiesDiagnostics,
   ModelCapabilitiesSnapshot,
   ModelCapabilitiesSnapshotEntry,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"

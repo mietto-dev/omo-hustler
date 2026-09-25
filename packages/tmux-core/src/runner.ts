@@ -1,4 +1,4 @@
-import { spawn } from "@oh-my-opencode/utils/runtime"
+import { spawn } from "@omo-hustler/utils/runtime"
 import { isCmuxCompatEnvironment } from "./cmux-detect"
 
 type RunTmuxOptions = {

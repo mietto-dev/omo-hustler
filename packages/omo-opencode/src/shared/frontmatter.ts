@@ -1,1 +1,1 @@
-export { parseFrontmatter, type FrontmatterResult } from "@oh-my-opencode/utils"
+export { parseFrontmatter, type FrontmatterResult } from "@omo-hustler/utils"

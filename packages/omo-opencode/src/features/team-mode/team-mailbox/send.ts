@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/team-core/team-mailbox/send"
+export * from "@omo-hustler/team-core/team-mailbox/send"

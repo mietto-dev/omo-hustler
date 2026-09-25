@@ -1,7 +1,7 @@
 import type { TeamModeConfig } from "../../../config/schema/team-mode"
 import { lookupTeamSession } from "../team-session-registry"
-import { loadRuntimeState } from "@oh-my-opencode/team-core/team-state-store/store"
-import type { Message, RuntimeState } from "@oh-my-opencode/team-core/types"
+import { loadRuntimeState } from "@omo-hustler/team-core/team-state-store/store"
+import type { Message, RuntimeState } from "@omo-hustler/team-core/types"
 
 export type TeamRuntimeDetails = {
   teamRunId: string

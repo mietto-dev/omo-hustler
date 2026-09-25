@@ -1,9 +1,9 @@
 import {
   normalizeTeamSpecInput as normalizeCoreTeamSpecInput,
-} from "@oh-my-opencode/team-core/team-registry/team-spec-input-normalizer"
+} from "@omo-hustler/team-core/team-registry/team-spec-input-normalizer"
 import type {
   NormalizeTeamSpecInputOptions,
-} from "@oh-my-opencode/team-core/team-registry/team-spec-input-normalizer"
+} from "@omo-hustler/team-core/team-registry/team-spec-input-normalizer"
 
 const LEGACY_TEAM_LEAD_IDS: Readonly<Record<string, string>> = {
   orchestrator: "sisyphus",

@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/migration/migrations-sidecar"
+export * from "@omo-hustler/utils/migration/migrations-sidecar"

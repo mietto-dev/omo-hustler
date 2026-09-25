@@ -3,7 +3,7 @@ import {
   getTelemetryActivityStateFilePath,
   getTelemetryHost,
   resolveTelemetryStateDir,
-} from "@oh-my-opencode/telemetry-core"
+} from "@omo-hustler/telemetry-core"
 import { validatePluginConfig } from "../../../config/validate"
 import { createOpencodeTelemetryProductConfig } from "../../../shared/telemetry-product-identity"
 import { shouldDisablePostHog } from "../../../shared/posthog"

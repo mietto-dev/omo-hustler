@@ -1,5 +1,5 @@
 import type { OhMyOpenCodeConfig } from "../config";
-import { deepMerge, mergeUniqueStrings, mergeUniqueStringsCaseInsensitive } from "@oh-my-opencode/utils";
+import { deepMerge, mergeUniqueStrings, mergeUniqueStringsCaseInsensitive } from "@omo-hustler/utils";
 
 export function mergeConfigs(
   base: OhMyOpenCodeConfig,

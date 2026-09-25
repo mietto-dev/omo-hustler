@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/lsp-core/lsp/errors";
+export * from "@omo-hustler/lsp-core/lsp/errors";

@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/git-worktree/parse-status-porcelain"
+export * from "@omo-hustler/utils/git-worktree/parse-status-porcelain"

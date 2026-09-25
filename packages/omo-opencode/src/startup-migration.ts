@@ -7,7 +7,7 @@ import {
   type MigrationEnvironment,
   type MigrationFileSystem,
   type MigrationRunResult,
-} from "@oh-my-opencode/omo-config-core"
+} from "@omo-hustler/omo-config-core"
 
 import {
   createLegacyConfigMigrationPlans,

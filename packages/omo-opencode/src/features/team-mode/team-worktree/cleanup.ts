@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/team-core/team-worktree/cleanup"
+export * from "@omo-hustler/team-core/team-worktree/cleanup"

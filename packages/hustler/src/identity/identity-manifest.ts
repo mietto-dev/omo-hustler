@@ -1,9 +1,8 @@
 export type ManifestClassification = "included" | "generated" | "excluded"
 
-export type IdentityDecision = {
-  status: "unresolved"
-  value: null
-}
+export type IdentityDecision =
+  | { status: "resolved"; value: string }
+  | { status: "unresolved"; value: null }
 
 export type ManifestPath = {
   classification: ManifestClassification
@@ -81,11 +80,11 @@ const excludedPackageRoots = [
   "packages/ast-grep-mcp",
   "packages/git-bash-mcp",
   "packages/lsp-daemon",
-  "packages/oh-my-opencode-*",
 ] as const
 
 const includedArtifactPaths = [] as const
 
+const resolved = (value: string): IdentityDecision => ({ status: "resolved", value })
 const unresolved = (): IdentityDecision => ({ status: "unresolved", value: null })
 
 export const identityManifest: IdentityManifest = {
@@ -95,13 +94,13 @@ export const identityManifest: IdentityManifest = {
     upstream_repository: "https://github.com/code-yeongyu/oh-my-openagent",
   },
   identity: {
-    cli: unresolved(),
-    config_namespace: unresolved(),
-    package_name: unresolved(),
-    plugin_registration: unresolved(),
+    cli: resolved("hustler-opencode"),
+    config_namespace: resolved("omo-hustler"),
+    package_name: resolved("omo-hustler"),
+    plugin_registration: resolved("omo-hustler"),
     repository: unresolved(),
-    telemetry_prefix: unresolved(),
-    version_stream: unresolved(),
+    telemetry_prefix: resolved("omo-hustler"),
+    version_stream: resolved("0.x-private"),
   },
   closure: {
     included_package_roots: includedPackageRoots,
@@ -112,7 +111,7 @@ export const identityManifest: IdentityManifest = {
       "THIRD-PARTY-NOTICES.md",
       ...includedPackageRoots.map((root) => `${root}/**`),
       "dist/**",
-      "assets/oh-my-opencode.schema.json",
+      "assets/omo-hustler.schema.json",
       ...includedArtifactPaths,
     ],
     paths: [
@@ -138,8 +137,8 @@ export const identityManifest: IdentityManifest = {
       },
       {
         classification: "generated",
-        path: "assets/oh-my-opencode.schema.json",
-        reason: "Generated schema retained only as a source-derived artifact until the independent schema exists.",
+        path: "assets/omo-hustler.schema.json",
+        reason: "Generated OMO Hustler plugin schema included in the private package payload.",
       },
       ...excludedPackageRoots.map((path) => ({
         classification: "excluded" as const,
@@ -197,7 +196,13 @@ export function validateIdentityManifest(manifest: IdentityManifest): string[] {
   }
   for (const key of Object.keys(manifest.identity) as (keyof IdentityManifest["identity"])[]) {
     const decision = manifest.identity[key]
-    if (decision.status !== "unresolved" || decision.value !== null) {
+    if (key === "repository") {
+      if (decision.status !== "unresolved" || decision.value !== null) {
+        errors.push(`identity decision must remain unresolved: ${key}`)
+      }
+      continue
+    }
+    if (decision.status !== "resolved" || decision.value.length === 0) {
       errors.push(`identity decision must remain unresolved: ${key}`)
     }
   }

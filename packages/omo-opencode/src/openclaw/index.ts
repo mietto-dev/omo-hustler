@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/openclaw-core/index"
+export * from "@omo-hustler/openclaw-core/index"

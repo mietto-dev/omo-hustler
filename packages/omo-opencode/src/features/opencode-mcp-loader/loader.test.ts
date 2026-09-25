@@ -3,7 +3,7 @@ import { join } from "node:path"
 import { tmpdir } from "node:os"
 import { describe, expect, test } from "bun:test"
 import { loadMcpConfigs } from "./loader"
-import { resetAdditionalAllowedMcpEnvVars, setAdditionalAllowedMcpEnvVars } from "@oh-my-opencode/mcp-client-core/skill-mcp-manager/configure-allowed-env-vars"
+import { resetAdditionalAllowedMcpEnvVars, setAdditionalAllowedMcpEnvVars } from "@omo-hustler/mcp-client-core/skill-mcp-manager/configure-allowed-env-vars"
 
 describe("OpenCode MCP loader", () => {
   test("#given user and project .mcp.json files #when loaded #then project overrides user and expands allowed env", async () => {

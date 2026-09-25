@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/lsp-core/lsp/client-wrapper";
+export * from "@omo-hustler/lsp-core/lsp/client-wrapper";

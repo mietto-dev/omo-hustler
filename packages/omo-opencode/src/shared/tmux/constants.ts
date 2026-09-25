@@ -5,4 +5,4 @@ export {
   SESSION_READY_POLL_INTERVAL_MS,
   SESSION_READY_TIMEOUT_MS,
   SESSION_TIMEOUT_MS,
-} from "@oh-my-opencode/tmux-core"
+} from "@omo-hustler/tmux-core"

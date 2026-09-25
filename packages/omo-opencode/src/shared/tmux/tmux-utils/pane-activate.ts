@@ -1,4 +1,4 @@
-import { activateTmuxPane as activateTmuxPaneCore } from "@oh-my-opencode/tmux-core"
+import { activateTmuxPane as activateTmuxPaneCore } from "@omo-hustler/tmux-core"
 import { paneActivateDeps } from "./adapter-deps"
 
 export async function activateTmuxPane(

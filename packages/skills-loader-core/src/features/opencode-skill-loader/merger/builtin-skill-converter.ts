@@ -1,8 +1,8 @@
 import { existsSync } from "node:fs"
 import { join } from "node:path"
-import { sharedSkillsRootPath } from "@oh-my-opencode/shared-skills"
+import { sharedSkillsRootPath } from "@omo-hustler/shared-skills"
 import type { BuiltinSkill } from "../../builtin-skills/types"
-import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
+import type { CommandDefinition } from "@omo-hustler/skills-loader-core/command-types"
 import type { LoadedSkill } from "../types"
 
 function resolveBuiltinSkillPath(builtin: BuiltinSkill): string | undefined {

@@ -1,6 +1,6 @@
 import type { LoadedSkill } from "../types"
 import type { SkillDefinition } from "../../../types"
-import { deepMerge } from "@oh-my-opencode/utils"
+import { deepMerge } from "@omo-hustler/utils"
 import { parseAllowedTools } from "../allowed-tools-parser"
 
 export function mergeSkillDefinitions(base: LoadedSkill, patch: SkillDefinition): LoadedSkill {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { bunWhich as sharedBunWhich } from "@oh-my-opencode/utils/runtime"
+import { bunWhich as sharedBunWhich } from "@omo-hustler/utils/runtime"
 
 import { bunWhich } from "./bun-which-shim"
 

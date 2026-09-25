@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/lsp-core/lsp/directory-diagnostics";
+export * from "@omo-hustler/lsp-core/lsp/directory-diagnostics";

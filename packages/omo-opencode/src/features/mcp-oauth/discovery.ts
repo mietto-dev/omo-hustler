@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/mcp-client-core/mcp-oauth/discovery"
+export * from "@omo-hustler/mcp-client-core/mcp-oauth/discovery"

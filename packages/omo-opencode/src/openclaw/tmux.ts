@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/openclaw-core/tmux"
+export * from "@omo-hustler/openclaw-core/tmux"

@@ -1,4 +1,4 @@
 export {
   extractRuntimeFallbackAutoRetrySignal as extractAutoRetrySignal,
   type RuntimeFallbackAutoRetrySignal as AutoRetrySignal,
-} from "@oh-my-opencode/model-core"
+} from "@omo-hustler/model-core"

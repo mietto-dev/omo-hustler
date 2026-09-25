@@ -1,4 +1,4 @@
-import type { ClaudeCodeMcpServer } from "@oh-my-opencode/mcp-client-core/skill-mcp-manager/mcp-types"
+import type { ClaudeCodeMcpServer } from "@omo-hustler/mcp-client-core/skill-mcp-manager/mcp-types"
 
 export type { CommandDefinition } from "./command-types"
 

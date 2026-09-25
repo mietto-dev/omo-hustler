@@ -1,5 +1,5 @@
-import { normalizeReasoning } from "@oh-my-opencode/model-core"
-import type { GetModelCapabilitiesInput } from "@oh-my-opencode/model-core"
+import { normalizeReasoning } from "@omo-hustler/model-core"
+import type { GetModelCapabilitiesInput } from "@omo-hustler/model-core"
 import type { OhMyOpenCodeConfig } from "../config"
 import { stripInvisibleAgentCharacters } from "./agent-display-names"
 import { getModelCapabilities } from "./model-capabilities"

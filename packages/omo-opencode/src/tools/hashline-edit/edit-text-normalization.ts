@@ -6,4 +6,4 @@ export {
   stripInsertBeforeEcho,
   stripInsertBoundaryEcho,
   stripRangeBoundaryEcho,
-} from "@oh-my-opencode/hashline-core"
+} from "@omo-hustler/hashline-core"

@@ -1,4 +1,4 @@
-import { isRecord } from "@oh-my-opencode/utils"
+import { isRecord } from "@omo-hustler/utils"
 
 export const BTW_SIDE_METADATA_KEY = "omo_btw_side"
 export const BTW_SIDE_METADATA_VERSION = 1

@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join, posix } from "node:path"
 
-import { OmoConfigSchema } from "@oh-my-opencode/omo-config-core"
+import { OmoConfigSchema } from "@omo-hustler/omo-config-core"
 
 import {
   CONFIG_JSONC_MIGRATION_ID,
@@ -108,7 +108,7 @@ describe("OpenCode config migration transform", () => {
       expect(userResult.success).toBe(true)
       expect(projectResult.success).toBe(true)
       expect(userDocument).toEqual({
-        $schema: "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
+        $schema: "urn:omo-hustler:schema:omo",
         "[opencode]": {
           background_task: { enabled: true },
         },
@@ -116,7 +116,7 @@ describe("OpenCode config migration transform", () => {
         "[senpi]": { agents: { oracle: { model: "senpi-model" } } },
       })
       expect(projectDocument.document).toEqual({
-        $schema: "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
+        $schema: "urn:omo-hustler:schema:omo",
       })
     } finally {
       rmSync(fixtureRoot, { force: true, recursive: true })

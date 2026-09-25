@@ -1,4 +1,4 @@
-import { configureSharedSubunitLogger, createLogger, type LoggerTestOverrides } from "@oh-my-opencode/utils"
+import { configureSharedSubunitLogger, createLogger, type LoggerTestOverrides } from "@omo-hustler/utils"
 
 import { LOG_FILENAME } from "./plugin-identity"
 

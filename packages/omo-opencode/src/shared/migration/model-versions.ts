@@ -1,1 +1,1 @@
-export * from "@oh-my-opencode/utils/migration/model-versions"
+export * from "@omo-hustler/utils/migration/model-versions"
