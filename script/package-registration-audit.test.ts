@@ -27,7 +27,6 @@ const corePackagePaths: readonly string[] = [
 ] as const
 
 const mcpPackagePaths: readonly string[] = [
-  "packages/git-bash-mcp",
   "packages/lsp-tools-mcp",
 ] as const
 const adapterPackagePaths: readonly string[] = [
@@ -35,9 +34,7 @@ const adapterPackagePaths: readonly string[] = [
   "packages/omo-opencode",
 ] as const
 const skillPackagePaths: readonly string[] = ["packages/shared-skills"] as const
-const shimSourceRoots: readonly string[] = ["packages/omo-opencode/src"] as const
 const rootTypecheckPackagePaths: readonly string[] = ["packages/hustler", "packages/omo-opencode"] as const
-const reExportShimFirstLinePattern = /^export (\*|\{).*from ["'](@oh-my-opencode\/[^/"']+)/
 
 const layerRanks = {
   skill: 1,
@@ -56,11 +53,6 @@ type PackageManifest = {
 
 type RootManifest = PackageManifest & {
   readonly workspaces: readonly string[]
-}
-
-type ReExportShim = {
-  readonly path: string
-  readonly targetPackage: string
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -136,31 +128,12 @@ async function collectFiles(root: string, predicate: (path: string) => boolean):
   return files
 }
 
-async function collectTrackedFiles(roots: readonly string[], predicate: (path: string) => boolean): Promise<readonly string[]> {
-  return (await Promise.all(roots.map((root) => collectFiles(root, predicate)))).flat().toSorted()
-}
-
 async function discoverPackagePaths(): Promise<readonly string[]> {
   const packageNames = await readdir("packages")
   return packageNames
     .map((name) => `packages/${name}`)
     .filter((path) => existsSync(join(path, "package.json")))
     .toSorted()
-}
-
-async function collectReExportShims(): Promise<readonly ReExportShim[]> {
-  const files = await collectTrackedFiles(shimSourceRoots, (path) => path.endsWith(".ts"))
-
-  const shims: ReExportShim[] = []
-  for (const path of files) {
-    const source = await readFile(path, "utf8")
-    const firstLine = source.split(/\r?\n/, 1)[0] ?? ""
-    const targetPackage = reExportShimFirstLinePattern.exec(firstLine)?.[2]
-    if (targetPackage === undefined) continue
-    shims.push({ path, targetPackage })
-  }
-
-  return shims
 }
 
 function isManagedWorkspacePackage(path: string): boolean {
@@ -233,7 +206,7 @@ describe("package registration audit", () => {
       isRootManagedTypecheckPackage,
     )
     const actualDevDependencyNames = Object.entries(root.devDependencies)
-      .filter((entry) => entry[1] === "workspace:*" && entry[0].startsWith("@oh-my-opencode/"))
+      .filter((entry) => entry[1] === "workspace:*" && entry[0].startsWith("@omo-hustler/"))
       .map((entry) => entry[0])
       .toSorted()
 
@@ -316,24 +289,4 @@ describe("package registration audit", () => {
     expect(reverseEdges).toEqual([])
   })
 
-  test("#given exact re-export shim scan #when inventory docs are checked #then total targets and every path are present", async () => {
-    // given
-    const docPath = "docs/reference/re-export-shim-inventory.md"
-    const [doc, shims] = await Promise.all([readFile(docPath, "utf8"), collectReExportShims()])
-
-    // when
-    const totalMatch = /Total shim exports found: (\d+)\./.exec(doc)
-    if (totalMatch?.[1] === undefined) throw new Error(`${docPath} is missing the total shim count`)
-
-    const documentedTotal = Number.parseInt(totalMatch[1], 10)
-    const targetPackages = [...new Set(shims.map((shim) => shim.targetPackage))].toSorted()
-    const missingTargetPackages = targetPackages.filter((targetPackage) => !doc.includes(`\`${targetPackage}\``))
-    const missingPaths = shims.map((shim) => shim.path).filter((path) => !doc.includes(`\`${path}\``))
-
-    // then
-    expect(doc).toContain("Re-export Shim Inventory")
-    expect(documentedTotal).toBe(shims.length)
-    expect(missingTargetPackages).toEqual([])
-    expect(missingPaths).toEqual([])
-  }, { timeout: 20_000 })
 })

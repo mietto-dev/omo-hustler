@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/help/status.schema.json",
+  "$id": "urn:omo-hustler:schema:help:status",
   "title": "System Status",
-  "description": "JSON schema for oh-my-openagent system status output",
+  "description": "JSON schema for OMO Hustler system status output",
   "type": "object",
   "properties": {
     "system": {
@@ -107,15 +107,11 @@
                 "description": "Whether the provider is connected"
               },
               "defaultModel": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ],
-                "description": "Default model ID"
+                "description": "Default model ID",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "modelsAvailable": {
                 "type": "number",
@@ -154,13 +150,9 @@
               },
               "error": {
                 "description": "Error message if status is error",
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
+                "type": [
+                  "string",
+                  "null"
                 ]
               }
             },
@@ -187,15 +179,11 @@
                 "description": "Whether the LSP server is running"
               },
               "workspaceRoot": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ],
-                "description": "Workspace root path"
+                "description": "Workspace root path",
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -218,15 +206,11 @@
                 "description": "Plugin name"
               },
               "version": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ],
-                "description": "Plugin version"
+                "description": "Plugin version",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "enabled": {
                 "type": "boolean",

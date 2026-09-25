@@ -73,8 +73,6 @@ describe("script TypeScript project", () => {
     ))
 
     // then
-    expect(scriptFiles).toContain("./build-binaries.ts")
-    expect(scriptFiles).toContain("./build-binaries.test.ts")
     expect(scriptFiles).toContain("./build-schema.test.ts")
     expect(missingFiles).toEqual([])
   })

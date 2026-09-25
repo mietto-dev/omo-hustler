@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
+  "$id": "urn:omo-hustler:schema:omo",
   "title": "OmO Configuration",
   "description": "Configuration schema for the omo.json / omo.jsonc harness-neutral config surface",
   "type": "object",
@@ -808,13 +808,9 @@
       "properties": {
         "commit_footer": {
           "default": true,
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "string"
-            }
+          "type": [
+            "boolean",
+            "string"
           ]
         },
         "include_co_authored_by": {
@@ -1866,9 +1862,9 @@
     },
     "[opencode]": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "$id": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
-      "title": "Oh My OpenCode Configuration",
-      "description": "Configuration schema for oh-my-opencode plugin",
+      "$id": "urn:omo-hustler:schema:plugin",
+      "title": "OMO Hustler Plugin Configuration",
+      "description": "Configuration schema for the OMO Hustler OpenCode plugin",
       "type": "object",
       "properties": {
         "$schema": {
@@ -9371,13 +9367,9 @@
           "properties": {
             "commit_footer": {
               "default": true,
-              "anyOf": [
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "string"
-                }
+              "type": [
+                "boolean",
+                "string"
               ]
             },
             "include_co_authored_by": {
@@ -10463,13 +10455,9 @@
           "type": "object",
           "properties": {
             "commit_footer": {
-              "anyOf": [
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "string"
-                }
+              "type": [
+                "boolean",
+                "string"
               ]
             },
             "include_co_authored_by": {
@@ -12083,13 +12071,9 @@
           "type": "object",
           "properties": {
             "commit_footer": {
-              "anyOf": [
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "string"
-                }
+              "type": [
+                "boolean",
+                "string"
               ]
             },
             "include_co_authored_by": {
@@ -13709,13 +13693,9 @@
             "type": "object",
             "properties": {
               "commit_footer": {
-                "anyOf": [
-                  {
-                    "type": "boolean"
-                  },
-                  {
-                    "type": "string"
-                  }
+                "type": [
+                  "boolean",
+                  "string"
                 ]
               },
               "include_co_authored_by": {
@@ -14534,9 +14514,9 @@
           },
           "[opencode]": {
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "$id": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
-            "title": "Oh My OpenCode Configuration",
-            "description": "Configuration schema for oh-my-opencode plugin",
+            "$id": "urn:omo-hustler:schema:plugin",
+            "title": "OMO Hustler Plugin Configuration",
+            "description": "Configuration schema for the OMO Hustler OpenCode plugin",
             "type": "object",
             "properties": {
               "$schema": {
@@ -22039,13 +22019,9 @@
                 "properties": {
                   "commit_footer": {
                     "default": true,
-                    "anyOf": [
-                      {
-                        "type": "boolean"
-                      },
-                      {
-                        "type": "string"
-                      }
+                    "type": [
+                      "boolean",
+                      "string"
                     ]
                   },
                   "include_co_authored_by": {
@@ -23131,13 +23107,9 @@
                 "type": "object",
                 "properties": {
                   "commit_footer": {
-                    "anyOf": [
-                      {
-                        "type": "boolean"
-                      },
-                      {
-                        "type": "string"
-                      }
+                    "type": [
+                      "boolean",
+                      "string"
                     ]
                   },
                   "include_co_authored_by": {
@@ -24751,13 +24723,9 @@
                 "type": "object",
                 "properties": {
                   "commit_footer": {
-                    "anyOf": [
-                      {
-                        "type": "boolean"
-                      },
-                      {
-                        "type": "string"
-                      }
+                    "type": [
+                      "boolean",
+                      "string"
                     ]
                   },
                   "include_co_authored_by": {

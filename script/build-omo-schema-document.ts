@@ -3,7 +3,7 @@ import { OmoConfigSchema } from "../packages/omo-config-core/src/schema"
 import { createOhMyOpenCodeJsonSchema } from "./build-schema-document"
 
 export const OMO_SCHEMA_ID =
-  "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json"
+  "urn:omo-hustler:schema:omo"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null

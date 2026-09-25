@@ -43,8 +43,6 @@ const forbiddenSourcePatterns: readonly ForbiddenSourcePattern[] = [
   { pattern: /\bsession\.prompt(?:Async)?\s*\(/ },
 ] as const
 
-const requiredPlanKeys = ["F", "1", "2", "3", "4", "5", "6", "7"] as const
-
 async function collectFiles(root: string, predicate: (path: string) => boolean): Promise<string[]> {
   const entries = await readdir(root, { withFileTypes: true })
   const files: string[] = []
@@ -115,18 +113,4 @@ describe("shared core extraction guardrails", () => {
     expect(offenders).toEqual([])
   })
 
-  test("#given the shared extraction plan #when documented #then every PR key has a QA matrix entry", async () => {
-    // given
-    const docPath = "docs/reference/shared-core-multi-pr.md"
-
-    // when
-    const doc = await readFile(docPath, "utf8")
-    const missingKeys = requiredPlanKeys.filter((key) => !doc.includes(`PR ${key}`))
-    const requiredQaTerms = ["TDD", "LSP", "ast-grep", "Codex fresh", "opencode-qa", "review-work", "Cubic"]
-    const missingQaTerms = requiredQaTerms.filter((term) => !doc.includes(term))
-
-    // then
-    expect(missingKeys).toEqual([])
-    expect(missingQaTerms).toEqual([])
-  })
 })

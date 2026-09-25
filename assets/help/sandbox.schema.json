@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/help/sandbox.schema.json",
+  "$id": "urn:omo-hustler:schema:help:sandbox",
   "title": "Sandbox Environment",
-  "description": "JSON schema for oh-my-openagent sandbox execution environment output",
+  "description": "JSON schema for OMO Hustler sandbox execution environment output",
   "type": "object",
   "properties": {
     "status": {
@@ -37,13 +37,9 @@
             },
             "memory": {
               "description": "Memory limit (e.g., '512MB')",
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
+              "type": [
+                "string",
+                "null"
               ]
             },
             "network": {

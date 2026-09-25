@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/help/doctor.schema.json",
+  "$id": "urn:omo-hustler:schema:help:doctor",
   "title": "Doctor Diagnostic Result",
-  "description": "JSON schema for oh-my-openagent doctor diagnostic output",
+  "description": "JSON schema for OMO Hustler doctor diagnostic output",
   "type": "object",
   "properties": {
     "results": {
@@ -98,70 +98,46 @@
       "type": "object",
       "properties": {
         "opencodeVersion": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Installed OpenCode version"
+          "description": "Installed OpenCode version",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "opencodePath": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Path to OpenCode binary"
+          "description": "Path to OpenCode binary",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "pluginVersion": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "oh-my-openagent plugin version"
+          "description": "oh-my-openagent plugin version",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "loadedVersion": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Loaded plugin version at runtime"
+          "description": "Loaded plugin version at runtime",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "bunVersion": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bun runtime version"
+          "description": "Bun runtime version",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "configPath": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Path to active config file"
+          "description": "Path to active config file",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "configValid": {
           "type": "boolean",
@@ -239,15 +215,11 @@
               "description": "Whether GitHub CLI is authenticated"
             },
             "username": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "GitHub username if authenticated"
+              "description": "GitHub username if authenticated",
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "required": [

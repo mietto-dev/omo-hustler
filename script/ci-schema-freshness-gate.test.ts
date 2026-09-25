@@ -6,7 +6,7 @@ import { load } from "js-yaml"
 
 const ciWorkflowPath = new URL("../.github/workflows/ci.yml", import.meta.url)
 const SCHEMA_GATE_STEP_NAME = "Verify generated schema artifacts are committed"
-const SCHEMA_ARTIFACTS = ["assets/oh-my-opencode.schema.json", "assets/omo.schema.json"]
+const SCHEMA_ARTIFACTS = ["assets/omo-hustler.schema.json", "assets/omo.schema.json"]
 
 interface WorkflowStep {
   readonly name: string | undefined

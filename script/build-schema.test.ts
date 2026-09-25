@@ -15,7 +15,7 @@ describe("build-schema-document", () => {
 
     // then
     expect(schema.$schema).toBe(expectedDraft)
-    expect(schema.title).toBe("Oh My OpenCode Configuration")
+    expect(schema.title).toBe("OMO Hustler Plugin Configuration")
     expect(isRecord(schema.properties)).toBe(true)
     const properties = isRecord(schema.properties) ? schema.properties : {}
     expect(properties.skills).toBeDefined()

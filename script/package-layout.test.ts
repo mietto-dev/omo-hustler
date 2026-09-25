@@ -26,7 +26,7 @@ describe("published package layout", () => {
       "THIRD-PARTY-NOTICES.md",
       "dist",
       "bin/hustler-opencode.js",
-      "assets/oh-my-opencode.schema.json",
+      "assets/omo-hustler.schema.json",
       "packages/hustler/package.json",
       "packages/hustler/dist",
       "packages/lsp-tools-mcp/package.json",
