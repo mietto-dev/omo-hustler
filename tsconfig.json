@@ -13,10 +13,16 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "lib": ["ESNext"],
-    "types": ["bun-types"]
+    "lib": [
+      "ESNext"
+    ],
+    "types": [
+      "bun-types"
+    ]
   },
-  "include": ["packages/omo-opencode/src/**/*"],
+  "include": [
+    "packages/omo-opencode/src/**/*"
+  ],
   "exclude": [
     "node_modules",
     "dist",

@@ -9,6 +9,7 @@
 > Core principle:
 >
 > **Route once. Plan only when necessary. Build in parallel. Review real artifacts. Stop when acceptance criteria are satisfied.**
+
 ---
 
 ## 1. Purpose
@@ -202,20 +203,20 @@ Pre-implementation Tester is reserved for high-risk changes such as:
 
 ## 3.1 Top-level agents
 
-| Agent    | Responsibility             | Owns workflow stage? | Can implement? |
-| -------- | -------------------------- | -------------------: | -------------: |
-| Orchestrator  | orchestration and routing  |                  yes |             no |
-| Planner  | planning and decomposition |                  yes |             no |
-| Developer   | implementation             |                  yes |            yes |
-| Tester | independent review         |                  yes |             no |
-| Approver | acceptance and completion  |                  yes |             no |
+| Agent        | Responsibility             | Owns workflow stage? | Can implement? |
+| ------------ | -------------------------- | -------------------: | -------------: |
+| Orchestrator | orchestration and routing  |                  yes |             no |
+| Planner      | planning and decomposition |                  yes |             no |
+| Developer    | implementation             |                  yes |            yes |
+| Tester       | independent review         |                  yes |             no |
+| Approver     | acceptance and completion  |                  yes |             no |
 
 ## 3.2 Sub-agents
 
-| Agent | Responsibility | Typical cost | Frequency |
-|---|---|---:|---:|
-| Librarian | repository/context reconnaissance | low | frequent |
-| Architect | expert architectural/debugging consultation | high | rare |
+| Agent     | Responsibility                              | Typical cost | Frequency |
+| --------- | ------------------------------------------- | -----------: | --------: |
+| Librarian | repository/context reconnaissance           |          low |  frequent |
+| Architect | expert architectural/debugging consultation |         high |      rare |
 
 ## 3.3 Skills / profiles
 
@@ -742,7 +743,7 @@ Flow:
 ```text
 Orchestrator
    │
-   ├── Librarian? 
+   ├── Librarian?
    │
    ▼
 Developer
@@ -772,7 +773,7 @@ Orchestrator
    ↓
 Planner
    ├── Librarian*
-   └── Architect? 
+   └── Architect?
    ↓
 Developer*
    ├── Librarian?
@@ -1025,15 +1026,15 @@ Orchestrator then responds to the user.
 
 # 7. Delegation Matrix
 
-| Caller | Orchestrator | Planner | Developer | Tester | Approver | Librarian | Architect |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Orchestrator | — | yes | yes | yes | yes | yes | yes |
-| Planner | no | — | no | no | no | yes | yes |
-| Developer | no | no | no | no | no | yes | yes |
-| Tester | no | no | no | — | no | yes | exceptional |
-| Approver | no | no | no | no | — | no | no |
-| Librarian | no | no | no | no | no | — | no |
-| Architect | no | no | no | no | no | optional read-only Librarian lookup | — |
+| Caller       | Orchestrator | Planner | Developer | Tester | Approver |                           Librarian |   Architect |
+| ------------ | -----------: | ------: | --------: | -----: | -------: | ----------------------------------: | ----------: |
+| Orchestrator |            — |     yes |       yes |    yes |      yes |                                 yes |         yes |
+| Planner      |           no |       — |        no |     no |       no |                                 yes |         yes |
+| Developer    |           no |      no |        no |     no |       no |                                 yes |         yes |
+| Tester       |           no |      no |        no |      — |       no |                                 yes | exceptional |
+| Approver     |           no |      no |        no |     no |        — |                                  no |          no |
+| Librarian    |           no |      no |        no |     no |       no |                                   — |          no |
+| Architect    |           no |      no |        no |     no |       no | optional read-only Librarian lookup |           — |
 
 Hard rules:
 
@@ -1186,18 +1187,18 @@ The initial fork should therefore avoid rewriting them.
 
 Conceptual mapping:
 
-| OMO | competency-based fork |
-|---|---|
-| Sisyphus | Orchestrator |
-| Prometheus | Planner |
-| Hephaestus | Developer |
-| Atlas | Orchestrator + Approver |
-| Oracle | Architect |
-| Explore | Librarian |
-| Librarian | Librarian outward research |
-| Metis | removed / absorbed into Planner |
-| Momus | Tester, moved primarily post-implementation |
-| Sisyphus-Junior | Developer execution profiles |
+| OMO               | competency-based fork                         |
+| ----------------- | --------------------------------------------- |
+| Sisyphus          | Orchestrator                                  |
+| Prometheus        | Planner                                       |
+| Hephaestus        | Developer                                     |
+| Atlas             | Orchestrator + Approver                       |
+| Oracle            | Architect                                     |
+| Explore           | Librarian                                     |
+| Librarian         | Librarian outward research                    |
+| Metis             | removed / absorbed into Planner               |
+| Momus             | Tester, moved primarily post-implementation   |
+| Sisyphus-Junior   | Developer execution profiles                  |
 | Multimodal-Looker | skill/profile or narrow specialist capability |
 
 The mapping is conceptual, not necessarily a one-file rename.
@@ -1304,7 +1305,7 @@ export const BuiltinAgentNameSchema = z.enum([
   "approver",
   "librarian",
   "architect",
-])
+]);
 ```
 
 If migration compatibility is desired, legacy names may temporarily remain aliases.
@@ -1349,13 +1350,7 @@ Approver
 Suggested default:
 
 ```ts
-export const DEFAULT_AGENT_ORDER = [
-  "orchestrator",
-  "planner",
-  "developer",
-  "tester",
-  "approver",
-]
+export const DEFAULT_AGENT_ORDER = ["orchestrator", "planner", "developer", "tester", "approver"];
 ```
 
 Librarian and Architect are sub-agents and should not appear as normal workflow tabs unless explicitly configured.
@@ -1386,56 +1381,38 @@ Pseudo-interface:
 
 ```ts
 type DelegationContext = {
-  caller: BuiltinAgentName
-  target: BuiltinAgentName
-  category?: string
-  skills?: string[]
-  runInBackground?: boolean
-}
+  caller: BuiltinAgentName;
+  target: BuiltinAgentName;
+  category?: string;
+  skills?: string[];
+  runInBackground?: boolean;
+};
 ```
 
 Validation:
 
 ```ts
-assertDelegationAllowed(caller, target)
+assertDelegationAllowed(caller, target);
 ```
 
 Example policy:
 
 ```ts
 const ALLOWED_DELEGATIONS = {
-  orchestrator: [
-    "planner",
-    "developer",
-    "tester",
-    "approver",
-    "librarian",
-    "architect",
-  ],
+  orchestrator: ["planner", "developer", "tester", "approver", "librarian", "architect"],
 
-  planner: [
-    "librarian",
-    "architect",
-  ],
+  planner: ["librarian", "architect"],
 
-  developer: [
-    "librarian",
-    "architect",
-  ],
+  developer: ["librarian", "architect"],
 
-  tester: [
-    "librarian",
-    "architect",
-  ],
+  tester: ["librarian", "architect"],
 
   approver: [],
 
   librarian: [],
 
-  architect: [
-    "librarian",
-  ],
-}
+  architect: ["librarian"],
+};
 ```
 
 Any illegal delegation should fail immediately.
@@ -1450,12 +1427,12 @@ Add task metadata:
 
 ```ts
 type AgentTaskMetadata = {
-  rootTaskId: string
-  parentTaskId?: string
-  depth: number
-  caller: BuiltinAgentName
-  role: "workflow" | "subagent" | "worker"
-}
+  rootTaskId: string;
+  parentTaskId?: string;
+  depth: number;
+  caller: BuiltinAgentName;
+  role: "workflow" | "subagent" | "worker";
+};
 ```
 
 Recommended defaults:
@@ -1529,7 +1506,7 @@ const DeveloperTaskSchema = z.object({
   skills: z.array(z.string()).default([]),
 
   dependencies: z.array(z.string()).default([]),
-})
+});
 ```
 
 The contract reduces worker re-planning.
@@ -1559,28 +1536,30 @@ Suggested schema:
 const PlannerPlanSchema = z.object({
   summary: z.string(),
 
-  workItems: z.array(z.object({
-    id: z.string(),
-    objective: z.string(),
-    scope: z.array(z.string()),
-    dependencies: z.array(z.string()),
-    skills: z.array(z.string()),
-    acceptanceCriteria: z.array(z.string()),
-  })),
-
-  parallelGroups: z.array(
-    z.array(z.string())
+  workItems: z.array(
+    z.object({
+      id: z.string(),
+      objective: z.string(),
+      scope: z.array(z.string()),
+      dependencies: z.array(z.string()),
+      skills: z.array(z.string()),
+      acceptanceCriteria: z.array(z.string()),
+    }),
   ),
 
-  risks: z.array(z.object({
-    severity: z.enum(["low", "medium", "high"]),
-    description: z.string(),
-    requiresArchitect: z.boolean(),
-    requiresPreflightReview: z.boolean(),
-  })),
+  parallelGroups: z.array(z.array(z.string())),
+
+  risks: z.array(
+    z.object({
+      severity: z.enum(["low", "medium", "high"]),
+      description: z.string(),
+      requiresArchitect: z.boolean(),
+      requiresPreflightReview: z.boolean(),
+    }),
+  ),
 
   finalAcceptance: z.array(z.string()),
-})
+});
 ```
 
 Orchestrator consumes this directly.
@@ -1595,26 +1574,20 @@ Suggested Tester output:
 
 ```ts
 const TesterReviewSchema = z.object({
-  status: z.enum([
-    "approved",
-    "changes_requested",
-  ]),
+  status: z.enum(["approved", "changes_requested"]),
 
-  issues: z.array(z.object({
-    severity: z.enum([
-      "low",
-      "medium",
-      "high",
-      "critical",
-    ]),
+  issues: z.array(
+    z.object({
+      severity: z.enum(["low", "medium", "high", "critical"]),
 
-    file: z.string().optional(),
-    description: z.string(),
-    requiredFix: z.string(),
-  })),
+      file: z.string().optional(),
+      description: z.string(),
+      requiredFix: z.string(),
+    }),
+  ),
 
   reviewSummary: z.string(),
-})
+});
 ```
 
 Orchestrator routes each required fix.
@@ -1639,20 +1612,17 @@ const ApproverInputSchema = z.object({
     lint: z.enum(["pass", "fail", "not-applicable"]),
     typecheck: z.enum(["pass", "fail", "not-applicable"]),
   }),
-})
+});
 ```
 
 Output:
 
 ```ts
 const ApproverResultSchema = z.object({
-  status: z.enum([
-    "accepted",
-    "incomplete",
-  ]),
+  status: z.enum(["accepted", "incomplete"]),
 
   missingCriteria: z.array(z.string()),
-})
+});
 ```
 
 Approver should preferably run with a small/fast model.
@@ -1665,15 +1635,15 @@ Model selection should align with reasoning responsibility.
 
 Recommended default policy:
 
-| Agent | Model class |
-|---|---|
-| Orchestrator | medium / fast reasoning |
-| Planner | strong reasoning |
-| Developer | strong coding |
-| Tester | strong reasoning/code review |
-| Approver | cheap/fast |
-| Librarian | cheap/fast |
-| Architect | strongest available reasoning |
+| Agent        | Model class                   |
+| ------------ | ----------------------------- |
+| Orchestrator | medium / fast reasoning       |
+| Planner      | strong reasoning              |
+| Developer    | strong coding                 |
+| Tester       | strong reasoning/code review  |
+| Approver     | cheap/fast                    |
+| Librarian    | cheap/fast                    |
+| Architect    | strongest available reasoning |
 
 The exact provider should remain configurable.
 
@@ -1683,34 +1653,34 @@ Example:
 {
   "agents": {
     "orchestrator": {
-      "model": "openai/gpt-5.x"
+      "model": "openai/gpt-5.x",
     },
 
     "planner": {
-      "model": "openai/gpt-5.x"
+      "model": "openai/gpt-5.x",
     },
 
     "developer": {
-      "model": "openai/gpt-5.x-codex"
+      "model": "openai/gpt-5.x-codex",
     },
 
     "tester": {
-      "model": "openai/gpt-5.x"
+      "model": "openai/gpt-5.x",
     },
 
     "approver": {
-      "model": "openai/gpt-5.x-mini"
+      "model": "openai/gpt-5.x-mini",
     },
 
     "librarian": {
-      "model": "openai/gpt-5.x-mini"
+      "model": "openai/gpt-5.x-mini",
     },
 
     "architect": {
       "model": "openai/gpt-5.x",
-      "reasoning_effort": "high"
-    }
-  }
+      "reasoning_effort": "high",
+    },
+  },
 }
 ```
 
@@ -1741,17 +1711,17 @@ Pseudo-code:
 
 ```ts
 function classifyTask(task: TaskSignals): Tier {
-  if (task.securitySensitive) return 3
-  if (task.destructiveMigration) return 3
-  if (task.crossServiceArchitecture) return 3
+  if (task.securitySensitive) return 3;
+  if (task.destructiveMigration) return 3;
+  if (task.crossServiceArchitecture) return 3;
 
-  if (task.layers >= 2) return 2
-  if (task.workstreams >= 2) return 2
-  if (task.expectedFiles >= 5) return 2
+  if (task.layers >= 2) return 2;
+  if (task.workstreams >= 2) return 2;
+  if (task.expectedFiles >= 5) return 2;
 
-  if (task.expectedFiles <= 1 && task.localized) return 0
+  if (task.expectedFiles <= 1 && task.localized) return 0;
 
-  return 1
+  return 1;
 }
 ```
 
@@ -1779,13 +1749,13 @@ Suggested default:
 
 ```ts
 function requiresTester(ctx: TaskContext): boolean {
-  if (ctx.tier >= 2) return true
-  if (ctx.securitySensitive) return true
-  if (ctx.publicApiChange) return true
-  if (ctx.databaseMigration) return true
-  if (ctx.userRequestedReview) return true
+  if (ctx.tier >= 2) return true;
+  if (ctx.securitySensitive) return true;
+  if (ctx.publicApiChange) return true;
+  if (ctx.databaseMigration) return true;
+  if (ctx.userRequestedReview) return true;
 
-  return false
+  return false;
 }
 ```
 
@@ -1808,7 +1778,7 @@ type ArchitectReason =
   | "data-integrity"
   | "repeated-debug-failure"
   | "high-blast-radius"
-  | "uncertain-external-contract"
+  | "uncertain-external-contract";
 ```
 
 A caller must provide:
@@ -1831,11 +1801,7 @@ Librarian can unify much of the old Explore/Librarian distinction through mode.
 Suggested modes:
 
 ```ts
-type LibrarianMode =
-  | "repository"
-  | "documentation"
-  | "ecosystem"
-  | "history"
+type LibrarianMode = "repository" | "documentation" | "ecosystem" | "history";
 ```
 
 Example:
@@ -1949,19 +1915,19 @@ Example project configuration:
     "parallelism": {
       "developer": 4,
       "librarian": 6,
-      "architect": 1
+      "architect": 1,
     },
 
     "review": {
       "tier_0": false,
       "tier_1": "risk-based",
       "tier_2": true,
-      "tier_3": true
+      "tier_3": true,
     },
 
     "architect": {
-      "max_calls_per_task": 2
-    }
+      "max_calls_per_task": 2,
+    },
   },
 
   "agents": {
@@ -1971,8 +1937,8 @@ Example project configuration:
     "tester": {},
     "approver": {},
     "librarian": {},
-    "architect": {}
-  }
+    "architect": {},
+  },
 }
 ```
 
@@ -1986,8 +1952,8 @@ Suggested model:
 
 ```ts
 type WorkflowState = {
-  taskId: string
-  tier: 0 | 1 | 2 | 3
+  taskId: string;
+  tier: 0 | 1 | 2 | 3;
 
   phase:
     | "routing"
@@ -1996,18 +1962,18 @@ type WorkflowState = {
     | "integration"
     | "review"
     | "acceptance"
-    | "complete"
+    | "complete";
 
-  plan?: PlannerPlan
+  plan?: PlannerPlan;
 
-  workers: WorkerState[]
+  workers: WorkerState[];
 
-  review?: TesterReview
+  review?: TesterReview;
 
-  acceptance?: ApproverResult
+  acceptance?: ApproverResult;
 
-  architectCalls: number
-}
+  architectCalls: number;
+};
 ```
 
 This should use OMO's existing task/session infrastructure where possible.
@@ -2687,3 +2653,21 @@ Every proposed new permanent agent must answer:
 5. Is its place in the hierarchy obvious?
 
 If those answers are weak, do not add the agent.
+
+---
+
+# Further Improvements
+
+## Kanban View
+
+## Git View
+
+Use something like `gitui` inside the harness
+
+## Team View
+
+Use something like https://github.com/jc01rho/omo-herdr-dag
+
+## Jev Verifier
+
+Use a lighter, faster, decision model on the validating steps of the workflow.
