@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseFrontmatter } from "@oh-my-opencode/utils";
+import { parseFrontmatter } from "@omo-hustler/utils";
 import { isSkillMarkdownSourcePath, materializeFrontendRefs } from "./scripts/materialize-frontend-refs.mjs";
 import { brandStems, designpowersThirdPartyRelativePaths, frontendSkillRoot, tasteSkillArtifactFiles, thirdPartyRelativePaths, uiUxDbScripts, upstreamsRoot } from "./scripts/frontend-refs-manifest.mjs";
 

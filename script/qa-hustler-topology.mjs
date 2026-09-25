@@ -114,7 +114,7 @@ async function probeOpenCode() {
 
 async function main() {
   const packageJson = JSON.parse(await readFile(join(repoRoot, "packages", "hustler", "package.json"), "utf8"))
-  if (packageJson.name !== "@oh-my-opencode/hustler") fail("Unexpected HUSTLER package identity")
+  if (packageJson.name !== "@omo-hustler/hustler") fail("Unexpected HUSTLER package identity")
   const workflow = await import(pathToFileURL(workflowPath).href)
   if (typeof workflow.startHustlerWorkflow !== "function") fail("HUSTLER workflow source does not export the workflow")
   await probeWorkflow(workflow)
