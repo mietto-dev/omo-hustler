@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/telemetry-core",
+  "name": "@omo-hustler/telemetry-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Harness-neutral telemetry primitives for oh-my-opencode products.",
+  "description": "Harness-neutral telemetry primitives for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -16,7 +16,7 @@
     "test": "bun test src/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/utils": "workspace:*",
+    "@omo-hustler/utils": "workspace:*",
     "posthog-node": "^5.51.1"
   },
   "sideEffects": false

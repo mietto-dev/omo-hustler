@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/delegate-core",
+  "name": "@omo-hustler/delegate-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Harness-neutral delegate task selection and retry primitives for oh-my-opencode.",
+  "description": "Harness-neutral delegate task selection and retry primitives for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -16,7 +16,7 @@
     "test": "bun test src/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/model-core": "workspace:*"
+    "@omo-hustler/model-core": "workspace:*"
   },
   "sideEffects": false
 }

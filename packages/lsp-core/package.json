@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/lsp-core",
+  "name": "@omo-hustler/lsp-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Harness-neutral Language Server Protocol engine and tool definitions for oh-my-opencode.",
+  "description": "Harness-neutral Language Server Protocol engine and tool definitions for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -40,6 +40,6 @@
     "test": "bun test src/*.test.ts src/**/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/mcp-stdio-core": "workspace:*"
+    "@omo-hustler/mcp-stdio-core": "workspace:*"
   }
 }

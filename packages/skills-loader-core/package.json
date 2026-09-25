@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/skills-loader-core",
+  "name": "@omo-hustler/skills-loader-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Harness-neutral skill loading, builtin skill, runtime skill, and skill matching primitives for oh-my-opencode.",
+  "description": "Harness-neutral skill loading, builtin skill, runtime skill, and skill matching primitives for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -68,10 +68,10 @@
     "test": "bun test src/*.test.ts src/**/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/mcp-client-core": "workspace:*",
-    "@oh-my-opencode/model-core": "workspace:*",
-    "@oh-my-opencode/shared-skills": "workspace:*",
-    "@oh-my-opencode/utils": "workspace:*",
+    "@omo-hustler/mcp-client-core": "workspace:*",
+    "@omo-hustler/model-core": "workspace:*",
+    "@omo-hustler/shared-skills": "workspace:*",
+    "@omo-hustler/utils": "workspace:*",
     "js-yaml": "^5.0.0",
     "picomatch": "^4.0.7",
     "zod": "^4.4.3"

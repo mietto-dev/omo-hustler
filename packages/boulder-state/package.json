@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/boulder-state",
+  "name": "@omo-hustler/boulder-state",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Pure TypeScript boulder work-tracking state machine for oh-my-opencode.",
+  "description": "Pure TypeScript boulder work-tracking state machine for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./index.d.ts",

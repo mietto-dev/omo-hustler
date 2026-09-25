@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/mcp-client-core",
+  "name": "@omo-hustler/mcp-client-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Harness-neutral MCP client lifecycle and OAuth primitives for oh-my-opencode adapters.",
+  "description": "Harness-neutral MCP client lifecycle and OAuth primitives for OMO Hustler adapters.",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@oh-my-opencode/utils": "workspace:*",
+    "@omo-hustler/utils": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {

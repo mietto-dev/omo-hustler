@@ -1,15 +1,14 @@
 {
-  "name": "@oh-my-opencode/prompts-core",
+  "name": "@omo-hustler/prompts-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Harness-agnostic markdown prompt loading and model-variant routing for oh-my-opencode.",
+  "description": "Harness-agnostic markdown prompt loading and model-variant routing for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./index.d.ts",
       "import": "./src/index.ts"
-    },
-    "./prompts/ultrawork/codex.md": "./prompts/ultrawork/codex.md"
+    }
   },
   "types": "./index.d.ts",
   "scripts": {
@@ -17,7 +16,7 @@
     "test": "bun test src/*.test.ts test/*.test.ts"
   },
   "peerDependencies": {
-    "@oh-my-opencode/model-core": "workspace:*",
-    "@oh-my-opencode/utils": "workspace:*"
+    "@omo-hustler/model-core": "workspace:*",
+    "@omo-hustler/utils": "workspace:*"
   }
 }

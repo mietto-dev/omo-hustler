@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/agents-md-core",
+  "name": "@omo-hustler/agents-md-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Pure TypeScript AGENTS.md discovery and injection core for oh-my-opencode.",
+  "description": "Pure TypeScript AGENTS.md discovery and injection core for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -16,6 +16,6 @@
     "test": "bun test src/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/rules-engine": "workspace:*"
+    "@omo-hustler/rules-engine": "workspace:*"
   }
 }

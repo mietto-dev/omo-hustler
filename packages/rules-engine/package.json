@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/rules-engine",
+  "name": "@omo-hustler/rules-engine",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Pure TypeScript rule discovery, matching, and nested AGENTS.md context utilities for oh-my-opencode.",
+  "description": "Pure TypeScript rule discovery, matching, and nested AGENTS.md context utilities for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -20,7 +20,7 @@
     "test": "bun test src/*.test.ts src/**/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/utils": "workspace:*",
+    "@omo-hustler/utils": "workspace:*",
     "picomatch": "^4.0.7"
   }
 }

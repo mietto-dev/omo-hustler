@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/omo-config-core",
+  "name": "@omo-hustler/omo-config-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Harness-neutral omo.json schema primitives for oh-my-opencode.",
+  "description": "Harness-neutral omo.json schema primitives for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./index.d.ts",

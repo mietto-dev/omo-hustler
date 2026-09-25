@@ -1,5 +1,5 @@
 {
-  "name": "@oh-my-opencode/openclaw-core",
+  "name": "@omo-hustler/openclaw-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -20,7 +20,7 @@
     "test": "bun test src/*.test.ts src/**/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/tmux-core": "workspace:*",
-    "@oh-my-opencode/utils": "workspace:*"
+    "@omo-hustler/tmux-core": "workspace:*",
+    "@omo-hustler/utils": "workspace:*"
   }
 }

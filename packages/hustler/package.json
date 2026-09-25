@@ -1,5 +1,5 @@
 {
-  "name": "@oh-my-opencode/hustler",
+  "name": "@omo-hustler/hustler",
   "version": "0.0.0-private",
   "private": true,
   "description": "OpenCode-only Hustler package boundary.",

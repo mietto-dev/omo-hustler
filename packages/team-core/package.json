@@ -1,9 +1,9 @@
 {
-  "name": "@oh-my-opencode/team-core",
+  "name": "@omo-hustler/team-core",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Harness-neutral team-mode registry, mailbox, tasklist, state, worktree, and tmux layout domain primitives.",
+  "description": "Harness-neutral team-mode registry, mailbox, tasklist, state, worktree, and tmux layout primitives for OMO Hustler.",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -48,8 +48,8 @@
     "test": "bun test src/*.test.ts src/**/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/tmux-core": "workspace:*",
-    "@oh-my-opencode/utils": "workspace:*",
+    "@omo-hustler/tmux-core": "workspace:*",
+    "@omo-hustler/utils": "workspace:*",
     "zod": "^4.4.3"
   },
   "sideEffects": false
