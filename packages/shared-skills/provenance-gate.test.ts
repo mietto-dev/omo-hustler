@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { includedDesignpowersSkills } from "./scripts/designpowers-refs-manifest.mjs";
 import { materializeFrontendRefs, normalizeSkillFrontmatter } from "./scripts/materialize-frontend-refs.mjs";
 import { designOriginals, frontendSkillRoot, thirdPartyRelativePaths, upstreamsRoot } from "./scripts/frontend-refs-manifest.mjs";
@@ -26,15 +26,14 @@ function trackedFrontendReferenceFiles(): string[] {
 
 function submoduleHead(name: string): string {
 	const submodulePath = join(upstreamsRoot, name);
-	// An uninitialized submodule is an empty directory inside the parent repo, so `git -C` there
-	// resolves to the PARENT repo and returns its HEAD - which reads as a drifted pin. Fail as the
-	// real condition instead.
-	if (!existsSync(join(submodulePath, ".git"))) {
-		throw new Error(
-			`upstream submodule '${name}' is not initialized - run: git submodule update --init --recursive`,
-		);
+	if (existsSync(join(submodulePath, ".git"))) return git(["-C", submodulePath, "rev-parse", "HEAD"]);
+
+	const gitlink = git(["ls-files", "--stage", relative(repoRoot, submodulePath)]).split("\t")[0];
+	const [mode, sha] = gitlink.split(" ");
+	if (mode !== "160000" || !sha) {
+		throw new Error(`upstream submodule '${name}' has no checked-in gitlink`);
 	}
-	return git(["-C", submodulePath, "rev-parse", "HEAD"]);
+	return sha;
 }
 
 describe("DMCA provenance gate", () => {
