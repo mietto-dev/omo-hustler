@@ -1,6 +1,9 @@
 import type { DelegateTaskArgs, ToolContextWithMetadata } from "./types"
-import { SISYPHUS_JUNIOR_AGENT } from "./sisyphus-junior-agent"
 import { log } from "../../shared/logger"
+import { getAgentDisplayName } from "../../shared/agent-display-names"
+import { parseWorkflowContract } from "../../features/claude-tasks/workflow-contracts"
+
+const CATEGORY_AGENT = getAgentDisplayName("developer")
 
 export async function prepareDelegateTaskArgs(args: Record<string, unknown>, ctx: ToolContextWithMetadata): Promise<DelegateTaskArgs> {
   const category = typeof args.category === "string" ? args.category : undefined
@@ -8,15 +11,15 @@ export async function prepareDelegateTaskArgs(args: Record<string, unknown>, ctx
   const originalSubagentType = typeof args.subagent_type === "string" ? args.subagent_type : undefined
   let subagentType = originalSubagentType
 
-  if (category && subagentType && subagentType !== SISYPHUS_JUNIOR_AGENT) {
-    log("[task] category provided - overriding subagent_type to sisyphus-junior", {
+  if (category && subagentType && subagentType !== CATEGORY_AGENT) {
+    log("[task] category provided - overriding subagent_type to developer", {
       category,
       subagent_type: subagentType,
     })
   }
 
   if (category) {
-    subagentType = SISYPHUS_JUNIOR_AGENT
+    subagentType = CATEGORY_AGENT
   }
 
   let description = typeof args.description === "string" ? args.description : undefined
@@ -83,6 +86,15 @@ export async function prepareDelegateTaskArgs(args: Record<string, unknown>, ctx
 
   const taskID = typeof args.task_id === "string" ? args.task_id : undefined
   const command = typeof args.command === "string" ? args.command : undefined
+  let workflowContract: DelegateTaskArgs["workflow_contract"]
+  if (args.workflow_contract !== undefined) {
+    try {
+      workflowContract = parseWorkflowContract(args.workflow_contract)
+    } catch (error) {
+      if (!(error instanceof Error)) throw error
+      throw new Error(`Invalid workflow contract: ${error.message}`)
+    }
+  }
 
 
   return {
@@ -96,5 +108,6 @@ export async function prepareDelegateTaskArgs(args: Record<string, unknown>, ctx
     task_id: taskID,
     command,
     load_skills: normalizedLoadSkills,
+    workflow_contract: workflowContract,
   }
 }

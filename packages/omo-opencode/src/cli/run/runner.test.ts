@@ -20,44 +20,44 @@ describe("resolveRunAgent", () => {
 
   it("uses CLI agent over env and config", () => {
     // given
-    const config = createConfig({ default_run_agent: "prometheus" })
-    const env = { OPENCODE_DEFAULT_AGENT: "Atlas" }
+    const config = createConfig({ default_run_agent: "planner" })
+      const env = { OPENCODE_DEFAULT_AGENT: "Approver" }
 
     // when
     const agent = resolveRunAgent(
-      { message: "test", agent: "Hephaestus" },
+      { message: "test", agent: "Developer" },
       config,
       env
     )
 
     // then
-    expect(agent).toBe("hephaestus")
+    expect(agent).toBe("developer")
   })
 
   it("uses env agent over config", () => {
     // given
-    const config = createConfig({ default_run_agent: "prometheus" })
-    const env = { OPENCODE_DEFAULT_AGENT: "Atlas" }
+    const config = createConfig({ default_run_agent: "planner" })
+    const env = { OPENCODE_DEFAULT_AGENT: "Approver" }
 
     // when
     const agent = resolveRunAgent({ message: "test" }, config, env)
 
     // then
-    expect(agent).toBe("atlas")
+    expect(agent).toBe("approver")
   })
 
   it("uses config agent over default", () => {
     // given
-    const config = createConfig({ default_run_agent: "Prometheus" })
+    const config = createConfig({ default_run_agent: "Planner" })
 
     // when
     const agent = resolveRunAgent({ message: "test" }, config, {})
 
     // then
-    expect(agent).toBe("prometheus")
+    expect(agent).toBe("planner")
   })
 
-  it("falls back to sisyphus when none set", () => {
+  it("falls back to orchestrator when none set", () => {
     // given
     const config = createConfig()
 
@@ -65,29 +65,29 @@ describe("resolveRunAgent", () => {
     const agent = resolveRunAgent({ message: "test" }, config, {})
 
     // then
-    expect(agent).toBe("sisyphus")
+    expect(agent).toBe("orchestrator")
   })
 
-  it("skips disabled sisyphus for next available core agent", () => {
+  it("skips disabled orchestrator for next available core agent", () => {
     // given
-    const config = createConfig({ disabled_agents: ["sisyphus"] })
+    const config = createConfig({ disabled_agents: ["orchestrator"] })
 
     // when
     const agent = resolveRunAgent({ message: "test" }, config, {})
 
     // then
-    expect(agent).toBe("hephaestus")
+    expect(agent).toBe("planner")
   })
 
   it("maps display-name style default_run_agent values to canonical prompt agent ids", () => {
     // given
-    const config = createConfig({ default_run_agent: "Sisyphus - Ultraworker" })
+    const config = createConfig({ default_run_agent: "Orchestrator" })
 
     // when
     const agent = resolveRunAgent({ message: "test" }, config, {})
 
     // then
-    expect(agent).toBe("sisyphus")
+    expect(agent).toBe("orchestrator")
   })
 
   it("#given unknown custom agent #when resolving run agent #then leaves the custom prompt agent untouched", () => {

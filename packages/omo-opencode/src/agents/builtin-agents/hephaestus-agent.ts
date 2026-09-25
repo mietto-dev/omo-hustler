@@ -39,10 +39,10 @@ export function maybeCreateHephaestusConfig(input: {
     disableOmoEnv = false,
   } = input
 
-  if (disabledAgents.includes("hephaestus")) return undefined
+  if (disabledAgents.includes("developer")) return undefined
 
-  const hephaestusOverride = agentOverrides["hephaestus"]
-  const hephaestusRequirement = AGENT_MODEL_REQUIREMENTS["hephaestus"]
+  const hephaestusOverride = agentOverrides["developer"]
+  const hephaestusRequirement = AGENT_MODEL_REQUIREMENTS["developer"]
   const hasHephaestusExplicitConfig = hephaestusOverride !== undefined
 
   const hasRequiredProvider =
@@ -53,7 +53,7 @@ export function maybeCreateHephaestusConfig(input: {
 
   if (!hasRequiredProvider) {
     log("[agent-registration] Agent skipped: required provider not connected", {
-      agent: "hephaestus",
+      agent: "developer",
       requiredProvider: hephaestusRequirement?.requiresProvider,
     })
     return undefined
@@ -72,7 +72,7 @@ export function maybeCreateHephaestusConfig(input: {
 
   if (!hephaestusResolution) {
     log("[agent-registration] Agent skipped: model resolution returned no result", {
-      agent: "hephaestus",
+      agent: "developer",
       configuredModel: hephaestusOverride?.model,
     })
     return undefined
@@ -81,7 +81,7 @@ export function maybeCreateHephaestusConfig(input: {
 
   if (!isHephaestusSupportedModel(hephaestusModel)) {
     log("[agent-registration] Agent skipped: unsupported Hephaestus model", {
-      agent: "hephaestus",
+      agent: "developer",
       configuredModel: hephaestusModel,
     })
     return undefined
@@ -103,7 +103,7 @@ export function maybeCreateHephaestusConfig(input: {
     hephaestusConfig = applyCategoryOverride(hephaestusConfig, hepOverrideCategory, mergedCategories)
     if (!isHephaestusSupportedModel(hephaestusConfig.model)) {
       log("[agent-registration] Agent skipped: unsupported Hephaestus category model", {
-        agent: "hephaestus",
+        agent: "developer",
         configuredModel: hephaestusConfig.model,
       })
       return undefined
@@ -116,7 +116,7 @@ export function maybeCreateHephaestusConfig(input: {
     hephaestusConfig = mergeAgentConfig(hephaestusConfig, hephaestusOverride, directory)
     if (!isHephaestusSupportedModel(hephaestusConfig.model)) {
       log("[agent-registration] Agent skipped: unsupported Hephaestus override model", {
-        agent: "hephaestus",
+        agent: "developer",
         configuredModel: hephaestusConfig.model,
       })
       return undefined

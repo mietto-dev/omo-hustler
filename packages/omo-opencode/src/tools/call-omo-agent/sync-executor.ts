@@ -1,7 +1,7 @@
 import type { PluginInput } from "@opencode-ai/plugin"
 import { clearSessionAgent, handedBackSyncSessions, setSessionAgent, subagentSessions, syncSubagentSessions } from "../../features/claude-code-session-state"
 import { dispatchInternalPrompt, isInternalPromptDispatchAccepted } from "../../hooks/shared/prompt-async-gate"
-import { getAgentToolRestrictions, isAmbiguousPostDispatchPromptFailure, log } from "../../shared"
+import { buildAgentPromptTools, isAmbiguousPostDispatchPromptFailure, log } from "../../shared"
 import { normalizeAgentForPrompt, stripAgentListSortPrefix } from "../../shared/agent-display-names"
 import {
   clearDelegatedChildSessionBootstrap,
@@ -15,6 +15,7 @@ import { waitForCompletion } from "./completion-poller"
 import { processMessages } from "./message-processor"
 import { createOrGetSession } from "./session-creator"
 import type { CallOmoAgentArgs } from "./types"
+import type { DelegationPolicy } from "../../features/background-agent/delegation-policy"
 
 type SessionWithPrompt = {
   prompt: (opts: { path: { id: string }; body: Record<string, unknown> }) => Promise<unknown>
@@ -64,11 +65,7 @@ function buildPromptGenerationParams(model: DelegatedModelConfig | undefined): R
 }
 
 function buildSyncPromptTools(agent: string): Record<string, boolean> {
-  return {
-    ...getAgentToolRestrictions(agent),
-    task: false,
-    question: false,
-  }
+  return buildAgentPromptTools(agent)
 }
 
 export async function executeSync(
@@ -85,6 +82,7 @@ export async function executeSync(
   fallbackChain?: FallbackEntry[],
   spawnReservation?: SpawnReservation,
   model?: DelegatedModelConfig,
+  delegationPolicy?: DelegationPolicy,
 ): Promise<string> {
   let sessionID: string | undefined
   let createdSessionForExecution = false
@@ -94,6 +92,9 @@ export async function executeSync(
     const session = await deps.createOrGetSession(args, toolContext, ctx, model)
     sessionID = session.sessionID
     createdSessionForExecution = session.isNew
+    if (args.delegationLineage && session.isNew) {
+      delegationPolicy?.remember(args.delegationLineage, sessionID, sessionID)
+    }
     subagentSessions.add(sessionID)
     syncSubagentSessions.add(sessionID)
     handedBackSyncSessions.delete(sessionID)
@@ -196,6 +197,7 @@ export async function executeSync(
     }
 
     if (sessionID && createdSessionForExecution) {
+      if (args.delegationLineage) delegationPolicy?.release(args.delegationLineage)
       subagentSessions.delete(sessionID)
       syncSubagentSessions.delete(sessionID)
       deleteSessionTools(sessionID)

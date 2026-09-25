@@ -32,7 +32,7 @@ describe("resolveCallableAgents", () => {
 
       const result = await resolveCallableAgents(client)
 
-      expect(result).toEqual(["explore", "librarian"])
+      expect(result).toEqual(["librarian"])
       expect(client.app.agents).not.toHaveBeenCalled()
     })
 
@@ -57,7 +57,7 @@ describe("resolveCallableAgents", () => {
       first.push("general")
       const second = await resolveCallableAgents(client)
 
-      expect(second).toEqual(["explore", "librarian"])
+      expect(second).toEqual(["librarian"])
     })
   })
 })

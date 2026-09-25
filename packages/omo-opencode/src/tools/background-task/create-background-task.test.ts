@@ -5,6 +5,7 @@ import type { BackgroundManager } from "../../features/background-agent"
 import type { PluginInput } from "@opencode-ai/plugin"
 import { createBackgroundTask } from "./create-background-task"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
+import { createDelegationPolicy } from "../../features/background-agent/delegation-policy"
 
 describe("createBackgroundTask", () => {
   const launchMock = mock(async (): Promise<{
@@ -153,5 +154,57 @@ describe("createBackgroundTask", () => {
     expect(secondResult).toContain("Background task launched successfully.")
     expect(secondResult).toContain("Task ID: task-2")
     expect(secondResult).not.toContain("interrupt")
+  })
+
+  test("attaches trusted lineage before a policy-bound launch", async () => {
+    //#given
+    const authorizedLaunch = mock(async (input: Parameters<BackgroundManager["launch"]>[0]) => ({
+      id: "authorized-task",
+      sessionId: "child-session",
+      description: input.description,
+      agent: input.agent,
+      status: "running",
+    }))
+    const authorizedManager = unsafeTestValue<BackgroundManager>({
+      launch: authorizedLaunch,
+      delegationPolicy: createDelegationPolicy(),
+      getTask: mock(),
+    })
+    const authorizedTool = createBackgroundTask(authorizedManager, mockClient)
+
+    //#when
+    await authorizedTool.execute({ ...testArgs, agent: "developer" }, { ...testContext, agent: "orchestrator" })
+
+    //#then
+    expect(authorizedLaunch).toHaveBeenCalledTimes(1)
+    expect(authorizedLaunch.mock.calls[0]?.[0].delegationLineage).toMatchObject({
+      callerRole: "orchestrator",
+      targetRole: "developer",
+      parentSessionId: "test-session",
+    })
+  })
+
+  test("rejects forbidden policy-bound launch before manager mutation", async () => {
+    //#given
+    const forbiddenLaunch = mock(async () => ({
+      id: "must-not-launch",
+      sessionId: null,
+      description: "forbidden",
+      agent: "developer",
+      status: "pending",
+    }))
+    const forbiddenManager = unsafeTestValue<BackgroundManager>({
+      launch: forbiddenLaunch,
+      delegationPolicy: createDelegationPolicy(),
+      getTask: mock(),
+    })
+    const forbiddenTool = createBackgroundTask(forbiddenManager, mockClient)
+
+    //#when
+    const result = await forbiddenTool.execute({ ...testArgs, agent: "developer" }, { ...testContext, agent: "planner" })
+
+    //#then
+    expect(result).toContain("planner may not delegate to developer")
+    expect(forbiddenLaunch).not.toHaveBeenCalled()
   })
 })

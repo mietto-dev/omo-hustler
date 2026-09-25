@@ -420,7 +420,7 @@ describe("auto-slash command executor plugin dispatch", () => {
 
     // then
     expect(result.success).toBe(true)
-    expect(result.replacementText).toContain("**Agent**: atlas")
+    expect(result.replacementText).toContain("**Agent**: approver")
   })
 })
 
@@ -429,7 +429,7 @@ describe("auto-slash-command runtime substitution", () => {
 
   beforeEach(() => {
     _resetForTesting()
-    registerAgentName("atlas")
+    registerAgentName("approver")
     setSystemTime(new Date(FIXED_TIMESTAMP))
     testDir = mkdtempSync(join(tmpdir(), "p5984-ulw-execute-composed-"))
   })
@@ -483,7 +483,7 @@ describe("auto-slash-command runtime substitution", () => {
           message: {},
           parts: [{ type: "text", text: `/ulw-execute ${argumentsText}` }],
         }
-        await handler({ sessionID, agent: "sisyphus" }, output)
+        await handler({ sessionID, agent: "orchestrator" }, output)
         return output.parts
       },
     },

@@ -22,6 +22,8 @@ import { createConfigHandler } from "./plugin-handlers"
 import { log } from "./shared"
 import { markServerRunningInProcess } from "./shared/tmux/tmux-utils/server-health"
 import type { ModelFallbackControllerAccessor } from "./hooks/model-fallback"
+import { createDelegationPolicy } from "./features/background-agent/delegation-policy"
+import { createHustlerLifecycleAdapter, createHustlerWorkflowIdentity } from "./features/hustler/lifecycle-state"
 
 type CreateManagersDeps = {
   BackgroundManagerClass: typeof BackgroundManager
@@ -93,6 +95,7 @@ export function createManagers(args: {
     shouldSkipSession: (sessionId) => lookupTeamSession(sessionId) !== undefined,
   })
   const modelFallbackControllerAccessor = createModelFallbackControllerAccessor()
+  const delegationPolicy = createDelegationPolicy(pluginConfig.background_task)
   let backgroundManager: BackgroundManager | undefined
   let tuiStateMirror: TuiStateMirror | undefined
 
@@ -133,6 +136,7 @@ export function createManagers(args: {
   backgroundManager = new deps.BackgroundManagerClass({
     pluginContext: ctx,
     config: pluginConfig.background_task,
+    delegationPolicy,
     tmuxConfig,
     onSubagentSessionCreated: async (event: SubagentSessionCreatedEvent) => {
         log("[create-managers] onSubagentSessionCreated callback received", {
@@ -197,10 +201,23 @@ export function createManagers(args: {
   })
 
   if (pluginConfig.tui?.sidebar?.enabled !== false) {
+    const hustlerLifecycle = createHustlerLifecycleAdapter(pluginConfig)
     tuiStateMirror = new deps.TuiStateMirrorClass({
       client: ctx.client,
       projectDir: ctx.directory,
       backgroundManager,
+      getHustlerWorkflow: (statuses) => {
+        for (const sessionID of Object.keys(statuses)) {
+          try {
+            const identity = createHustlerWorkflowIdentity({ sessionId: sessionID })
+            const workflow = hustlerLifecycle.load(identity.workflowId)
+            if (workflow !== null) return workflow
+          } catch (error) {
+            if (!(error instanceof Error)) throw error
+          }
+        }
+        return null
+      },
     })
     tuiStateMirror.start()
   }

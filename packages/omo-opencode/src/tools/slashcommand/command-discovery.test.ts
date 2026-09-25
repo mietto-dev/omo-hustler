@@ -311,7 +311,7 @@ Use nested command.
     const ulwExecuteCommand = commands.find((command) => command.name === "ulw-execute")
 
     // then
-    expect(ulwExecuteCommand?.metadata.agent).toBe("atlas")
+    expect(ulwExecuteCommand?.metadata.agent).toBe("approver")
   })
 })
 

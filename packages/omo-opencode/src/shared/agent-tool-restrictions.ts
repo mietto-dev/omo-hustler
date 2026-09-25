@@ -1,4 +1,5 @@
 import { stripInvisibleAgentCharacters } from "./agent-display-names"
+import type { PermissionValue } from "./permission-compat"
 
 /**
  * Agent tool restrictions for session.prompt calls.
@@ -21,42 +22,66 @@ const TEAM_TOOL_DENYLIST: Record<string, boolean> = {
   team_list: false,
 }
 
-const EXPLORATION_AGENT_DENYLIST: Record<string, boolean> = {
+const READ_ONLY_DENYLIST: Record<string, boolean> = {
   write: false,
   edit: false,
-  task: false,
-  call_omo_agent: false,
+  apply_patch: false,
 }
 
 const AGENT_RESTRICTIONS: Record<string, Record<string, boolean>> = {
-  explore: EXPLORATION_AGENT_DENYLIST,
-
-  librarian: EXPLORATION_AGENT_DENYLIST,
-
-  oracle: {
-    write: false,
-    edit: false,
+  librarian: {
+    ...READ_ONLY_DENYLIST,
     task: false,
+    call_omo_agent: false,
+    teammate: false,
+  },
+
+  architect: {
+    ...READ_ONLY_DENYLIST,
+    task: false,
+    teammate: false,
+  },
+
+  planner: {
+    ...READ_ONLY_DENYLIST,
+    bash: false,
+    interactive_bash: false,
+    teammate: false,
+  },
+
+  tester: {
+    ...READ_ONLY_DENYLIST,
+    task: false,
+    call_omo_agent: false,
+    teammate: false,
+  },
+
+  approver: {
+    ...READ_ONLY_DENYLIST,
+    task: false,
+    call_omo_agent: false,
+    teammate: false,
+  },
+
+  developer: {
     call_omo_agent: false,
   },
 
-  metis: {
-    write: false,
-    edit: false,
-  },
-
-  momus: {
-    write: false,
-    edit: false,
-  },
-
-  "multimodal-looker": {
-    read: true,
-  },
+  orchestrator: {},
 
   "sisyphus-junior": {
     task: false,
   },
+}
+
+const AGENT_DEFAULT_PERMISSIONS: Record<string, Record<string, PermissionValue>> = {
+  orchestrator: { task: "allow", "task_*": "allow", teammate: "allow", call_omo_agent: "allow" },
+  planner: { task: "allow", "task_*": "allow", teammate: "allow", call_omo_agent: "deny" },
+  developer: { "task_*": "allow", teammate: "allow", call_omo_agent: "allow" },
+  tester: { "task_*": "allow", teammate: "allow" },
+  approver: { task: "allow", "task_*": "allow", teammate: "allow", call_omo_agent: "deny" },
+  librarian: { "grep_app_*": "allow" },
+  architect: { call_omo_agent: "allow" },
 }
 
 type AgentToolRestrictionsOptions = {
@@ -75,3 +100,51 @@ export function getAgentToolRestrictions(agentName: string, options: AgentToolRe
   }
 }
 
+export function projectAgentPermissions(
+  agentName: string,
+  userPermission: Record<string, PermissionValue> = {},
+): Record<string, PermissionValue> {
+  const stripped = stripInvisibleAgentCharacters(agentName).toLowerCase()
+  const defaults = AGENT_DEFAULT_PERMISSIONS[stripped] ?? {}
+  const hardDenials = getAgentToolRestrictions(agentName, { includeTeamToolDenylist: false })
+  const projected: Record<string, PermissionValue> = { ...defaults, ...userPermission }
+
+  for (const [tool, denied] of Object.entries(hardDenials)) {
+    if (denied === false) projected[tool] = "deny"
+  }
+
+  return projected
+}
+
+export function buildAgentPromptTools(
+  agentName: string,
+  options: {
+    readonly includeTeamToolDenylist?: boolean
+    readonly taskAllowed?: boolean
+    readonly userPermission?: Record<string, PermissionValue>
+  } = {},
+): Record<string, boolean> {
+  const projected = projectAgentPermissions(agentName, options.userPermission)
+  const tools: Record<string, boolean> = {
+    task: options.taskAllowed ?? false,
+    call_omo_agent: true,
+    question: false,
+  }
+  for (const [tool, value] of Object.entries(projected)) {
+    if (tool === "call_omo_agent") continue
+    tools[tool] = value !== "deny"
+  }
+  if (options.includeTeamToolDenylist !== false) {
+    for (const [tool, value] of Object.entries(TEAM_TOOL_DENYLIST)) {
+      tools[tool] = value
+    }
+  }
+  return tools
+}
+
+export function canAgentCallOmoAgent(caller: string, target: string): boolean {
+  const normalizedCaller = stripInvisibleAgentCharacters(caller).toLowerCase()
+  const normalizedTarget = stripInvisibleAgentCharacters(target).toLowerCase()
+  if (normalizedCaller === "architect") return normalizedTarget === "librarian"
+  return projectAgentPermissions(caller).call_omo_agent !== "deny"
+}

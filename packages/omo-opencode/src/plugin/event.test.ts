@@ -1465,7 +1465,7 @@ describe("createEventHandler - retry dedupe lifecycle", () => {
 						role: "user",
 						modelID: "claude-opus-4-8-thinking",
 						providerID: "anthropic",
-						agent: "Sisyphus - Ultraworker",
+						agent: "Orchestrator",
 					},
 				},
 			},
@@ -1484,7 +1484,7 @@ describe("createEventHandler - retry dedupe lifecycle", () => {
 		await chatMessageHandler(
 			{
 				sessionID,
-				agent: "sisyphus",
+				agent: "orchestrator",
 				model: { providerID: "anthropic", modelID: "claude-opus-4-8-thinking" },
 			},
 			firstOutput,
@@ -1508,7 +1508,7 @@ describe("createEventHandler - retry dedupe lifecycle", () => {
 						role: "user",
 						modelID: "claude-opus-5",
 						providerID: "anthropic",
-						agent: "Sisyphus - Ultraworker",
+						agent: "Orchestrator",
 					},
 				},
 			},

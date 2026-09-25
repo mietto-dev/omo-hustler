@@ -25,14 +25,14 @@ afterEach(() => {
 
 describe("plugin config prototype pollution guards", () => {
   it("#given unsafe nested merge keys #when merging config #then prototypes remain unmodified", () => {
-    const base = OhMyOpenCodeConfigSchema.parse({ agents: { oracle: { model: "base/model" } } })
+    const base = OhMyOpenCodeConfigSchema.parse({ agents: { architect: { model: "base/model" } } })
     const override = OhMyOpenCodeConfigSchema.parse({
-      agents: JSON.parse('{"__proto__":{"polluted":true},"oracle":{"temperature":0.4}}'),
+      agents: JSON.parse('{"__proto__":{"polluted":true},"architect":{"temperature":0.4}}'),
     })
 
     const result = mergeConfigs(base, override)
 
-    expect(result.agents?.oracle).toMatchObject({ model: "base/model", temperature: 0.4 })
+    expect(result.agents?.architect).toMatchObject({ model: "base/model", temperature: 0.4 })
     expect(({} as Record<string, unknown>).polluted).toBeUndefined()
     expect(hasOwnKey(result.agents ?? {}, "__proto__")).toBe(false)
   })
@@ -46,13 +46,13 @@ describe("plugin config prototype pollution guards", () => {
     mkdirSync(join(project, ".omo"), { recursive: true })
     writeFileSync(
       join(project, ".omo", "omo.jsonc"),
-      '{"__proto__":{"polluted":true},"[opencode]":{"agents":{"oracle":{"model":"safe/model"}}}}',
+       '{"__proto__":{"polluted":true},"[opencode]":{"agents":{"architect":{"model":"safe/model"}}}}',
     )
 
     const result = validatePluginConfig(project)
 
     expect(result.valid).toBe(false)
-    expect(result.config.agents?.oracle).toBeUndefined()
+    expect(result.config.agents?.architect).toBeUndefined()
     expect(({} as Record<string, unknown>).polluted).toBeUndefined()
     expect(hasOwnKey(result.config, "__proto__")).toBe(false)
   })

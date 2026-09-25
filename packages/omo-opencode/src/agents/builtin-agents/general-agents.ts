@@ -12,7 +12,7 @@ import { applyModelResolution, getFirstFallbackModel } from "./model-resolution"
 import { log } from "../../shared/logger"
 
 export function collectPendingBuiltinAgents(input: {
-  agentSources: Record<BuiltinAgentName, import("../agent-builder").AgentSource>
+  agentSources: Partial<Record<BuiltinAgentName, import("../agent-builder").AgentSource>>
   agentMetadata: Partial<Record<BuiltinAgentName, AgentPromptMetadata>>
   disabledAgents: string[]
   agentOverrides: AgentOverrides
@@ -53,10 +53,7 @@ export function collectPendingBuiltinAgents(input: {
   for (const [name, source] of Object.entries(agentSources)) {
     const agentName = name as BuiltinAgentName
 
-    if (agentName === "sisyphus") continue
-    if (agentName === "hephaestus") continue
-    if (agentName === "atlas") continue
-    if (agentName === "sisyphus-junior") continue
+    if (["orchestrator", "planner", "developer", "approver"].includes(agentName)) continue
     if (disabledAgents.some((name) => name.toLowerCase() === agentName.toLowerCase())) continue
 
     const override = agentOverrides[agentName]

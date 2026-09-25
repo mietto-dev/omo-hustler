@@ -3,7 +3,7 @@ import { getAgentDisplayName } from "../../shared/agent-display-names"
 
 export const HOOK_NAME = "prometheus-md-only"
 
-export const PROMETHEUS_AGENT = "prometheus"
+export const PROMETHEUS_AGENT = "planner"
 
 export const ALLOWED_EXTENSIONS = [".md"]
 
@@ -26,7 +26,7 @@ export const PLANNING_CONSULT_WARNING = `
 
 ${PLANNING_CONTEXT_OPEN}
 
-You are being invoked by ${getAgentDisplayName("prometheus")}, a planning agent restricted to .omo/*.md plan files only.
+You are being invoked by ${getAgentDisplayName("planner")}, a planning agent restricted to .omo/*.md plan files only.
 
 **CRITICAL CONSTRAINTS:**
 - DO NOT modify any files (no Write, Edit, or any file mutations)

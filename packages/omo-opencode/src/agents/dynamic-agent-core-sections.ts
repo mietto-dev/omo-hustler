@@ -69,42 +69,42 @@ export function buildToolSelectionTable(
   }
 
   rows.push("")
-  rows.push("**Default flow**: explore/librarian (background) + tools → oracle (if required)")
+  rows.push("**Default flow**: librarian (background) + tools → architect (if required)")
 
   return rows.join("\n")
 }
 
-export function buildExploreSection(agents: AvailableAgent[]): string {
-  const exploreAgent = agents.find((agent) => agent.name === "explore")
-  if (!exploreAgent) {
-    return ""
-  }
-
-  const useWhen = exploreAgent.metadata.useWhen || []
-  const avoidWhen = exploreAgent.metadata.avoidWhen || []
-
-  return `### Explore Agent = Contextual Grep
-
-Use it as a **peer tool**, not a fallback. Fire liberally for discovery, not for files you already know.
-
-**Delegation Trust Rule:** Once you fire an explore agent for a search, do **not** manually perform that same search yourself. Use direct tools only for non-overlapping work or when you intentionally skipped delegation.
-
-**Use Direct Tools when:**
-${avoidWhen.map((entry) => `- ${entry}`).join("\n")}
-
-**Use Explore Agent when:**
-${useWhen.map((entry) => `- ${entry}`).join("\n")}`
-}
-
-export function buildLibrarianSection(agents: AvailableAgent[]): string {
+export function buildLibrarianSection(
+  agents: AvailableAgent[],
+  mode: "repository" | "external" = "external",
+): string {
   const librarianAgent = agents.find((agent) => agent.name === "librarian")
   if (!librarianAgent) {
     return ""
   }
 
   const useWhen = librarianAgent.metadata.useWhen || []
+  const avoidWhen = librarianAgent.metadata.avoidWhen || []
 
-  return `### Librarian Agent = Reference Grep
+  if (mode === "external") {
+    return buildExternalLibrarianSection(useWhen)
+  }
+
+  return `### Librarian Agent = Repository Grep
+
+Use it as a **peer tool**, not a fallback. Fire liberally for discovery, not for files you already know.
+
+**Delegation Trust Rule:** Once you fire a librarian agent for a search, do **not** manually perform that same search yourself. Use direct tools only for non-overlapping work or when you intentionally skipped delegation.
+
+**Use Direct Tools when:**
+${avoidWhen.map((entry) => `- ${entry}`).join("\n")}
+
+**Use Librarian's repository mode when:**
+${useWhen.map((entry) => `- ${entry}`).join("\n")}`
+}
+
+function buildExternalLibrarianSection(useWhen: string[]): string {
+  return `### Librarian Agent = External Reference Grep
 
 Search **external references** (docs, OSS, web). Fire proactively when unfamiliar libraries are involved.
 
@@ -127,21 +127,21 @@ export function buildDelegationTable(agents: AvailableAgent[]): string {
   return rows.join("\n")
 }
 
-export function buildOracleSection(agents: AvailableAgent[]): string {
-  const oracleAgent = agents.find((agent) => agent.name === "oracle")
-  if (!oracleAgent) {
+export function buildArchitectSection(agents: AvailableAgent[]): string {
+  const architectAgent = agents.find((agent) => agent.name === "architect")
+  if (!architectAgent) {
     return ""
   }
 
-  const useWhen = oracleAgent.metadata.useWhen || []
-  const avoidWhen = oracleAgent.metadata.avoidWhen || []
+  const useWhen = architectAgent.metadata.useWhen || []
+  const avoidWhen = architectAgent.metadata.avoidWhen || []
 
-  return `<Oracle_Usage>
-## Oracle - Read-Only High-IQ Consultant
+  return `<Architect_Usage>
+## Architect - Read-Only High-IQ Consultant
 
-Oracle is a read-only, expensive, high-quality reasoning model for debugging and architecture. Consultation only.
+Architect is a read-only, expensive, high-quality reasoning model for debugging and architecture. Consultation only.
 
-### WHEN to Consult (Oracle FIRST, then implement):
+### WHEN to Consult (Architect FIRST, then implement):
 
 ${useWhen.map((entry) => `- ${entry}`).join("\n")}
 
@@ -150,24 +150,24 @@ ${useWhen.map((entry) => `- ${entry}`).join("\n")}
 ${avoidWhen.map((entry) => `- ${entry}`).join("\n")}
 
 ### Usage Pattern:
-Briefly announce "Consulting Oracle for [reason]" before invocation.
+Briefly announce "Consulting Architect for [reason]" before invocation.
 
 **Exception**: This is the ONLY case where you announce before acting. For all other work, start immediately without status updates.
 
-### Oracle Background Task Policy:
+### Architect Background Task Policy:
 
-**Collect Oracle results before your final answer. No exceptions.**
+**Collect Architect results before your final answer. No exceptions.**
 
-**Oracle-dependent implementation is BLOCKED until Oracle finishes.**
+**Architect-dependent implementation is BLOCKED until Architect finishes.**
 
-- If you asked Oracle for architecture/debugging direction that affects the fix, do not implement before Oracle result arrives.
-- While waiting, only do non-overlapping prep work. Never ship implementation decisions Oracle was asked to decide.
-- Never "time out and continue anyway" for Oracle-dependent tasks.
+- If you asked Architect for architecture/debugging direction that affects the fix, do not implement before Architect result arrives.
+- While waiting, only do non-overlapping prep work. Never ship implementation decisions Architect was asked to decide.
+- Never "time out and continue anyway" for Architect-dependent tasks.
 
-- Oracle takes minutes. When done with your own work: **end your response** - wait for the \`<system-reminder>\`.
-- Do NOT poll \`background_output\` on a running Oracle. The notification will come.
-- Never cancel Oracle.
-</Oracle_Usage>`
+- Architect takes minutes. When done with your own work: **end your response** - wait for the \`<system-reminder>\`.
+- Do NOT poll \`background_output\` on a running Architect. The notification will come.
+- Never cancel Architect.
+</Architect_Usage>`
 }
 
 export function buildFrontendGuidanceSection(

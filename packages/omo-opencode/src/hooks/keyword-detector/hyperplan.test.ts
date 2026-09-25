@@ -219,8 +219,8 @@ describe("keyword-detector hyperplan keyword", () => {
     expect(text).toBe("hyperplan please")
   })
 
-  test("should skip hyperplan injection when agent is prometheus (planner)", async () => {
-    // given - hook running with prometheus agent and a prompt that only triggers hyperplan
+  test("should skip hyperplan injection when agent is planner (planner)", async () => {
+    // given - hook running with planner agent and a prompt that only triggers hyperplan
     const sessionID = "hyperplan-prometheus-session"
     const hook = createKeywordDetectorHook(createMockPluginInput())
     const output = {
@@ -228,8 +228,8 @@ describe("keyword-detector hyperplan keyword", () => {
       parts: [{ type: "text", text: "hyperplan refactor stuff" }],
     }
 
-    // when - hyperplan keyword detected with prometheus agent
-    await hook["chat.message"]({ sessionID, agent: "prometheus" }, output)
+    // when - hyperplan keyword detected with planner agent
+    await hook["chat.message"]({ sessionID, agent: "planner" }, output)
 
     // then - hyperplan should be filtered out for planner agents
     const text = textOf(output)

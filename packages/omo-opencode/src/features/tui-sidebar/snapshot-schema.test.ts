@@ -47,7 +47,7 @@ describe("TuiRuntimeSnapshotSchema", () => {
   it("#given a version mismatch #when parsed #then it returns null", () => {
     // given
     const raw = {
-      version: 2,
+      version: 1,
       projectDir: "/tmp/project",
       updatedAt: 1,
       activeAgents: [],

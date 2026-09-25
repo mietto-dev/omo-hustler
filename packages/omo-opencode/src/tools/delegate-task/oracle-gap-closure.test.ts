@@ -5,6 +5,7 @@ const { describe, test, expect, beforeEach, afterEach, spyOn, mock } = require("
 import type { DelegateTaskArgs, ToolContextWithMetadata } from "./types"
 import type { ParentContext } from "./executor-types"
 import * as executor from "./executor"
+import { createDelegationPolicy } from "../../features/background-agent/delegation-policy"
 
 const runtimeRequire = require as NodeJS.Require & { cache?: Record<string, unknown> }
 const MODEL = { providerID: "openai", modelID: "gpt-5.4" }
@@ -217,6 +218,16 @@ describe("delegate-task Oracle gap closure", () => {
     spyOn(executor, "resolveSkillContent").mockResolvedValue({ content: "skill instructions", contents: undefined, error: null })
     spyOn(executor, "resolveParentContext").mockResolvedValue(parentContext)
     const { createDelegateTask } = require("./tools")
+    const delegationPolicy = createDelegationPolicy()
+    const lineage = delegationPolicy.authorize({
+      rootSessionId: "ses_parent",
+      parentSessionId: "ses_parent",
+      callerSessionId: "ses_parent",
+      callerRole: "orchestrator",
+      targetRole: "developer",
+      depth: 0,
+    })
+    delegationPolicy.remember(lineage, "bg_skills", "ses_bg_skills")
     const delegateTask = createDelegateTask({
       directory: "/tmp",
       manager: {
@@ -233,6 +244,7 @@ describe("delegate-task Oracle gap closure", () => {
         },
       },
       client: {},
+      delegationPolicy,
     })
 
     //#when

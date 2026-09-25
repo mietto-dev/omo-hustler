@@ -196,7 +196,7 @@ export function createSessionHooks(args: {
   const noHephaestusNonGpt = isHookEnabled("no-hephaestus-non-gpt")
     ? safeHook("no-hephaestus-non-gpt", () =>
       createNoHephaestusNonGptHook(ctx, {
-        allowNonGptModel: pluginConfig.agents?.hephaestus?.allow_non_gpt_model,
+        allowNonGptModel: pluginConfig.agents?.developer?.allow_non_gpt_model,
       }))
     : null
 

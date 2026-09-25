@@ -15,7 +15,7 @@ export {
 
 /**
  * System prompt prepended to plan agent invocations.
- * Instructs the plan agent to first gather context via explore/librarian agents,
+ * Instructs the plan agent to first gather context via Librarian modes,
  * then summarize user requirements and clarify uncertainties before proceeding.
  * Also MANDATES dependency graphs, parallel execution analysis, and category+skill recommendations.
  */
@@ -24,8 +24,8 @@ BEFORE you begin planning, you MUST first understand the user's request deeply.
 
 MANDATORY CONTEXT GATHERING PROTOCOL:
 1. Launch background agents to gather context:
-   - call_omo_agent(description="Explore codebase patterns", subagent_type="explore", run_in_background=true, prompt="<search for relevant patterns, files, and implementations in the codebase related to user's request>")
-   - call_omo_agent(description="Research documentation", subagent_type="librarian", run_in_background=true, prompt="<search for external documentation, examples, and best practices related to user's request>")
+    - call_omo_agent(description="Search repository patterns", subagent_type="librarian", run_in_background=true, prompt="<use repository mode to search relevant patterns, files, and implementations>")
+    - call_omo_agent(description="Research documentation", subagent_type="librarian", run_in_background=true, prompt="<use external mode to search documentation, examples, and best practices>")
 
 2. After gathering context, ALWAYS present:
    - **User Request Summary**: Concise restatement of what the user is asking for
@@ -376,7 +376,7 @@ export function getDeliverableTag(agentName: string | undefined): string | undef
  * Plan family: plan + prometheus. Shares mutual delegation blocking and task tool permission.
  * Does NOT share system prompt (only isPlanAgent controls that).
  */
-export const PLAN_FAMILY_NAMES = ["plan", "prometheus"]
+export const PLAN_FAMILY_NAMES = ["plan", "planner"]
 
 /**
  * Check if the given agent belongs to the plan family (blocking + task permission).
@@ -402,7 +402,7 @@ export function isPlanFamily(category: string | undefined): boolean {
  *
  * Symmetric guard to the caller-eligibility check added by PR #4065 for team_create.
  */
-export const COORDINATOR_AGENT_NAMES = ["prometheus"]
+export const COORDINATOR_AGENT_NAMES = ["planner"]
 
 /**
  * Returns true when the given agent name refers to a coordinator/meta agent that

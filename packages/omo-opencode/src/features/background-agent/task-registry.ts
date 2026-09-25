@@ -74,6 +74,7 @@ function cloneRegisteredTask(task: BackgroundTask): BackgroundTask {
     concurrencyGroup: task.concurrencyGroup,
     parentAgent: task.parentAgent,
     parentTools: task.parentTools,
+    workflowContract: task.workflowContract,
     isUnstableAgent: task.isUnstableAgent,
     error: task.error,
     category: task.category,

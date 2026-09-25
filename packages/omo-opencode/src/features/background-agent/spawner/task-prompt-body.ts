@@ -1,5 +1,6 @@
-import { createInternalAgentTextPart, getAgentToolRestrictions } from "../../../shared"
+import { buildAgentPromptTools, createInternalAgentTextPart } from "../../../shared"
 import type { LaunchInput } from "../types"
+import type { WorkflowContract } from "../../claude-tasks/workflow-contracts"
 
 type PromptModel = LaunchInput["model"]
 
@@ -11,6 +12,7 @@ type TaskPromptBodyOptions =
       readonly system: LaunchInput["skillContent"]
       readonly prompt: string
       readonly includeTeamToolDenylist: boolean
+      readonly workflowContract?: WorkflowContract
     }
   | {
       readonly kind: "resume"
@@ -18,6 +20,7 @@ type TaskPromptBodyOptions =
       readonly model: PromptModel
       readonly prompt: string
       readonly includeTeamToolDenylist: boolean
+      readonly workflowContract?: WorkflowContract
     }
 
 export type TaskPromptBody = {
@@ -29,6 +32,9 @@ export type TaskPromptBody = {
   readonly variant?: string
   readonly system?: string | undefined
   readonly tools: Record<string, boolean>
+  readonly metadata?: {
+    readonly workflowContract: WorkflowContract
+  }
   readonly parts: Array<{
     readonly type: "text"
     readonly text: string
@@ -50,14 +56,10 @@ export function buildTaskPromptBody(options: TaskPromptBodyOptions): TaskPromptB
     ...(promptModel ? { model: promptModel } : {}),
     ...(promptVariant ? { variant: promptVariant } : {}),
     ...(options.kind === "launch" ? { system: options.system } : {}),
-    tools: {
-      task: false,
-      call_omo_agent: true,
-      question: false,
-      ...getAgentToolRestrictions(options.agent, {
-        includeTeamToolDenylist: options.includeTeamToolDenylist,
-      }),
-    },
+    tools: buildAgentPromptTools(options.agent, {
+      includeTeamToolDenylist: options.includeTeamToolDenylist,
+    }),
+    ...(options.workflowContract ? { metadata: { workflowContract: options.workflowContract } } : {}),
     parts: [createInternalAgentTextPart(options.prompt)],
   }
 }

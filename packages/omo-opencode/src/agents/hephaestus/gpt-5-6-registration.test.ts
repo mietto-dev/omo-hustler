@@ -22,7 +22,7 @@ describe("maybeCreateHephaestusConfig GPT-5.6 registration", () => {
 		test(`#given ${model} overrides a different system default #when Hephaestus registers #then the override, variant, and GPT-5.6 prompt are preserved`, () => {
 			// given
 			const agentOverrides: AgentOverrides = {
-				hephaestus: {
+				developer: {
 					model,
 					variant: EXPLICIT_VARIANT,
 				},
@@ -56,7 +56,7 @@ describe("maybeCreateHephaestusConfig GPT-5.6 registration", () => {
 		// given
 		const model = "anthropic/claude-sonnet-4-6";
 		const agentOverrides: AgentOverrides = {
-			hephaestus: {
+			developer: {
 				model,
 				variant: EXPLICIT_VARIANT,
 			},

@@ -6,6 +6,7 @@ import type {
   BuildTuiRuntimeSnapshotInput,
   SessionAgentResolver,
   SessionStatusMap,
+  TuiHustlerWorkflowProvider,
   TuiBackgroundSnapshotProvider,
   TuiMirrorClient,
 } from "./snapshot-builder"
@@ -17,6 +18,7 @@ export type TuiStateMirrorInput = {
   readonly backgroundManager: TuiBackgroundSnapshotProvider
   readonly getStatuses?: () => Promise<SessionStatusMap>
   readonly sessionAgentResolver?: SessionAgentResolver
+  readonly getHustlerWorkflow?: TuiHustlerWorkflowProvider
   readonly reportFlushError?: (error: Error) => void
 }
 

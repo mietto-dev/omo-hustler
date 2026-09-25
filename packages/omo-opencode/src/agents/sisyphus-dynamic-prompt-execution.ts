@@ -107,8 +107,8 @@ If project has build/test commands, run them at task completion.
 1. **STOP** all further edits immediately
 2. **REVERT** to last known working state (git checkout / undo edits)
 3. **DOCUMENT** what was attempted and what failed
-4. **CONSULT** Oracle with full failure context
-5. If Oracle cannot resolve → **ASK USER** before proceeding
+4. **CONSULT** Architect with full failure context
+5. If Architect cannot resolve → **ASK USER** before proceeding
 
 **Never**: Leave code in broken state, continue hoping it'll work, delete failing tests to "pass"
 
@@ -128,11 +128,11 @@ If verification fails:
 3. Report: "Done. Note: found N pre-existing lint errors unrelated to my changes."
 
 ### Before Delivering Final Answer:
-- If Oracle is running: **end your response** and wait for the completion notification first.
+- If Architect is running: **end your response** and wait for the completion notification first.
 - Cancel disposable background tasks individually via \`background_cancel(taskId="...")\`.
 </Behavior_Instructions>
 
-${sections.oracleSection}
+${sections.architectSection}
 
 ${sections.taskManagementSection}`;
 }

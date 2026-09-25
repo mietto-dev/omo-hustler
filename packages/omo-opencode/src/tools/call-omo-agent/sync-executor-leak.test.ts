@@ -12,7 +12,7 @@ type ExecuteSyncDeps = NonNullable<Parameters<typeof executeSync>[3]>
 
 function createArgs(): ExecuteSyncArgs {
   return {
-    subagent_type: "explore",
+    subagent_type: "librarian",
     description: "cleanup leak",
     prompt: "find something",
     run_in_background: false,

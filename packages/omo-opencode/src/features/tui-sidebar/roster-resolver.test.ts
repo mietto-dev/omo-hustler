@@ -61,7 +61,8 @@ describe("resolveRoster", () => {
 
       // then
       expect(rows.length).toBeGreaterThan(0)
-      expect(rows.some((row) => row.label === "sisyphus")).toBe(true)
+      expect(rows.some((row) => row.label === "orchestrator")).toBe(true)
+      expect(rows.some((row) => row.label === "Orchestrator")).toBe(false)
       expect(rows.some((row) => row.label === "deep")).toBe(true)
     })
   })
@@ -73,7 +74,7 @@ describe("resolveRoster", () => {
       writeJson(join(project, ".omo", "omo.jsonc"), {
         "[opencode]": {
           agents: {
-            sisyphus: { model: "provider/family/model-leaf" },
+            orchestrator: { model: "provider/family/model-leaf" },
           },
           categories: {
             deep: { model: "simple-model" },
@@ -86,7 +87,7 @@ describe("resolveRoster", () => {
 
       // then
       expect(rows).toEqual([...rows].sort((left, right) => left.label.localeCompare(right.label)))
-      expect(rows).toContainEqual({ label: "sisyphus", model: "model-leaf" })
+      expect(rows).toContainEqual({ label: "orchestrator", model: "model-leaf" })
       expect(rows).toContainEqual({ label: "deep", model: "simple-model" })
     })
   })
@@ -96,7 +97,7 @@ describe("resolveRoster", () => {
       // given
       const project = join(root, "project")
       writeJson(join(project, ".opencode", "omo.json"), {
-        agents: { sisyphus: { model: 123 } },
+        agents: { orchestrator: { model: 123 } },
       })
 
       // when
@@ -104,7 +105,7 @@ describe("resolveRoster", () => {
 
       // then
       expect(rows.length).toBeGreaterThan(0)
-      expect(rows.some((row) => row.label === "sisyphus")).toBe(true)
+      expect(rows.some((row) => row.label === "orchestrator")).toBe(true)
     })
   })
 })

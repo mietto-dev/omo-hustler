@@ -13,6 +13,7 @@ import {
 import { transformModelForProvider } from "../../shared/provider-model-id-transform"
 import { abortWithTimeout } from "./abort-with-timeout"
 import { ensureCurrentAttempt, scheduleRetryAttempt } from "./attempt-lifecycle"
+import type { DelegationPolicy } from "./delegation-policy"
 
 export class TeamModeFallbackError extends Error {
   constructor(message: string) {
@@ -58,6 +59,7 @@ export async function tryFallbackRetry(args: {
   idleDeferralTimers: Map<string, ReturnType<typeof setTimeout>>
   queuesByKey: Map<string, QueueItem[]>
   processKey: (key: string) => void
+  delegationPolicy?: DelegationPolicy
   onRetrying?: (details: {
     task: BackgroundTask
     source: string
@@ -71,6 +73,9 @@ export async function tryFallbackRetry(args: {
   const { task, errorInfo, source, concurrencyManager, client, idleDeferralTimers, queuesByKey, processKey, onRetrying } = args
   const deps = { ...defaultFallbackRetryHandlerDeps, ...args.deps }
   const fallbackChain = task.fallbackChain
+  if (task.delegationLineage && args.delegationPolicy) {
+    args.delegationPolicy.assertFallbackTarget(task.delegationLineage.targetRole, task.agent)
+  }
   const canUseProviderExhaustionFallback = deps.isProviderExhaustionFallbackEligible(errorInfo)
   const canRetry =
     (deps.shouldRetryError(errorInfo) || canUseProviderExhaustionFallback) &&

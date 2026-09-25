@@ -124,6 +124,8 @@ export interface AgentPromptMetadata {
 
   /** Key triggers that should appear in Phase 0 (e.g., "External library mentioned → fire librarian") */
   keyTrigger?: string;
+
+  librarianModes?: readonly ("repository" | "external")[];
 }
 
 function extractModelName(model: string): string {
@@ -155,16 +157,13 @@ export function isGpt6Model(model: string): boolean {
 }
 
 export type BuiltinAgentName =
-  | "sisyphus"
-  | "hephaestus"
-  | "oracle"
+  | "orchestrator"
+  | "planner"
+  | "developer"
+  | "tester"
+  | "approver"
   | "librarian"
-  | "explore"
-  | "multimodal-looker"
-  | "metis"
-  | "momus"
-  | "atlas"
-  | "sisyphus-junior";
+  | "architect";
 
 export type OverridableAgentName = "build" | BuiltinAgentName;
 

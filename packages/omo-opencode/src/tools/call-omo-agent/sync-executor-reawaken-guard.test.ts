@@ -77,7 +77,7 @@ async function driveEnforcerIdle(sessionID: string): Promise<boolean> {
 }
 
 const args = {
-  subagent_type: "explore",
+          subagent_type: "librarian",
   description: "test task",
   prompt: "find something",
   run_in_background: false,

@@ -19,6 +19,7 @@ import { shouldReuseCallerLeadSession } from "../resolve-caller-team-lead"
 import { sweepStaleTeamSessions } from "../team-layout-tmux/sweep-stale-team-sessions"
 import { registerTeamRunForSessionCleanup } from "./session-team-run-registry"
 import { assertNoUnresolvedTeamMembers, hasUnresolvedTeamMembers } from "./unresolved-team-members"
+import { resolveDelegationRole } from "../../background-agent/delegation-policy"
 
 const SESSION_ID_POLL_MS = 25
 
@@ -138,8 +139,25 @@ export async function createTeamRun(
   sweepStaleTeamSessions(activeRunIds).catch(() => {})
 
   const baseDir = resolveBaseDir(config)
-  await ensureBaseDirs(baseDir)
   const reusesCallerLeadSession = shouldReuseCallerLeadSession(spec, options?.callerAgentTypeId)
+  const delegationPolicy = bgMgr.delegationPolicy
+  const callerRole = resolveDelegationRole(options?.callerAgentTypeId)
+  if (delegationPolicy !== undefined && options?.callerAgentTypeId !== undefined) {
+    for (const member of spec.members) {
+      if (reusesCallerLeadSession && member.name === spec.leadAgentId) continue
+      const lineage = delegationPolicy.authorize({
+        rootSessionId: leadSessionId,
+        parentSessionId: leadSessionId,
+        callerSessionId: leadSessionId,
+        callerRole: callerRole ?? "",
+        targetRole: resolveDelegationRole(member.kind === "category" ? undefined : member.subagent_type) ?? "",
+        category: member.kind === "category" ? member.category : undefined,
+        depth: 0,
+      })
+      delegationPolicy.release(lineage)
+    }
+  }
+  await ensureBaseDirs(baseDir)
   let runtimeState = await createRuntimeState(spec, leadSessionId, await resolveSpecSource(spec, ctx, config), config)
   registerTeamRunForSessionCleanup(runtimeState.teamRunId)
   if (reusesCallerLeadSession && spec.leadAgentId) {
@@ -192,6 +210,19 @@ export async function createTeamRun(
             continue
           }
           const resolvedMember = await resolveMember(member, ctx, categoryExamples, spec.leadAgentId)
+          const targetRole = member.kind === "category" ? undefined : resolveDelegationRole(resolvedMember.agentToUse)
+          const delegationLineage = delegationPolicy !== undefined && options?.callerAgentTypeId !== undefined
+            ? delegationPolicy.authorize({
+                rootSessionId: leadSessionId,
+                parentSessionId: leadSessionId,
+                callerSessionId: leadSessionId,
+                callerRole: callerRole ?? "",
+                targetRole,
+                category: member.kind === "category" ? member.category : undefined,
+                depth: 0,
+                parentTaskId: runtimeState.teamRunId,
+              })
+            : undefined
           const task = await bgMgr.launch({
             description: `Create team member ${spec.name}/${member.name}`,
             prompt: buildMemberPrompt(spec, member, runtimeState.teamRunId, config, resource.worktreePath),
@@ -205,6 +236,7 @@ export async function createTeamRun(
             skillContent: resolvedMember.systemContent,
             category: member.kind === "category" ? member.category : undefined,
             sessionPermission: QUESTION_DENIED_SESSION_PERMISSION,
+            ...(delegationLineage ? { delegationLineage } : {}),
             onSessionCreated: async (sessionId) => {
               registerTeamSession(sessionId, {
                 teamRunId: runtimeState.teamRunId,
@@ -218,6 +250,7 @@ export async function createTeamRun(
               }), config)
             },
           })
+          if (delegationLineage) delegationPolicy?.remember(delegationLineage, task.id, task.sessionId)
           resource.taskId = task.id
           const sessionId = await waitForTaskSessionId(bgMgr, task, deadlineAt)
           registerTeamSession(sessionId, {

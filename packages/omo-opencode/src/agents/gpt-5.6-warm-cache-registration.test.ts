@@ -6,7 +6,7 @@ import { createMomusAgent } from "./momus"
 
 type AgentSources = Parameters<typeof collectPendingBuiltinAgents>[0]["agentSources"]
 
-describe("Momus GPT-6 Astra warm-cache registration", () => {
+describe("Tester GPT-6 Astra warm-cache registration", () => {
   test("registers Copilot astra ahead of transformed Vercel astra", () => {
     // given
     const availableModels = new Set([
@@ -16,7 +16,7 @@ describe("Momus GPT-6 Astra warm-cache registration", () => {
 
     // when
     const { pendingAgentConfigs } = collectPendingBuiltinAgents({
-      agentSources: unsafeTestValue<AgentSources>({ momus: createMomusAgent }),
+      agentSources: unsafeTestValue<AgentSources>({ tester: createMomusAgent }),
       agentMetadata: {},
       disabledAgents: [],
       agentOverrides: {},
@@ -24,7 +24,7 @@ describe("Momus GPT-6 Astra warm-cache registration", () => {
       availableModels,
       isFirstRunNoCache: false,
     })
-    const config = pendingAgentConfigs.get("momus")
+    const config = pendingAgentConfigs.get("tester")
 
     // then
     expect(config?.model).toBe("github-copilot/gpt-6-astra")

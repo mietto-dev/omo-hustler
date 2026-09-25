@@ -747,9 +747,9 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
       session: {
         messages: async () => ({
           data: [
-            { info: { id: "msg_001", role: "user", time: { created: 1000 }, agent: "oracle" } },
+            { info: { id: "msg_001", role: "user", time: { created: 1000 }, agent: "architect" } },
             {
-              info: { id: "msg_002", role: "assistant", time: { created: 2000 }, finish: "end_turn", agent: "oracle", providerID: "openai", modelID: "gpt-5.4" },
+              info: { id: "msg_002", role: "assistant", time: { created: 2000 }, finish: "end_turn", agent: "architect", providerID: "openai", modelID: "gpt-5.4" },
               parts: [{ type: "text", text: "Response" }],
             },
           ],
@@ -782,7 +782,7 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
     const args = {
       task_id: "ses_test_12345678",
       prompt: "continue working",
-      description: "resume oracle task",
+      description: "resume architect task",
       load_skills: [],
       run_in_background: false,
     }
@@ -792,7 +792,7 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
 
     //#then - task_metadata should contain subagent field with the agent name
     expect(result).toContain("<task_metadata>")
-    expect(result).toContain("subagent: oracle")
+    expect(result).toContain("subagent: architect")
     expect(result).toContain("session_id: ses_test_12345678")
   })
 
@@ -851,8 +851,8 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
     expect(result).not.toContain("subagent:")
   })
 
-  test("preserves restricted tool permissions for resumed explore sessions", async () => {
-    //#given - a resumed explore session should not regain delegation tools
+  test("preserves restricted tool permissions for resumed librarian sessions", async () => {
+    //#given - a resumed librarian session should not regain delegation tools
     const promptAsyncCalls: Array<{ path: { id: string }; body: Record<string, unknown> }> = []
     const mockClient = {
       session: {
@@ -865,7 +865,7 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
                 role: "assistant",
                 time: { created: 2000 },
                 finish: "end_turn",
-                agent: "explore",
+                agent: "librarian",
               },
               parts: [{ type: "text", text: "Response" }],
             },
@@ -906,7 +906,7 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
     const args = {
       task_id: "ses_test_12345678",
       prompt: "continue working",
-      description: "resume explore task",
+      description: "resume librarian task",
       load_skills: [],
       run_in_background: false,
     }
@@ -922,6 +922,8 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
       question: false,
       write: false,
       edit: false,
+      apply_patch: false,
+      teammate: false,
       ...TEAM_TOOL_DENIALS,
     })
   })
@@ -997,12 +999,14 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
       question: false,
       write: false,
       edit: false,
+      apply_patch: false,
+      teammate: false,
       ...TEAM_TOOL_DENIALS,
     })
   })
 
-  test("keeps task delegation enabled during prometheus sync continuation", async () => {
-    //#given - a resumed prometheus session should keep plan-family task permission
+  test("keeps task delegation enabled during planner sync continuation", async () => {
+    //#given - a resumed planner session should keep plan-family task permission
     const promptAsyncCalls: Array<{ path: { id: string }; body: Record<string, unknown> }> = []
     const mockClient = {
       session: {
@@ -1015,7 +1019,7 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
                 role: "assistant",
                 time: { created: 2000 },
                 finish: "end_turn",
-                agent: "prometheus",
+                agent: "planner",
               },
               parts: [{ type: "text", text: "Response" }],
             },
@@ -1056,7 +1060,7 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
     const args = {
       task_id: "ses_test_12345678",
       prompt: "continue planning",
-      description: "resume prometheus task",
+      description: "resume planner task",
       load_skills: [],
       run_in_background: false,
     }
@@ -1070,6 +1074,12 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
       task: true,
       call_omo_agent: true,
       question: false,
+      edit: false,
+      write: false,
+      apply_patch: false,
+      bash: false,
+      interactive_bash: false,
+      teammate: false,
       ...TEAM_TOOL_DENIALS,
     })
   })

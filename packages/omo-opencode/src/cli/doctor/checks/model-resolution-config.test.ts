@@ -25,9 +25,9 @@ describe("model-resolution-config", () => {
     const path = join(temporaryDirectory, ".omo", "omo.jsonc")
     mkdirSync(join(path, ".."), { recursive: true })
     writeFileSync(path, JSON.stringify({
-      "[opencode]": { agents: { atlas: { model: "opencode-go/kimi-k2.6" } } },
+      "[opencode]": { agents: { approver: { model: "opencode-go/kimi-k2.6" } } },
     }) + "\n")
 
-    expect(loadOmoConfig().agents?.atlas?.model).toBe("opencode-go/kimi-k2.6")
+    expect(loadOmoConfig().agents?.approver?.model).toBe("opencode-go/kimi-k2.6")
   })
 })

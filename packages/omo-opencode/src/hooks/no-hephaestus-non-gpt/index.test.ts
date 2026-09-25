@@ -6,8 +6,8 @@ import { getAgentDisplayName } from "../../shared/agent-display-names"
 import { createNoHephaestusNonGptHook } from "./index"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 
-const HEPHAESTUS_DISPLAY = getAgentDisplayName("hephaestus")
-const SISYPHUS_DISPLAY = getAgentDisplayName("sisyphus")
+const HEPHAESTUS_DISPLAY = getAgentDisplayName("developer")
+const SISYPHUS_DISPLAY = getAgentDisplayName("orchestrator")
 
 function createOutput() {
   return {
@@ -17,8 +17,8 @@ function createOutput() {
 }
 
 describe("no-hephaestus-non-gpt hook", () => {
-  test("shows toast on every chat.message when hephaestus uses non-gpt model", async () => {
-    // given - hephaestus with claude model
+  test("shows toast on every chat.message when developer uses non-gpt model", async () => {
+    // given - developer with claude model
     const showToast = spyOn({ fn: async (_input: unknown) => ({}) }, "fn")
     const hook = createNoHephaestusNonGptHook(unsafeTestValue({
       client: { tui: { showToast } },
@@ -39,10 +39,10 @@ describe("no-hephaestus-non-gpt hook", () => {
       model: { providerID: "anthropic", modelID: "claude-opus-4-7" },
     }, output2)
 
-    // then - toast is shown and agent is switched to sisyphus
+    // then - toast is shown and agent is switched to orchestrator
     expect(showToast).toHaveBeenCalledTimes(2)
-    expect(output1.message.agent).toBe("sisyphus")
-    expect(output2.message.agent).toBe("sisyphus")
+    expect(output1.message.agent).toBe("orchestrator")
+    expect(output2.message.agent).toBe("orchestrator")
     expect(showToast.mock.calls[0]?.[0]).toMatchObject({
       body: {
         title: "NEVER Use Hephaestus with Non-GPT",
@@ -53,7 +53,7 @@ describe("no-hephaestus-non-gpt hook", () => {
   })
 
   test("shows warning and does not switch agent when allow_non_gpt_model is enabled", async () => {
-    // given - hephaestus with claude model and opt-out enabled
+    // given - developer with claude model and opt-out enabled
     const showToast = spyOn({ fn: async (_input: unknown) => ({}) }, "fn")
     const hook = createNoHephaestusNonGptHook(unsafeTestValue({
       client: { tui: { showToast } },
@@ -81,8 +81,8 @@ describe("no-hephaestus-non-gpt hook", () => {
     })
   })
 
-  test("does not show toast when hephaestus uses gpt model", async () => {
-    // given - hephaestus with gpt model
+  test("does not show toast when developer uses gpt model", async () => {
+    // given - developer with gpt model
     const showToast = spyOn({ fn: async (_input: unknown) => ({}) }, "fn")
     const hook = createNoHephaestusNonGptHook(unsafeTestValue({
       client: { tui: { showToast } },
@@ -103,7 +103,7 @@ describe("no-hephaestus-non-gpt hook", () => {
   })
 
   test("does not show toast for non-hephaestus agent", async () => {
-    // given - sisyphus with claude model (non-gpt)
+    // given - orchestrator with claude model (non-gpt)
     const showToast = spyOn({ fn: async (_input: unknown) => ({}) }, "fn")
     const hook = createNoHephaestusNonGptHook(unsafeTestValue({
       client: { tui: { showToast } },
@@ -124,7 +124,7 @@ describe("no-hephaestus-non-gpt hook", () => {
   })
 
   test("uses session agent fallback when input agent is missing", async () => {
-    // given - session agent saved as hephaestus
+    // given - session agent saved as developer
     _resetForTesting()
     updateSessionAgent("ses_4", HEPHAESTUS_DISPLAY)
     const showToast = spyOn({ fn: async (_input: unknown) => ({}) }, "fn")
@@ -140,8 +140,8 @@ describe("no-hephaestus-non-gpt hook", () => {
       model: { providerID: "anthropic", modelID: "claude-opus-4-7" },
     }, output)
 
-    // then - toast shown via session-agent fallback, switched to sisyphus
+    // then - toast shown via session-agent fallback, switched to orchestrator
     expect(showToast).toHaveBeenCalledTimes(1)
-    expect(output.message.agent).toBe("sisyphus")
+    expect(output.message.agent).toBe("orchestrator")
   })
 })

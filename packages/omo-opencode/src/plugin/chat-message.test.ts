@@ -149,7 +149,7 @@ describe("createChatMessageHandler - synthetic/internal messages", () => {
     }
 
     // when
-    await handler(createMockInput("sisyphus"), output)
+    await handler(createMockInput("orchestrator"), output)
 
     // then
     expect(args._appliedSessions).toEqual([])
@@ -177,7 +177,7 @@ describe("createChatMessageHandler - synthetic/internal messages", () => {
     }
 
     // when
-    await handler(createMockInput("sisyphus"), output)
+    await handler(createMockInput("orchestrator"), output)
 
     // then
     expect(args._appliedSessions).toEqual([])
@@ -201,7 +201,7 @@ describe("createChatMessageHandler - synthetic/internal messages", () => {
     }
 
     // when
-    await handler(createMockInput("sisyphus"), output)
+    await handler(createMockInput("orchestrator"), output)
 
     // then
     expect(args._appliedSessions).toEqual([])
@@ -243,7 +243,7 @@ describe("createChatMessageHandler - first message hook ordering", () => {
     const handler = createChatMessageHandler(args)
 
     // when
-    await handler(createMockInput("sisyphus"), {
+    await handler(createMockInput("orchestrator"), {
       message: {},
       parts: [{ type: "text", text: "ship it" }],
     })
@@ -252,12 +252,12 @@ describe("createChatMessageHandler - first message hook ordering", () => {
     expect(hookObservations).toEqual([
       {
         hook: "stopContinuationGuard",
-        agent: "sisyphus",
+        agent: "orchestrator",
         appliedSessions: ["test-session"],
       },
       {
         hook: "keywordDetector",
-        agent: "sisyphus",
+        agent: "orchestrator",
         appliedSessions: ["test-session"],
       },
     ])
@@ -282,7 +282,7 @@ describe("createChatMessageHandler - first message hook ordering", () => {
     const handler = createChatMessageHandler(args)
 
     // when
-    await handler(createMockInput("sisyphus"), {
+    await handler(createMockInput("orchestrator"), {
       message: {},
       parts: [{ type: "text", text: "hello" }],
     })
@@ -340,7 +340,7 @@ describe("createChatMessageHandler - cache warning behavior", () => {
     const handler = createChatMessageHandler(args)
 
     // when
-    await handler(createMockInput("sisyphus"), createMockOutput())
+    await handler(createMockInput("orchestrator"), createMockOutput())
 
     // then
     expect(toastCalls).toHaveLength(0)
@@ -373,7 +373,7 @@ describe("createChatMessageHandler - cache warning behavior", () => {
     const handler = createChatMessageHandler(args)
 
     // when
-    await handler(createMockInput("sisyphus"), createMockOutput())
+    await handler(createMockInput("orchestrator"), createMockOutput())
 
     // then
     expect(toastCalls).toHaveLength(0)
@@ -391,8 +391,8 @@ describe("createChatMessageHandler - /ulw-execute integration", () => {
     writeFileSync(join(testDir, ".omo", "plans", "worker-plan.md"), "# Plan\n- [ ] Task 1")
     process.chdir(testDir)
     _resetForTesting()
-    registerAgentName("prometheus")
-    registerAgentName("sisyphus")
+    registerAgentName("planner")
+    registerAgentName("orchestrator")
   })
 
   afterEach(() => {
@@ -402,7 +402,7 @@ describe("createChatMessageHandler - /ulw-execute integration", () => {
 
   test("falls back to Sisyphus through the full chat.message slash-command path when Atlas is unavailable", async () => {
     // given
-    updateSessionAgent("test-session", "prometheus")
+    updateSessionAgent("test-session", "planner")
     const args = createMockHandlerArgs()
     args.hooks.autoSlashCommand = createAutoSlashCommandHook({ skills: [] })
     args.hooks.ulwExecute = createUlwExecuteHook({
@@ -410,7 +410,7 @@ describe("createChatMessageHandler - /ulw-execute integration", () => {
       client: { tui: { showToast: async () => {} } },
     } as never)
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("prometheus")
+    const input = createMockInput("planner")
     const output: ChatMessageHandlerOutput = {
       message: {},
       parts: [{ type: "text", text: "/ulw-execute" }],
@@ -420,18 +420,18 @@ describe("createChatMessageHandler - /ulw-execute integration", () => {
     await handler(input, output)
 
     // then
-    expect(output.message["agent"]).toBe("sisyphus")
+    expect(output.message["agent"]).toBe("orchestrator")
     expect(output.parts[0].text).toContain("<auto-slash-command>")
     expect(output.parts[0].text).toContain("Auto-Selected Plan")
     expect(output.parts[0].text).toContain("boulder.json has been created")
-    expect(getSessionAgent("test-session")).toBe("sisyphus")
-    expect(readBoulderState(testDir)?.agent).toBe("sisyphus")
+    expect(getSessionAgent("test-session")).toBe("orchestrator")
+    expect(readBoulderState(testDir)?.agent).toBe("orchestrator")
   })
 
   test("smoke: resolves quoted human-readable plan names through the full /ulw-execute chat.message path", async () => {
     // given
     writeFileSync(join(testDir, ".omo", "plans", "my-feature-plan.md"), "# Plan\n- [ ] Task 1")
-    updateSessionAgent("test-session", "prometheus")
+    updateSessionAgent("test-session", "planner")
     const args = createMockHandlerArgs()
     args.hooks.autoSlashCommand = createAutoSlashCommandHook({ skills: [] })
     args.hooks.ulwExecute = createUlwExecuteHook({
@@ -439,7 +439,7 @@ describe("createChatMessageHandler - /ulw-execute integration", () => {
       client: { tui: { showToast: async () => {} } },
     } as never)
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("prometheus")
+    const input = createMockInput("planner")
     const output: ChatMessageHandlerOutput = {
       message: {},
       parts: [{ type: "text", text: "/ulw-execute \"my feature plan\"" }],
@@ -449,7 +449,7 @@ describe("createChatMessageHandler - /ulw-execute integration", () => {
     await handler(input, output)
 
     // then
-    expect(output.message["agent"]).toBe("sisyphus")
+    expect(output.message["agent"]).toBe("orchestrator")
     expect(output.parts[0].text).toContain("<auto-slash-command>")
     expect(output.parts[0].text).toContain("Auto-Selected Plan")
     expect(output.parts[0].text).toContain("my-feature-plan")
@@ -473,7 +473,7 @@ describe("createChatMessageHandler - goal command handling and stop continuation
     const output = createUlwExecuteTemplateOutput()
 
     // when
-    await handler(createMockInput("sisyphus"), output)
+    await handler(createMockInput("orchestrator"), output)
 
     // then
     expect(ulwExecuteCalls).toEqual(["test-session"])
@@ -495,7 +495,7 @@ describe("createChatMessageHandler - goal command handling and stop continuation
     }
 
     // when
-    await handler(createMockInput("sisyphus"), output)
+    await handler(createMockInput("orchestrator"), output)
 
     // then
     expect(goalMock.setGoalCalls).toEqual([{ sessionID: "test-session", objective: "Ship it" }])
@@ -517,7 +517,7 @@ describe("createChatMessageHandler - goal command handling and stop continuation
     }
 
     // when
-    await handler(createMockInput("sisyphus"), output)
+    await handler(createMockInput("orchestrator"), output)
 
     // then
     expect(goalMock.pauseGoalCalls).toEqual(["test-session"])
@@ -539,7 +539,7 @@ describe("createChatMessageHandler - goal command handling and stop continuation
     }
 
     // when
-    await handler(createMockInput("sisyphus"), output)
+    await handler(createMockInput("orchestrator"), output)
 
     // then
     expect(goalMock.resumeGoalCalls).toEqual(["test-session"])
@@ -561,7 +561,7 @@ describe("createChatMessageHandler - goal command handling and stop continuation
     }
 
     // when
-    await handler(createMockInput("sisyphus"), output)
+    await handler(createMockInput("orchestrator"), output)
 
     // then
     expect(goalMock.clearGoalCalls).toEqual(["test-session"])
@@ -583,7 +583,7 @@ describe("createChatMessageHandler - goal command handling and stop continuation
     const handler = createChatMessageHandler(args)
 
     // when
-    await handler(createMockInput("sisyphus"), {
+    await handler(createMockInput("orchestrator"), {
       message: {},
       parts: [{ type: "text", text: "continue helping with this bug" }],
     })
@@ -610,23 +610,23 @@ describe("createChatMessageHandler - goal command handling and stop continuation
     const handler = createChatMessageHandler(args)
 
     // when
-    await handler(createMockInput("sisyphus"), {
+    await handler(createMockInput("orchestrator"), {
       message: {},
       parts: createUlwExecuteTemplateOutput().parts,
     })
-    await handler(createMockInput("sisyphus"), {
+    await handler(createMockInput("orchestrator"), {
       message: {},
       parts: [{ type: "text", text: "Ship it" }],
     })
-    await handler(createMockInput("sisyphus"), {
+    await handler(createMockInput("orchestrator"), {
       message: {},
       parts: [{ type: "text", text: "pause" }],
     })
-    await handler(createMockInput("sisyphus"), {
+    await handler(createMockInput("orchestrator"), {
       message: {},
       parts: [{ type: "text", text: "resume" }],
     })
-    await handler(createMockInput("sisyphus"), {
+    await handler(createMockInput("orchestrator"), {
       message: {},
       parts: [{ type: "text", text: "clear" }],
     })
@@ -681,7 +681,7 @@ describe("createChatMessageHandler - /goal raw slash fallback", () => {
     }
 
     // when
-    const run = handler(createMockInput("sisyphus"), output)
+    const run = handler(createMockInput("orchestrator"), output)
 
     // then
     await expect(run).resolves.toBeUndefined()
@@ -695,7 +695,7 @@ describe("createChatMessageHandler - /goal raw slash fallback", () => {
     const args = createMockHandlerArgs()
     args.hooks.goal = goalMock.hook
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("sisyphus")
+    const input = createMockInput("orchestrator")
     const output: ChatMessageHandlerOutput = {
       message: {},
       parts: [{ type: "text", text: "Ship the dashboard" }],
@@ -716,7 +716,7 @@ describe("createChatMessageHandler - /goal raw slash fallback", () => {
     const args = createMockHandlerArgs()
     args.hooks.goal = goalMock.hook
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("sisyphus")
+    const input = createMockInput("orchestrator")
     const output: ChatMessageHandlerOutput = {
       message: {},
       parts: [{ type: "text", text: "pause" }],
@@ -736,7 +736,7 @@ describe("createChatMessageHandler - /goal raw slash fallback", () => {
     const args = createMockHandlerArgs()
     args.hooks.goal = goalMock.hook
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("sisyphus")
+    const input = createMockInput("orchestrator")
     const output: ChatMessageHandlerOutput = {
       message: {},
       parts: [{ type: "text", text: "resume" }],
@@ -756,7 +756,7 @@ describe("createChatMessageHandler - /goal raw slash fallback", () => {
     const args = createMockHandlerArgs()
     args.hooks.goal = goalMock.hook
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("sisyphus")
+    const input = createMockInput("orchestrator")
     const output: ChatMessageHandlerOutput = {
       message: {},
       parts: [{ type: "text", text: "clear" }],
@@ -779,7 +779,7 @@ describe("createChatMessageHandler - /goal raw slash fallback", () => {
     })
     args.hooks.goal = goalMock.hook
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("sisyphus")
+    const input = createMockInput("orchestrator")
     const output: ChatMessageHandlerOutput = {
       message: {},
       parts: [{ type: "text", text: "Ship the dashboard" }],
@@ -817,7 +817,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     //#given - first message, no user-selected variant
     const args = createMockHandlerArgs({ shouldOverride: true })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("hephaestus", { providerID: "openai", modelID: "gpt-5.5" })
+    const input = createMockInput("developer", { providerID: "openai", modelID: "gpt-5.5" })
     const output = createMockOutput() // no variant set
 
     //#when
@@ -831,7 +831,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     //#given - first message, user already selected "xhigh" variant in OpenCode UI
     const args = createMockHandlerArgs({ shouldOverride: true })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("hephaestus", { providerID: "openai", modelID: "gpt-5.5" })
+    const input = createMockInput("developer", { providerID: "openai", modelID: "gpt-5.5" })
     const output = createMockOutput("xhigh") // user selected xhigh
 
     //#when
@@ -845,7 +845,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     //#given - not first message, variant already set
     const args = createMockHandlerArgs({ shouldOverride: false })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("hephaestus", { providerID: "openai", modelID: "gpt-5.5" })
+    const input = createMockInput("developer", { providerID: "openai", modelID: "gpt-5.5" })
     const output = createMockOutput("xhigh")
 
     //#when
@@ -859,7 +859,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     //#given - not first message, no variant from TUI
     const args = createMockHandlerArgs({ shouldOverride: false })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("hephaestus", { providerID: "openai", modelID: "gpt-5.5" })
+    const input = createMockInput("developer", { providerID: "openai", modelID: "gpt-5.5" })
     const output = createMockOutput() // no variant
 
     //#when
@@ -873,7 +873,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     //#given - first message with user-selected variant
     const args = createMockHandlerArgs({ shouldOverride: true })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("hephaestus", { providerID: "openai", modelID: "gpt-5.5" })
+    const input = createMockInput("developer", { providerID: "openai", modelID: "gpt-5.5" })
     const output = createMockOutput("xhigh")
 
     //#when
@@ -898,7 +898,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
       },
     }
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("hephaestus", { providerID: "openai", modelID: "gpt-5.5" })
+    const input = createMockInput("developer", { providerID: "openai", modelID: "gpt-5.5" })
     const output = createMockOutput()
 
     //#when
@@ -915,7 +915,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     setSessionModel("test-session", { providerID: "openai", modelID: "gpt-5.4" })
     const args = createMockHandlerArgs({ shouldOverride: false })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("sisyphus")
+    const input = createMockInput("orchestrator")
     const output = createMockOutput()
 
     //#when
@@ -932,7 +932,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     setSessionModel("test-session", { providerID: "openai", modelID: "gpt-5.4" })
     const args = createMockHandlerArgs({ shouldOverride: true })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("sisyphus")
+    const input = createMockInput("orchestrator")
     const output = createMockOutput()
 
     //#when
@@ -951,7 +951,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     const handler = createChatMessageHandler(args)
     const input = {
       sessionID: "subagent-session",
-      agent: "oracle",
+      agent: "architect",
     }
     const output = createMockOutput()
 
@@ -971,12 +971,12 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
       shouldOverride: false,
       pluginConfig: {
         agents: {
-          sisyphus: { model: "anthropic/claude-opus-4-7" },
+          orchestrator: { model: "anthropic/claude-opus-4-7" },
         },
       },
     })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("sisyphus")
+    const input = createMockInput("orchestrator")
     const output = createMockOutput()
 
     //#when
@@ -995,12 +995,12 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
       shouldOverride: false,
       pluginConfig: {
         agents: {
-          prometheus: { model: "anthropic/claude-opus-4-7" },
+          planner: { model: "anthropic/claude-opus-4-7" },
         },
       },
     })
     const handler = createChatMessageHandler(args)
-    const input = createMockInput(getAgentListDisplayName("prometheus"))
+    const input = createMockInput(getAgentListDisplayName("planner"))
     const output = createMockOutput()
 
     //#when
@@ -1009,7 +1009,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     //#then
     expect(output.message["model"]).toBeUndefined()
     expect(getSessionModel("test-session")).toEqual({ providerID: "openai", modelID: "gpt-5.4" })
-    expect(getSessionAgent("test-session")).toBe("Prometheus - Plan Builder")
+    expect(getSessionAgent("test-session")).toBe("Planner")
   })
 
   test("respects a mid-conversation model switch instead of reusing the previous stored model", async () => {
@@ -1019,7 +1019,7 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     const args = createMockHandlerArgs({ shouldOverride: false })
     const handler = createChatMessageHandler(args)
     const nextModel = { providerID: "openai", modelID: "gpt-5.4" }
-    const input = createMockInput("sisyphus", nextModel)
+    const input = createMockInput("orchestrator", nextModel)
     const output = createMockOutput()
 
     //#when
@@ -1030,17 +1030,17 @@ describe("createChatMessageHandler - TUI variant passthrough", () => {
     expect(getSessionModel("test-session")).toEqual(nextModel)
   })
 
-  test("strips legacy ZWSP-prefixed agent names from persisted prompt body session state (GH-3259)", async () => {
-    //#given - persisted prompt body from v3.14.0-v3.16.0 may contain ZWSP-prefixed agent
+  test("strips ZWSP-prefixed canonical agent names from persisted prompt body session state", async () => {
+    //#given - persisted prompt body contains a ZWSP-prefixed canonical agent
     const args = createMockHandlerArgs()
     const handler = createChatMessageHandler(args)
-    const input = createMockInput("\u200B\u200BHephaestus - Deep Agent")
+    const input = createMockInput("\u200B\u200BDeveloper")
     const output = createMockOutput()
 
     //#when
     await handler(input, output)
 
     //#then
-    expect(getSessionAgent("test-session")).toBe("Hephaestus - Deep Agent")
+    expect(getSessionAgent("test-session")).toBe("Developer")
   })
 })

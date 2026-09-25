@@ -277,14 +277,7 @@ describe("createMessagesTransformHandler", () => {
     //#then
     expect(messages).toHaveLength(2)
     expect(readToolStatus(messages[1])).toEqual("error")
-    expect(messages[0]?.parts[0]).toMatchObject({
-      id: "prt_category_skill_reminder_msg_real_request",
-      messageID: "msg_real_request",
-      sessionID,
-      synthetic: true,
-      type: "text",
-    })
-    expect(messages[0]?.parts[1]).toEqual({ type: "text", text: "continue the real request" })
+    expect(messages[0]?.parts).toEqual([{ type: "text", text: "continue the real request" }])
   })
 
   it("does not throw when tool-pair-validator itself fails", async () => {

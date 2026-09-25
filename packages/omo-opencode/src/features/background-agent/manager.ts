@@ -82,6 +82,8 @@ import {
 import { ParentWakeNotifier, type ParentWakePromptContext } from "./parent-wake-notifier"
 import type { PendingParentWake } from "./parent-wake-dedupe"
 import { registerManagerForCleanup, unregisterManagerForCleanup } from "./process-cleanup"
+import { createDelegationPolicy, DelegationPolicyError, type DelegationPolicy } from "./delegation-policy"
+import { validateWorkflowContractForDelegation } from "../claude-tasks/workflow-contracts"
 import { removeTaskToastTracking } from "./remove-task-toast-tracking"
 import {
   MIN_SESSION_GONE_POLLS,
@@ -242,9 +244,11 @@ export interface BackgroundManagerConfig {
   enableParentSessionNotifications?: boolean
   modelFallbackControllerAccessor?: ModelFallbackControllerAccessor
   log?: typeof log
+  delegationPolicy?: DelegationPolicy
 }
 
 export class BackgroundManager {
+  readonly delegationPolicy: DelegationPolicy
 
 
   private tasks: Map<string, BackgroundTask>
@@ -306,6 +310,7 @@ export class BackgroundManager {
     this.enableParentSessionNotifications = options?.enableParentSessionNotifications ?? true
     this.modelFallbackControllerAccessor = options?.modelFallbackControllerAccessor
     this.logger = options?.log ?? log
+    this.delegationPolicy = options?.delegationPolicy ?? createDelegationPolicy(options.config)
     this.parentWakeNotifier = new ParentWakeNotifier(
       {
         client: this.client,
@@ -436,6 +441,13 @@ export class BackgroundManager {
     }
 
     this.unregisterRootDescendant(task.rootSessionId)
+    this.releaseDelegationReservation(task)
+  }
+
+  private releaseDelegationReservation(task: BackgroundTask): void {
+    if (!task.delegationLineage) return
+    this.delegationPolicy.release(task.delegationLineage)
+    task.delegationLineage = undefined
   }
 
   private addTask(task: BackgroundTask): void {
@@ -594,6 +606,13 @@ export class BackgroundManager {
       throw new Error("Agent parameter is required after sanitization")
     }
 
+    if (input.workflowContract !== undefined) {
+      input = {
+        ...input,
+        workflowContract: validateWorkflowContractForDelegation(input.workflowContract, input.agent),
+      }
+    }
+
     const spawnReservation = await this.reserveSubagentSpawn(input.parentSessionId)
 
     try {
@@ -621,6 +640,8 @@ export class BackgroundManager {
         teamRunId: input.teamRunId,
         parentModel: input.parentModel,
         parentAgent: input.parentAgent,
+        delegationLineage: input.delegationLineage,
+        workflowContract: input.workflowContract,
         parentTools: input.parentTools,
         model: input.model,
         fallbackChain: input.fallbackChain,
@@ -725,6 +746,7 @@ export class BackgroundManager {
             item.task.error = error instanceof Error ? error.message : String(error)
             item.task.completedAt = new Date()
           }
+          this.releaseDelegationReservation(item.task)
 
           if (item.task.concurrencyKey) {
             this.concurrencyManager.release(item.task.concurrencyKey)
@@ -791,6 +813,7 @@ export class BackgroundManager {
               },
             }
           : {}),
+        ...(input.workflowContract ? { metadata: { workflowContract: input.workflowContract } } : {}),
       } as Record<string, unknown>,
       query: {
         directory: parentDirectory,
@@ -810,11 +833,15 @@ export class BackgroundManager {
     if (task.status === "cancelled") {
       clearDelegatedChildSessionBootstrap(sessionID)
       await this.abortSessionWithLogging(sessionID, "cancelled pre-start cleanup")
+      this.releaseDelegationReservation(task)
       this.concurrencyManager.release(concurrencyKey)
       return
     }
 
     await input.onSessionCreated?.(sessionID)
+    if (task.delegationLineage) {
+      this.delegationPolicy.remember(task.delegationLineage, task.id, sessionID)
+    }
     this.settlePreStartDescendantReservation(task)
     subagentSessions.add(sessionID)
     setSessionAgent(sessionID, input.agent)
@@ -827,6 +854,7 @@ export class BackgroundManager {
       if (task.rootSessionId) {
         this.unregisterRootDescendant(task.rootSessionId)
       }
+      this.releaseDelegationReservation(task)
       this.concurrencyManager.release(concurrencyKey)
       return
     }
@@ -840,6 +868,7 @@ export class BackgroundManager {
       if (task.rootSessionId) {
         this.unregisterRootDescendant(task.rootSessionId)
       }
+      this.releaseDelegationReservation(task)
       this.concurrencyManager.release(concurrencyKey)
       return
     }
@@ -954,9 +983,11 @@ The fallback retry session is now created and can be inspected directly.
       ...(launchVariant ? { variant: launchVariant } : {}),
       system: input.skillContent,
       tools: launchTools,
+      ...(input.workflowContract ? { metadata: { workflowContract: input.workflowContract } } : {}),
       parts: [createInternalAgentTextPart(input.prompt)],
     }
 
+    let fallbackError: unknown
     promptWithRetryInDirectory(this.client, {
       path: { id: sessionID },
       body: promptBody,
@@ -969,6 +1000,9 @@ The fallback retry session is now created and can be inspected directly.
           taskId: task.id,
         })
         try {
+          if (task.delegationLineage) {
+            this.delegationPolicy.assertFallbackTarget(task.delegationLineage.targetRole, FALLBACK_AGENT)
+          }
           const fallbackBody = buildFallbackBody(promptBody, FALLBACK_AGENT, {
             includeTeamToolDenylist: input.teamRunId === undefined,
           })
@@ -991,6 +1025,7 @@ The fallback retry session is now created and can be inspected directly.
           task.agent = FALLBACK_AGENT
           return
         } catch (retryError) {
+          fallbackError = retryError
           log("[background-agent] Fallback agent also failed:", retryError)
         }
       }
@@ -1012,14 +1047,22 @@ The fallback retry session is now created and can be inspected directly.
           message: extractErrorMessage(error),
           statusCode: extractErrorStatusCode(error),
         }
-        if (await this.tryFallbackRetry(existingTask, errorInfo, "promptAsync.launch")) {
-          return
+        try {
+          if (await this.tryFallbackRetry(existingTask, errorInfo, "promptAsync.launch")) {
+            return
+          }
+        } catch (retryError) {
+          if (retryError instanceof DelegationPolicyError) fallbackError = retryError
+          else throw retryError
         }
 
-        const errorMessage = errorInfo.message ?? (error instanceof Error ? error.message : String(error))
-        const terminalError = errorMessage.includes("agent.name") || errorMessage.includes("undefined") || isAgentNotFoundError(error)
-          ? `Agent "${input.agent}" not found. Make sure the agent is registered in your opencode.json or provided by a plugin.`
-          : errorMessage
+        const effectiveError = fallbackError instanceof DelegationPolicyError ? fallbackError : error
+        const errorMessage = effectiveError instanceof Error ? effectiveError.message : errorInfo.message ?? String(effectiveError)
+        const terminalError = effectiveError instanceof DelegationPolicyError
+          ? `${effectiveError.code}: ${effectiveError.message}`
+          : errorMessage.includes("agent.name") || errorMessage.includes("undefined") || isAgentNotFoundError(error)
+            ? `Agent "${input.agent}" not found. Make sure the agent is registered in your opencode.json or provided by a plugin.`
+            : errorMessage
         if (existingTask.currentAttemptID) {
           finalizeAttempt(existingTask, existingTask.currentAttemptID, "interrupt", terminalError)
         } else {
@@ -1315,6 +1358,18 @@ The fallback retry session is now created and can be inspected directly.
       throw new Error(`Task has no sessionID: ${existingTask.id}`)
     }
 
+    if (existingTask.delegationLineage) {
+      this.delegationPolicy.authorizeContinuation({
+        callerSessionId: input.parentSessionId,
+        taskId: existingTask.id,
+        sessionId: existingTask.sessionId,
+      })
+    }
+
+    const workflowContract = input.workflowContract === undefined
+      ? existingTask.workflowContract
+      : validateWorkflowContractForDelegation(input.workflowContract, existingTask.agent)
+
     if (existingTask.status === "running") {
       throw new Error(
         `Task ${existingTask.id} is currently running and cannot accept a continuation prompt. ` +
@@ -1348,6 +1403,7 @@ The fallback retry session is now created and can be inspected directly.
     if (input.parentTools) {
       existingTask.parentTools = input.parentTools
     }
+    existingTask.workflowContract = workflowContract
     // Reset startedAt on resume to prevent immediate completion
     // The MIN_IDLE_TIME_MS check uses startedAt, so resumed tasks need fresh timing
     existingTask.startedAt = new Date()
@@ -1428,6 +1484,7 @@ The fallback retry session is now created and can be inspected directly.
             setSessionTools(existingTask.sessionId!, tools)
             return tools
           })(),
+          ...(workflowContract ? { metadata: { workflowContract } } : {}),
           parts: [createInternalAgentTextPart(input.prompt)],
         },
         query: { directory: this.directory },
@@ -1478,6 +1535,7 @@ The fallback retry session is now created and can be inspected directly.
       if (existingTask.rootSessionId) {
         this.unregisterRootDescendant(existingTask.rootSessionId)
       }
+      this.releaseDelegationReservation(existingTask)
 
       // Release concurrency on error to prevent slot leaks
       if (existingTask.concurrencyKey) {
@@ -1982,6 +2040,7 @@ The fallback retry session is now created and can be inspected directly.
     if (task.rootSessionId) {
       this.unregisterRootDescendant(task.rootSessionId)
     }
+    this.releaseDelegationReservation(task)
     this.taskHistory.record(task.parentSessionId, {
       id: task.id,
       sessionID: task.sessionId,
@@ -2162,6 +2221,7 @@ The fallback retry session is now created and can be inspected directly.
       idleDeferralTimers: this.idleDeferralTimers,
       queuesByKey: this.queuesByKey,
       processKey: (key: string) => this.processKey(key),
+      delegationPolicy: this.delegationPolicy,
       onRetrying: ({ task, source }) => {
         const currentAttempt = getCurrentAttempt(task)
         const previousAttempt = getPreviousAttempt(task, currentAttempt?.attemptId)
@@ -2425,6 +2485,7 @@ The task was re-queued on a fallback model after a retryable failure.
     if (wasRunning && task.rootSessionId) {
       this.unregisterRootDescendant(task.rootSessionId)
     }
+    this.releaseDelegationReservation(task)
     this.taskHistory.record(task.parentSessionId, { id: task.id, sessionID: task.sessionId, agent: task.agent, description: task.description, status: "cancelled", category: task.category, startedAt: task.startedAt, completedAt: task.completedAt })
 
     if (task.concurrencyKey) {
@@ -2557,6 +2618,7 @@ The task was re-queued on a fallback model after a retryable failure.
 
       if (task.rootSessionId) {
         this.unregisterRootDescendant(task.rootSessionId)
+        this.releaseDelegationReservation(task)
       }
 
       removeTaskToastTracking(task.id)
@@ -2888,6 +2950,7 @@ The task was re-queued on a fallback model after a retryable failure.
         if (!wasPending && task.rootSessionId) {
           this.unregisterRootDescendant(task.rootSessionId)
         }
+        this.releaseDelegationReservation(task)
         this.taskHistory.record(task.parentSessionId, { id: task.id, sessionID: task.sessionId, agent: task.agent, description: task.description, status: "error", category: task.category, startedAt: task.startedAt, completedAt: task.completedAt })
         if (task.concurrencyKey) {
           this.concurrencyManager.release(task.concurrencyKey)
@@ -2959,6 +3022,7 @@ The task was re-queued on a fallback model after a retryable failure.
     if (task.rootSessionId) {
       this.unregisterRootDescendant(task.rootSessionId)
     }
+    this.releaseDelegationReservation(task)
     this.taskHistory.record(task.parentSessionId, { id: task.id, sessionID: task.sessionId, agent: task.agent, description: task.description, status: "error", category: task.category, startedAt: task.startedAt, completedAt: task.completedAt })
     if (task.concurrencyKey) {
       this.concurrencyManager.release(task.concurrencyKey)

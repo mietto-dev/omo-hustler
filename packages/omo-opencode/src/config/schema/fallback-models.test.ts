@@ -56,7 +56,7 @@ describe("OhMyOpenCodeConfigSchema fallback_models", () => {
     ]
     const config = {
       agents: {
-        explore: {
+        librarian: {
           fallback_models: fallbackModels,
         },
       },
@@ -68,7 +68,7 @@ describe("OhMyOpenCodeConfigSchema fallback_models", () => {
     // then
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.agents?.explore?.fallback_models).toEqual(config.agents.explore.fallback_models)
+      expect(result.data.agents?.librarian?.fallback_models).toEqual(config.agents.librarian.fallback_models)
     }
   })
 

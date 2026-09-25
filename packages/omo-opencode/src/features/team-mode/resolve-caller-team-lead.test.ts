@@ -12,7 +12,7 @@ function makeSpec(overrides: Partial<TeamSpec> = {}): TeamSpec {
     createdAt: Date.now(),
     leadAgentId: "lead",
     members: [
-      { kind: "subagent_type", name: "lead", subagent_type: "sisyphus", backendType: "in-process", isActive: true },
+      { kind: "subagent_type", name: "lead", subagent_type: "orchestrator", backendType: "in-process", isActive: true },
       { kind: "category", name: "worker", category: "quick", prompt: "do work", backendType: "in-process", isActive: true },
     ],
     ...overrides,
@@ -20,49 +20,37 @@ function makeSpec(overrides: Partial<TeamSpec> = {}): TeamSpec {
 }
 
 describe("resolveCallerTeamLead", () => {
-  test("returns an eligible sisyphus lead for the plain display name", () => {
+  test("returns an eligible orchestrator lead for the plain display name", () => {
     // given
-    const rawAgentName = "Sisyphus"
+    const rawAgentName = "Orchestrator"
 
     // when
     const result = resolveCallerTeamLead(rawAgentName)
 
     // then
-    expect(result).toEqual({
-      agentTypeId: "sisyphus",
-      displayName: "Sisyphus",
-      isEligibleForTeamLead: true,
-    })
+    expect(result).toEqual({ displayName: "Orchestrator", isEligibleForTeamLead: false })
   })
 
-  test("returns an eligible sisyphus lead for the suffixed display name", () => {
+  test("returns an eligible orchestrator lead for the suffixed display name", () => {
     // given
-    const rawAgentName = "Sisyphus - Ultraworker"
+    const rawAgentName = "Orchestrator"
 
     // when
     const result = resolveCallerTeamLead(rawAgentName)
 
     // then
-    expect(result).toEqual({
-      agentTypeId: "sisyphus",
-      displayName: "Sisyphus - ultraworker",
-      isEligibleForTeamLead: true,
-    })
+    expect(result).toEqual({ displayName: "Orchestrator", isEligibleForTeamLead: false })
   })
 
   test("strips visible ordering prefixes before resolving the caller lead", () => {
     // given
-    const rawAgentName = "00|Sisyphus"
+    const rawAgentName = "00|Orchestrator"
 
     // when
     const result = resolveCallerTeamLead(rawAgentName)
 
     // then
-    expect(result).toEqual({
-      agentTypeId: "sisyphus",
-      displayName: "Sisyphus",
-      isEligibleForTeamLead: true,
-    })
+    expect(result).toEqual({ displayName: "Orchestrator", isEligibleForTeamLead: false })
   })
 
   test("returns not eligible when the caller agent is undefined", () => {
@@ -78,14 +66,14 @@ describe("resolveCallerTeamLead", () => {
 
   test("returns not eligible for read-only agents", () => {
     // given
-    const rawAgentName = "Oracle"
+    const rawAgentName = "librarian"
 
     // when
     const result = resolveCallerTeamLead(rawAgentName)
 
     // then
     expect(result).toEqual({
-      displayName: "Oracle",
+      displayName: "librarian",
       isEligibleForTeamLead: false,
     })
   })
@@ -97,7 +85,7 @@ describe("shouldReuseCallerLeadSession", () => {
     const spec = makeSpec({ leadAgentId: "lead" })
 
     // when
-    const result = shouldReuseCallerLeadSession(spec, "sisyphus")
+    const result = shouldReuseCallerLeadSession(spec, "orchestrator")
 
     // then
     expect(result).toBe(true)
@@ -114,7 +102,7 @@ describe("shouldReuseCallerLeadSession", () => {
     })
 
     // when
-    const result = shouldReuseCallerLeadSession(spec, "sisyphus")
+    const result = shouldReuseCallerLeadSession(spec, "orchestrator")
 
     // then
     expect(result).toBe(true)
@@ -125,12 +113,12 @@ describe("shouldReuseCallerLeadSession", () => {
     const spec = makeSpec({
       leadAgentId: "lead",
       members: [
-        { kind: "subagent_type", name: "lead", subagent_type: "atlas", backendType: "in-process", isActive: true },
+        { kind: "subagent_type", name: "lead", subagent_type: "approver", backendType: "in-process", isActive: true },
       ],
     })
 
     // when
-    const result = shouldReuseCallerLeadSession(spec, "sisyphus")
+    const result = shouldReuseCallerLeadSession(spec, "orchestrator")
 
     // then
     expect(result).toBe(true)
@@ -152,7 +140,7 @@ describe("shouldReuseCallerLeadSession", () => {
     const spec = makeSpec({ leadAgentId: undefined })
 
     // when
-    const result = shouldReuseCallerLeadSession(spec, "sisyphus")
+    const result = shouldReuseCallerLeadSession(spec, "orchestrator")
 
     // then
     expect(result).toBe(false)

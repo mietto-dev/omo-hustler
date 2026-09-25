@@ -1,13 +1,17 @@
 import type { ALLOWED_AGENTS } from "./constants"
+import type { DelegationLineage } from "../../features/background-agent/delegation-policy"
 
 export type AllowedAgentType = (typeof ALLOWED_AGENTS)[number]
+export type LibrarianMode = "repository" | "external"
 
 export interface CallOmoAgentArgs {
   description: string
   prompt: string
   subagent_type: string
+  mode?: LibrarianMode
   run_in_background: boolean
   session_id?: string
+  delegationLineage?: DelegationLineage
 }
 
 export interface CallOmoAgentSyncResult {

@@ -47,72 +47,72 @@ describe("OpenCode Agent.list() sort with runtime display names", () => {
 
   describe("#given the four core agents and a mix of non-core agents", () => {
     test("#when sorted using OpenCode-style ordering #then core agents come first in canonical order", () => {
-      const sisyphus = getAgentListDisplayName("sisyphus")
-      const hephaestus = getAgentListDisplayName("hephaestus")
-      const prometheus = getAgentListDisplayName("prometheus")
-      const atlas = getAgentListDisplayName("atlas")
+      const orchestrator = getAgentListDisplayName("orchestrator")
+      const developer = getAgentListDisplayName("developer")
+      const planner = getAgentListDisplayName("planner")
+      const approver = getAgentListDisplayName("approver")
 
       const allAgents = [
-        sisyphus,
-        hephaestus,
-        prometheus,
-        atlas,
+        orchestrator,
+        developer,
+        planner,
+        approver,
         "athena",
-        "explore",
+        "librarian",
         "metis",
-        "oracle",
+        "architect",
       ]
 
-      const sorted = simulateOpencodeSort(allAgents, sisyphus)
+      const sorted = simulateOpencodeSort(allAgents, orchestrator)
       const orderedConfigKeys = sorted.map((name) => normalizeAgentForPromptKey(name))
 
       expect(orderedConfigKeys).toEqual([
-        "sisyphus",
-        "hephaestus",
-        "prometheus",
-        "atlas",
+        "orchestrator",
+        "developer",
+        "planner",
+        "approver",
+        "librarian",
+        "architect",
         "athena",
-        "explore",
         "metis",
-        "oracle",
       ])
     })
 
     test("#when default_agent is unset #then canonical core order still holds via the sort shim", () => {
-      const sisyphus = getAgentListDisplayName("sisyphus")
-      const hephaestus = getAgentListDisplayName("hephaestus")
-      const prometheus = getAgentListDisplayName("prometheus")
-      const atlas = getAgentListDisplayName("atlas")
+      const orchestrator = getAgentListDisplayName("orchestrator")
+      const developer = getAgentListDisplayName("developer")
+      const planner = getAgentListDisplayName("planner")
+      const approver = getAgentListDisplayName("approver")
 
-      const allAgents = [hephaestus, prometheus, atlas, sisyphus, "athena", "oracle"]
+      const allAgents = [developer, planner, approver, orchestrator, "athena", "architect"]
 
       const sorted = simulateOpencodeSort(allAgents, "no-such-default-agent")
       const orderedConfigKeys = sorted.map((name) => normalizeAgentForPromptKey(name))
 
       expect(orderedConfigKeys.slice(0, 4)).toEqual([
-        "sisyphus",
-        "hephaestus",
-        "prometheus",
-        "atlas",
+        "orchestrator",
+        "developer",
+        "planner",
+        "approver",
       ])
     })
   })
 
   describe("#given runtime names containing only core agents", () => {
-    test("#when sorted #then sisyphus, hephaestus, prometheus, atlas in that order", () => {
-      const sisyphus = getAgentListDisplayName("sisyphus")
-      const hephaestus = getAgentListDisplayName("hephaestus")
-      const prometheus = getAgentListDisplayName("prometheus")
-      const atlas = getAgentListDisplayName("atlas")
+    test("#when sorted #then orchestrator, developer, planner, approver in that order", () => {
+      const orchestrator = getAgentListDisplayName("orchestrator")
+      const developer = getAgentListDisplayName("developer")
+      const planner = getAgentListDisplayName("planner")
+      const approver = getAgentListDisplayName("approver")
 
-      const sorted = simulateOpencodeSort([atlas, prometheus, hephaestus, sisyphus], sisyphus)
+      const sorted = simulateOpencodeSort([approver, planner, developer, orchestrator], orchestrator)
       const orderedConfigKeys = sorted.map((name) => normalizeAgentForPromptKey(name))
 
       expect(orderedConfigKeys).toEqual([
-        "sisyphus",
-        "hephaestus",
-        "prometheus",
-        "atlas",
+        "orchestrator",
+        "developer",
+        "planner",
+        "approver",
       ])
     })
   })

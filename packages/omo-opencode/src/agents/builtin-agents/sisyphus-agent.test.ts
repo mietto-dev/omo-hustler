@@ -10,7 +10,7 @@ describe("maybeCreateSisyphusConfig", () => {
     test("#when config is created #then user override is respected", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        sisyphus: {
+        orchestrator: {
           model: "openai/gpt-5.4",
           permission: {
             apply_patch: "allow",
@@ -44,7 +44,7 @@ describe("maybeCreateSisyphusConfig", () => {
     test("#when config is created #then apply_patch is not forced to deny", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        sisyphus: {
+        orchestrator: {
           model: "anthropic/claude-opus-4-7",
           permission: {
             apply_patch: "allow",
@@ -79,7 +79,7 @@ describe("maybeCreateSisyphusConfig", () => {
     test("#when config is created #then grep and glob are still denied", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        sisyphus: {
+        orchestrator: {
           model: "anthropic/claude-opus-4-7",
           permission: {
             grep: "allow",
@@ -113,7 +113,7 @@ describe("maybeCreateSisyphusConfig", () => {
     test("#when config is created #then grep and glob are still denied", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        sisyphus: {
+        orchestrator: {
           model: "anthropic/claude-opus-4.7",
           permission: {
             grep: "allow",
@@ -147,7 +147,7 @@ describe("maybeCreateSisyphusConfig", () => {
     test("#when config is created #then grep and glob are still denied", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        sisyphus: {
+        orchestrator: {
           model: "openai/gpt-5.5",
           permission: {
             grep: "allow",
@@ -181,7 +181,7 @@ describe("maybeCreateSisyphusConfig", () => {
     test("#when config is created #then stale grep and glob denies are cleared", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        sisyphus: {
+        orchestrator: {
           category: "non-frontier",
         },
       };
@@ -216,7 +216,7 @@ describe("maybeCreateSisyphusConfig", () => {
     test("#when config is created #then explicit user denies are preserved", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        sisyphus: {
+        orchestrator: {
           model: "openai/gpt-5.4",
           permission: {
             grep: "deny",
@@ -257,7 +257,7 @@ describe("maybeCreateSisyphusConfig", () => {
         },
       };
       const agentOverrides: AgentOverrides = {
-        sisyphus: legacyOverride,
+        orchestrator: legacyOverride,
       };
       const mergedCategories: Record<string, CategoryConfig> = {};
 
@@ -285,7 +285,7 @@ describe("maybeCreateSisyphusConfig", () => {
     test("#when config is created #then user override is respected", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        sisyphus: {
+        orchestrator: {
           model: "openai/gpt-4o",
           permission: {
             apply_patch: "allow",

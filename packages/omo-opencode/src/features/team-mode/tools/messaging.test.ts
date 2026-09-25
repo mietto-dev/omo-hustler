@@ -1077,13 +1077,13 @@ describe("createTeamSendMessageTool", () => {
 
   test("live delivery uses the registered agent alias when the runtime stores a config-key agent name", async () => {
     // given
-    registerAgentName("\u200B\u200B\u200B\u200BAtlas - Plan Executor")
+    registerAgentName("Approver")
     const fixture = await createTeamFixture()
     const { loadRuntimeState: loadState, saveRuntimeState: saveState } = await import("../team-state-store/store")
     const state = await loadState(fixture.teamRunId, fixture.config)
     const memberTwo = state.members.find((member) => member.name === "m2")
     if (!memberTwo) throw new Error("m2 runtime member missing")
-    memberTwo.subagent_type = "atlas"
+    memberTwo.subagent_type = "approver"
     await saveState(state, fixture.config)
 
     const { client, calls } = createRecordingClient()
@@ -1098,7 +1098,7 @@ describe("createTeamSendMessageTool", () => {
 
     // then
     expect(calls).toHaveLength(1)
-    expect(calls[0]?.agent).toBe("\u200B\u200B\u200B\u200BAtlas - Plan Executor")
+    expect(calls[0]?.agent).toBe("Approver")
   })
 
   test("live delivery reapplies category routing and advanced model params for category members", async () => {

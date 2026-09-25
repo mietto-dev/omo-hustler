@@ -1,17 +1,10 @@
 import type { OhMyOpenCodeConfig } from "../config";
 import { getAgentDisplayName, getAgentListDisplayName } from "../shared/agent-display-names";
 import { isTaskSystemEnabled } from "../shared";
+import { projectAgentPermissions } from "../shared/agent-tool-restrictions";
+import type { PermissionValue } from "../shared/permission-compat";
 
 type AgentWithPermission = { permission?: Record<string, unknown> };
-
-const TASK_DENIED_SUBAGENT_KEYS = [
-  "librarian",
-  "explore",
-  "oracle",
-  "multimodal-looker",
-  "metis",
-  "momus",
-] as const;
 
 function getConfigQuestionPermission(): string | null {
   const configContent = process.env.OPENCODE_CONFIG_CONTENT;
@@ -33,16 +26,6 @@ function agentByKey(
   return (agentResult[getAgentListDisplayName(key, pluginConfig?.agents)] ?? agentResult[getAgentDisplayName(key, pluginConfig?.agents)] ?? agentResult[key]) as
     | AgentWithPermission
     | undefined;
-}
-
-function denyTaskForAgent(
-  agentResult: Record<string, unknown>,
-  key: string,
-  pluginConfig: OhMyOpenCodeConfig,
-): void {
-  const agent = agentByKey(agentResult, key, pluginConfig);
-  if (!agent) return;
-  agent.permission = { ...agent.permission, task: "deny" };
 }
 
 export function applyToolConfig(params: {
@@ -83,74 +66,24 @@ export function applyToolConfig(params: {
     isCliRunMode ? "deny" :
     "allow";
 
-  for (const agentKey of TASK_DENIED_SUBAGENT_KEYS) {
-    denyTaskForAgent(params.agentResult, agentKey, params.pluginConfig);
-  }
-
-  const librarian = agentByKey(params.agentResult, "librarian", params.pluginConfig);
-  if (librarian) {
-    librarian.permission = { ...librarian.permission, "grep_app_*": "allow" };
-  }
-  const looker = agentByKey(params.agentResult, "multimodal-looker", params.pluginConfig);
-  if (looker) {
-    looker.permission = { ...looker.permission, task: "deny", look_at: "deny" };
-  }
-  const atlas = agentByKey(params.agentResult, "atlas", params.pluginConfig);
-  if (atlas) {
-    atlas.permission = {
-      task: "allow",
-      ...atlas.permission,
-      call_omo_agent: "deny",
-      "task_*": "allow",
-      teammate: "allow",
-      ...denyTodoTools,
-    };
-  }
-  const sisyphus = agentByKey(params.agentResult, "sisyphus", params.pluginConfig);
-  if (sisyphus) {
-    sisyphus.permission = {
-      task: "allow",
-      ...sisyphus.permission,
-      call_omo_agent: "deny",
-      question: questionPermission,
-      "task_*": "allow",
-      teammate: "allow",
-      ...denyTodoTools,
-    };
-  }
-  const hephaestus = agentByKey(params.agentResult, "hephaestus", params.pluginConfig);
-  if (hephaestus) {
-    hephaestus.permission = {
-      task: "allow",
-      ...hephaestus.permission,
-      call_omo_agent: "deny",
-      question: questionPermission,
-      teammate: "allow",
-      ...denyTodoTools,
-    };
-  }
-  const prometheus = agentByKey(params.agentResult, "prometheus", params.pluginConfig);
-  if (prometheus) {
-    prometheus.permission = {
-      task: "allow",
-      ...prometheus.permission,
-      call_omo_agent: "deny",
-      question: questionPermission,
-      "task_*": "allow",
-      teammate: "allow",
-      ...denyTodoTools,
-      bash: "deny",
-      interactive_bash: "deny",
-    };
-  }
-  const junior = agentByKey(params.agentResult, "sisyphus-junior", params.pluginConfig);
-  if (junior) {
-    junior.permission = {
-      ...junior.permission,
-      "task_*": "allow",
-      teammate: "allow",
-      ...denyTodoTools,
-    };
+  const roleNames = ["orchestrator", "planner", "developer", "tester", "approver", "librarian", "architect"] as const;
+  for (const roleName of roleNames) {
+    const agent = agentByKey(params.agentResult, roleName, params.pluginConfig);
+    if (!agent) continue;
+    const existingPermission: Record<string, PermissionValue> = {};
+    for (const [tool, value] of Object.entries(agent.permission ?? {})) {
+      if (value === "ask" || value === "allow" || value === "deny") {
+        existingPermission[tool] = value;
+      }
+    }
+    const permission = projectAgentPermissions(roleName, existingPermission);
+    if (roleName === "orchestrator" || roleName === "developer" || roleName === "planner") {
+      permission.question = questionPermission;
+    }
+    for (const [tool, value] of Object.entries(denyTodoTools)) {
+      permission[tool] = value === "deny" ? "deny" : "allow";
+    }
+    agent.permission = permission;
   }
 
   params.config.permission = {

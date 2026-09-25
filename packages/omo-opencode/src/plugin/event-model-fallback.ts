@@ -22,9 +22,10 @@ import {
   type FallbackContinuationContext,
 } from "./event-model-fallback-state";
 import type { PluginEventContext } from "./event-types";
+import { normalizeAgentName } from "../hooks/runtime-fallback/agent-resolver";
 
 function resolveSisyphusMissingMetadataCurrentModelID(): string {
-  const firstFallback = AGENT_MODEL_REQUIREMENTS["sisyphus"].fallbackChain[0];
+  const firstFallback = AGENT_MODEL_REQUIREMENTS["orchestrator"].fallbackChain[0];
   if (!firstFallback) {
     throw new Error("Sisyphus fallback chain must define a first fallback model");
   }
@@ -127,7 +128,7 @@ export function createModelFallbackEventHandler(args: {
     if (!shouldRetryError({ name: errorName, message: errorMessage })) return false;
 
     const agentName = resolveFallbackAgentName({
-      currentAgent: params.agent ?? getSessionAgent(params.sessionID),
+      currentAgent: normalizeAgentName(params.agent ?? getSessionAgent(params.sessionID)),
       sessionID: params.sessionID,
       mainSessionID: getMainSessionID(),
       message: errorMessage,
@@ -171,7 +172,7 @@ export function createModelFallbackEventHandler(args: {
     if (!shouldRetryError({ name: undefined, message: retryMessage })) return false;
 
     const agentName = resolveFallbackAgentName({
-      currentAgent: getSessionAgent(params.sessionID),
+      currentAgent: normalizeAgentName(getSessionAgent(params.sessionID)),
       sessionID: params.sessionID,
       mainSessionID: getMainSessionID(),
       message: retryMessage,
@@ -208,7 +209,7 @@ export function createModelFallbackEventHandler(args: {
     if (!shouldHandleModelFallback() || !shouldRetryError({ name: params.errorName, message: params.errorMessage })) return;
 
     const agentName = resolveFallbackAgentName({
-      currentAgent: getSessionAgent(params.sessionID),
+      currentAgent: normalizeAgentName(getSessionAgent(params.sessionID)),
       sessionID: params.sessionID,
       mainSessionID: getMainSessionID(),
       message: params.errorMessage,

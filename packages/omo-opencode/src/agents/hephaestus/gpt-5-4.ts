@@ -31,7 +31,6 @@ import type {
 import {
   buildKeyTriggersSection,
   buildToolSelectionTable,
-  buildExploreSection,
   buildLibrarianSection,
   buildCategorySkillsDelegationGuide,
   buildDelegationTable,
@@ -95,14 +94,14 @@ export function buildHephaestusPrompt(
     availableTools,
     availableSkills,
   );
-  const exploreSection = buildExploreSection(availableAgents);
+  const exploreSection = buildLibrarianSection(availableAgents, "repository");
   const librarianSection = buildLibrarianSection(availableAgents);
   const categorySkillsGuide = buildCategorySkillsDelegationGuide(
     availableCategories,
     availableSkills,
   );
   const delegationTable = buildDelegationTable(availableAgents);
-  const hasOracle = availableAgents.some((agent) => agent.name === "oracle");
+  const hasArchitect = availableAgents.some((agent) => agent.name === "architect");
   const hardBlocks = buildHardBlocksSection();
   const antiPatterns = buildAntiPatternsSection();
   const antiDuplication = buildAntiDuplicationSection();
@@ -258,7 +257,7 @@ ${antiPatterns}
 4. **Execute**: Surgical changes yourself, or provide exhaustive context in delegation prompts. Match existing patterns. Minimal diff. Search the codebase for similar patterns before writing code. Default to ASCII. Add comments only for non-obvious blocks. ${GPT_APPLY_PATCH_GUIDANCE}
 5. **Verify**: \`lsp_diagnostics\` on all modified files (zero errors) -> run related tests (\`foo.ts\` -> \`foo.test.ts\`) -> typecheck -> build if applicable (exit 0). Fix only issues your changes caused.
 
-If verification fails, return to step 1 with a materially different approach. After three attempts: stop, revert to last working state, document what you tried, consult Oracle. If Oracle cannot resolve, ask the user.
+If verification fails, return to step 1 with a materially different approach. After three attempts: stop, revert to last working state, document what you tried, consult Architect. If Architect cannot resolve, ask the user.
 
 While working, you may notice unexpected changes you did not make - likely from the user or autogeneration. If they directly conflict with your task, ask. Otherwise, focus on your task.
 
@@ -267,7 +266,7 @@ When you think you are done: re-read the original request. Check your intent cla
 </completion_check>
 
 <failure_recovery>
-Fix root causes, not symptoms. Re-verify after every attempt. If the first approach fails, try a materially different alternative (different algorithm, pattern, or library). After three different approaches fail: stop all edits, revert to last working state, document what you tried, consult Oracle. If Oracle cannot resolve, ask the user with a clear explanation.
+Fix root causes, not symptoms. Re-verify after every attempt. If the first approach fails, try a materially different alternative (different algorithm, pattern, or library). After three different approaches fail: stop all edits, revert to last working state, document what you tried, consult Architect. If Architect cannot resolve, ask the user with a clear explanation.
 
 Never leave code broken, delete failing tests, or make random changes hoping something works.
 </failure_recovery>
@@ -321,22 +320,22 @@ Every \`task()\` output includes a continuation ID (\`ses_...\`). Use it for all
 
 This preserves full context, avoids repeated exploration, saves 70%+ tokens.
 </session_continuity>
-${hasOracle ? `
+${hasArchitect ? `
 <oracle>
-Oracle is a read-only reasoning model, available as a last-resort escalation path when you are genuinely stuck.
+Architect is a read-only reasoning model, available as a last-resort escalation path when you are genuinely stuck.
 
-Consult Oracle only when:
+Consult Architect only when:
 - You have tried 2+ materially different approaches and all failed
 - You have documented what you tried and why each approach failed
 - The problem requires architectural insight beyond what codebase exploration provides
 
-Do not consult Oracle:
+Do not consult Architect:
 - Before attempting the fix yourself (try first, escalate later)
 - For questions answerable from code you have already read
 - For routine decisions, even complex ones you can reason through
 - On your first or second attempt at any task
 
-If you do consult Oracle, announce "Consulting Oracle for [reason]" before invocation. Collect Oracle results before your final answer. Do not implement Oracle-dependent changes until Oracle finishes - do only non-overlapping prep work while waiting. Oracle takes minutes; end your response and wait for the system notification. Never poll, never cancel Oracle.
+If you do consult Architect, announce "Consulting Architect for [reason]" before invocation. Collect Architect results before your final answer. Do not implement Architect-dependent changes until Architect finishes - do only non-overlapping prep work while waiting. Architect takes minutes; end your response and wait for the system notification. Never poll, never cancel Architect.
 </oracle>` : ""}
 </delegation>`;
 

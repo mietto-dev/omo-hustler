@@ -1,0 +1,62 @@
+name: hustler-package
+
+on:
+  pull_request:
+    paths:
+      - "packages/hustler/**"
+      - "packages/omo-opencode/**"
+      - "packages/*-core/**"
+      - "packages/lsp-daemon/**"
+      - "packages/lsp-tools-mcp/**"
+      - "packages/shared-skills/**"
+      - "package.json"
+      - "bun.lock"
+      - "script/build.ts"
+      - "script/build-cli-node.ts"
+      - "script/build-schema.ts"
+      - "script/build-schema-document.ts"
+      - "script/build-omo-schema.ts"
+      - "script/build-omo-schema-document.ts"
+      - "script/patch-node-require-shim.ts"
+      - "script/copy-shared-skills-assets.ts"
+      - "tsconfig.json"
+      - ".github/workflows/hustler-package.yml"
+  push:
+    branches: [dev]
+    paths:
+      - "packages/hustler/**"
+      - "packages/omo-opencode/**"
+      - "packages/*-core/**"
+      - "packages/lsp-daemon/**"
+      - "packages/lsp-tools-mcp/**"
+      - "packages/shared-skills/**"
+      - "package.json"
+      - "bun.lock"
+      - "script/build.ts"
+      - "script/build-cli-node.ts"
+      - "script/build-schema.ts"
+      - "script/build-schema-document.ts"
+      - "script/build-omo-schema.ts"
+      - "script/build-omo-schema-document.ts"
+      - "script/patch-node-require-shim.ts"
+      - "script/copy-shared-skills-assets.ts"
+      - "tsconfig.json"
+      - ".github/workflows/hustler-package.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - run: bun run typecheck
+      - run: bun run --cwd packages/hustler test
+      - run: bun test packages/hustler script/package-layout.test.ts script/package-layout-exclusion.test.ts packages/hustler/src/identity/identity-manifest.test.ts packages/omo-opencode/src/mcp/lsp.test.ts
+      - run: bun pm pack --dry-run --ignore-scripts

@@ -1,6 +1,6 @@
 import type { SisyphusAgentConfig } from "../../config/schema"
 import { stripInvisibleAgentCharacters } from "../../shared/agent-display-names"
-import { getAgentToolRestrictions } from "../../shared/agent-tool-restrictions"
+import { buildAgentPromptTools } from "../../shared/agent-tool-restrictions"
 import { createInternalAgentTextPart } from "../../shared/internal-initiator-marker"
 import {
   promptWithModelSuggestionRetry,
@@ -40,8 +40,8 @@ function buildPromptGenerationParams(model: DelegatedModelConfig | undefined): R
   }
 }
 
-function isOracleAgent(agentToUse: string): boolean {
-  return stripInvisibleAgentCharacters(agentToUse).toLowerCase() === "oracle"
+function isArchitectAgent(agentToUse: string): boolean {
+  return stripInvisibleAgentCharacters(agentToUse).toLowerCase() === "architect"
 }
 
 function isUnexpectedEofError(error: unknown): boolean {
@@ -60,13 +60,12 @@ export function buildSyncPromptTools(
       if (value === "deny") userDenied[tool] = false
     }
   }
-  return {
-    task: isPlanFamily(agentToUse),
-    call_omo_agent: true,
-    question: false,
-    ...userDenied,
-    ...getAgentToolRestrictions(agentToUse),
-  }
+  return buildAgentPromptTools(agentToUse, {
+    taskAllowed: isPlanFamily(agentToUse),
+    userPermission: Object.fromEntries(
+      Object.entries(userDenied).map(([tool, allowed]) => [tool, allowed ? "allow" : "deny"]),
+    ),
+  })
 }
 
 export async function sendSyncPrompt(
@@ -106,6 +105,7 @@ export async function sendSyncPrompt(
       agent: stripInvisibleAgentCharacters(input.agentToUse),
       system: input.systemContent,
       tools,
+      ...(input.args.workflow_contract ? { metadata: { workflowContract: input.args.workflow_contract } } : {}),
       parts: [createInternalAgentTextPart(effectivePrompt)],
       ...(input.categoryModel
         ? {
@@ -127,7 +127,7 @@ export async function sendSyncPrompt(
       checkToolState: false,
     })
   } catch (promptError) {
-    if (isOracleAgent(input.agentToUse) && isUnexpectedEofError(promptError)) {
+    if (isArchitectAgent(input.agentToUse) && isUnexpectedEofError(promptError)) {
       return null
     }
 

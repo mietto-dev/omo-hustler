@@ -25,7 +25,7 @@ describe("Hephaestus OpenAI GPT-5.6 fast aliases", () => {
   test("preserves the configured reasoning variant", () => {
     const model = "openai/gpt-5.6-sol-fast";
     const agentOverrides: AgentOverrides = {
-      hephaestus: { model, variant: "xhigh" },
+      developer: { model, variant: "xhigh" },
     };
 
     const config = maybeCreateHephaestusConfig({

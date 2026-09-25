@@ -2,7 +2,9 @@
 
 import { describe, expect, it } from "bun:test"
 import {
+  buildArchitectSection,
   buildCategorySkillsDelegationGuide,
+  buildLibrarianSection,
   buildNonClaudePlannerSection,
   buildParallelDelegationSection,
   buildUltraworkSection,
@@ -10,6 +12,49 @@ import {
   type AvailableCategory,
   type AvailableSkill,
 } from "./dynamic-agent-prompt-builder"
+
+const specialistAgents: AvailableAgent[] = [
+  {
+    name: "librarian",
+    description: "Librarian",
+    metadata: {
+      category: "exploration",
+      cost: "CHEAP",
+      triggers: [],
+      useWhen: ["SENTINEL_LIBRARIAN_TRIGGER"],
+    },
+  },
+  {
+    name: "architect",
+    description: "Architect",
+    metadata: {
+      category: "advisor",
+      cost: "EXPENSIVE",
+      triggers: [],
+      useWhen: ["SENTINEL_ARCHITECT_TRIGGER"],
+      avoidWhen: ["SENTINEL_ARCHITECT_AVOID"],
+    },
+  },
+]
+
+describe("canonical specialist prompt sections", () => {
+  it("renders repository and external Librarian modes from one builder", () => {
+    const repository = buildLibrarianSection(specialistAgents, "repository")
+    const external = buildLibrarianSection(specialistAgents, "external")
+
+    expect(repository).toContain("repository")
+    expect(repository).toContain("SENTINEL_LIBRARIAN_TRIGGER")
+    expect(external).toContain("external")
+    expect(external).toContain("SENTINEL_LIBRARIAN_TRIGGER")
+  })
+
+  it("builds Architect metadata without the legacy Oracle builder identity", () => {
+    const section = buildArchitectSection(specialistAgents)
+
+    expect(section).toContain("SENTINEL_ARCHITECT_TRIGGER")
+    expect(section).toContain("SENTINEL_ARCHITECT_AVOID")
+  })
+})
 
 describe("buildCategorySkillsDelegationGuide", () => {
   it("returns empty output only when both inputs are empty", () => {

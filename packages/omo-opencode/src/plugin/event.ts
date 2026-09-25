@@ -23,6 +23,7 @@ import {
 } from "./event-session-lifecycle";
 import { createEventTeamHandlers } from "./event-team-handlers";
 import type { EventInput, FirstMessageVariantGate, PluginEventContext } from "./event-types";
+import type { HustlerEventLifecycle } from "../features/hustler/event-lifecycle";
 
 export { extractErrorMessage } from "./event-error-utils";
 
@@ -32,8 +33,9 @@ export function createEventHandler(args: {
   firstMessageVariantGate: FirstMessageVariantGate;
   managers: Managers;
   hooks: CreatedHooks;
+  hustlerLifecycle?: HustlerEventLifecycle;
 }): (input: EventInput) => Promise<void> {
-  const { ctx, pluginConfig, firstMessageVariantGate, managers, hooks } = args;
+  const { ctx, pluginConfig, firstMessageVariantGate, managers, hooks, hustlerLifecycle } = args;
   const tmuxIntegrationEnabled = pluginConfig.tmux?.enabled ?? false;
   const pluginContext = ctx as PluginEventContext;
   const isRuntimeFallbackEnabled =
@@ -209,7 +211,10 @@ export function createEventHandler(args: {
       const status = props?.status as { type?: string; attempt?: number; message?: string; next?: number } | undefined;
       if (sessionID) {
         try {
-          if (await modelFallbackHandler.handleSessionStatus({ sessionID, status })) return;
+          if (await modelFallbackHandler.handleSessionStatus({ sessionID, status })) {
+            hustlerLifecycle?.event(event);
+            return;
+          }
         } catch (err) {
           log("[event] model-fallback error in session.status:", {
             sessionID,
@@ -238,5 +243,7 @@ export function createEventHandler(args: {
 
       await runEventHookSafely("teamMemberErrorHandler", teamHandlers.teamMemberErrorHandler, input);
     }
+
+    hustlerLifecycle?.event(event);
   };
 }

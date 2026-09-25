@@ -79,11 +79,11 @@ async function hasActiveBoulderContinuation(
     return false
   }
 
-  const requiredAgentKey = getAgentConfigKey(boulder.agent ?? "atlas")
+  const requiredAgentKey = getAgentConfigKey(boulder.agent ?? "approver")
   const sessionAgentKey = getAgentConfigKey(sessionAgent)
   if (
     sessionAgentKey !== requiredAgentKey
-    && !(requiredAgentKey === getAgentConfigKey("atlas") && sessionAgentKey === getAgentConfigKey("sisyphus"))
+    && !(requiredAgentKey === getAgentConfigKey("approver") && sessionAgentKey === getAgentConfigKey("orchestrator"))
   ) {
     return false
   }

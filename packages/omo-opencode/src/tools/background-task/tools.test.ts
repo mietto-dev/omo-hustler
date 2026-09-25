@@ -62,7 +62,7 @@ describe("background_output full_session", () => {
 
     const task = createTask({
       id: "task-1",
-      agent: "explore",
+      agent: "librarian",
       description: "Find how task output is rendered",
       status: "running",
     })
@@ -79,16 +79,16 @@ describe("background_output full_session", () => {
 
     // #then
     const restored = consumeToolMetadata("test-session", "call-1")
-    expect(restored?.title).toBe("explore - Find how task output is rendered")
+    expect(restored?.title).toBe("librarian - Find how task output is rendered")
   })
 
-  test("shows category instead of agent for sisyphus-junior", async () => {
+  test("shows the canonical agent for developer", async () => {
     // #given
     clearPendingStore()
 
     const task = createTask({
       id: "task-1",
-      agent: "Sisyphus-Junior",
+      agent: "developer",
       category: "quick",
       description: "Fix flaky test",
       status: "running",
@@ -106,7 +106,7 @@ describe("background_output full_session", () => {
 
     // #then
     const restored = consumeToolMetadata("test-session", "call-1")
-    expect(restored?.title).toBe("quick - Fix flaky test")
+    expect(restored?.title).toBe("developer - Fix flaky test")
   })
 
   test("includes thinking and tool results when enabled", async () => {

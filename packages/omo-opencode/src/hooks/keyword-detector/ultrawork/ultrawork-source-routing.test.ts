@@ -38,7 +38,7 @@ const ULTRAWORK_ROUTING_BASELINES: readonly UltraworkRoutingBaseline[] = [
   },
   {
     name: "planner",
-    agentName: "prometheus",
+    agentName: "planner",
     modelID: "gpt-5.5",
     expectedSource: "planner",
   },

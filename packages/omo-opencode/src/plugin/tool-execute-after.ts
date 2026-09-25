@@ -2,6 +2,7 @@ import { recoverToolMetadata } from "../features/tool-metadata-store"
 import type { CreatedHooks } from "../create-hooks"
 import { log as defaultLog } from "../shared/logger"
 import type { PluginContext } from "./types"
+import type { HustlerEventLifecycle } from "../features/hustler/event-lifecycle"
 
 const METADATA_LINKED_TOOLS = new Set([
   "background_output",
@@ -42,12 +43,13 @@ function expectsRecoverableMetadata(tool: string): boolean {
 export function createToolExecuteAfterHandler(args: {
   ctx: PluginContext
   hooks: CreatedHooks
+  hustlerLifecycle?: HustlerEventLifecycle
   log?: typeof defaultLog
 }): (
   input: ToolExecuteAfterInput,
   output: ToolExecuteAfterOutput | undefined,
 ) => Promise<void> {
-  const { hooks } = args
+  const { hooks, hustlerLifecycle } = args
   const log = args.log ?? defaultLog
 
   // OpenCode injects tool call ids into execute() context and after-hook input via undocumented runtime fields.
@@ -151,5 +153,7 @@ export function createToolExecuteAfterHandler(args: {
         error,
       })
     }
+
+    hustlerLifecycle?.toolResult({ tool: input.tool, sessionID: input.sessionID, callID: hookInput.callID, output })
   }
 }

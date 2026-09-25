@@ -1,18 +1,14 @@
 import type { AgentConfig } from "@opencode-ai/sdk"
 import type { BuiltinAgentName, AgentOverrides, AgentFactory, AgentPromptMetadata } from "./types"
-import type { CategoriesConfig, GitMasterConfig } from "../config/schema"
+import type { CategoriesConfig, CategoryConfig, GitMasterConfig } from "../config/schema"
 import type { LoadedSkill } from "../features/opencode-skill-loader/types"
 import type { BrowserAutomationProvider } from "../config/schema"
 import { createSisyphusAgent } from "./sisyphus"
-import { createOracleAgent, ORACLE_PROMPT_METADATA } from "./oracle"
-import { createLibrarianAgent, LIBRARIAN_PROMPT_METADATA } from "./librarian"
-import { createExploreAgent, EXPLORE_PROMPT_METADATA } from "./explore"
-import { createMultimodalLookerAgent, MULTIMODAL_LOOKER_PROMPT_METADATA } from "./multimodal-looker"
-import { createMetisAgent, metisPromptMetadata } from "./metis"
+import { createOracleAgent } from "./oracle"
+import { createLibrarianAgent } from "./librarian"
 import { createAtlasAgent, atlasPromptMetadata } from "./atlas"
-import { createMomusAgent, momusPromptMetadata } from "./momus"
+import { createMomusAgent } from "./momus"
 import { createHephaestusAgent } from "./hephaestus"
-import { createSisyphusJuniorAgentWithOverrides } from "./sisyphus-junior"
 import type { AvailableCategory } from "./dynamic-agent-prompt-builder"
 import {
   fetchAvailableModels,
@@ -26,22 +22,21 @@ import { collectPendingBuiltinAgents } from "./builtin-agents/general-agents"
 import { maybeCreateSisyphusConfig } from "./builtin-agents/sisyphus-agent"
 import { maybeCreateHephaestusConfig } from "./builtin-agents/hephaestus-agent"
 import { maybeCreateAtlasConfig } from "./builtin-agents/atlas-agent"
+import { HUSTLER_ROLE_FACTORIES, sanitizeHustlerPrompt } from "../features/hustler/roles"
+import { HUSTLER_ROLES, type HustlerRole } from "../features/hustler/role-constants"
 
 type AgentSource = AgentFactory | AgentConfig
 
-const agentSources: Record<BuiltinAgentName, AgentSource> = {
-  sisyphus: createSisyphusAgent,
-  hephaestus: createHephaestusAgent,
-  oracle: createOracleAgent,
+const createTesterAgent: AgentFactory = (model) => createMomusAgent(model)
+createTesterAgent.mode = "subagent"
+
+const createArchitectAgent: AgentFactory = (model) => createOracleAgent(model)
+createArchitectAgent.mode = "subagent"
+
+const agentSources: Partial<Record<BuiltinAgentName, AgentSource>> = {
+  architect: createArchitectAgent,
   librarian: createLibrarianAgent,
-  explore: createExploreAgent,
-  "multimodal-looker": createMultimodalLookerAgent,
-  metis: createMetisAgent,
-  momus: createMomusAgent,
-  // Note: Atlas is handled specially in createBuiltinAgents()
-  // because it needs OrchestratorContext, not just a model string
-  atlas: createAtlasAgent as AgentFactory,
-  "sisyphus-junior": createSisyphusJuniorAgentWithOverrides as AgentFactory,
+  tester: createTesterAgent,
 }
 
 /**
@@ -49,13 +44,18 @@ const agentSources: Record<BuiltinAgentName, AgentSource> = {
  * (Delegation Table, Tool Selection, Key Triggers, etc.)
  */
 const agentMetadata: Partial<Record<BuiltinAgentName, AgentPromptMetadata>> = {
-  oracle: ORACLE_PROMPT_METADATA,
-  librarian: LIBRARIAN_PROMPT_METADATA,
-  explore: EXPLORE_PROMPT_METADATA,
-  "multimodal-looker": MULTIMODAL_LOOKER_PROMPT_METADATA,
-  metis: metisPromptMetadata,
-  momus: momusPromptMetadata,
-  atlas: atlasPromptMetadata,
+  ...Object.fromEntries(
+    HUSTLER_ROLES.map((role) => [role, HUSTLER_ROLE_FACTORIES[role]("hustler/metadata").metadata.promptMetadata]),
+  ),
+}
+
+function applyHustlerRoleIdentity(
+  config: AgentConfig,
+): AgentConfig {
+  return {
+    ...config,
+    prompt: sanitizeHustlerPrompt(config.prompt),
+  }
 }
 
 export async function createBuiltinAgents(
@@ -74,6 +74,8 @@ export async function createBuiltinAgents(
   disableOmoEnv = false,
   teamModeEnabled = false,
 ): Promise<Record<string, AgentConfig>> {
+
+  const normalizedDisabledAgents = disabledAgents.map((agent) => agent.toLowerCase())
 
   const connectedProviders = readConnectedProvidersCache()
   const providerModelsConnected = connectedProviders
@@ -104,7 +106,7 @@ export async function createBuiltinAgents(
   const { pendingAgentConfigs, availableAgents } = collectPendingBuiltinAgents({
     agentSources,
     agentMetadata,
-    disabledAgents,
+    disabledAgents: normalizedDisabledAgents,
     agentOverrides,
     directory,
     systemDefaultModel,
@@ -120,14 +122,14 @@ export async function createBuiltinAgents(
   })
 
   const sisyphusConfig = maybeCreateSisyphusConfig({
-    disabledAgents,
+    disabledAgents: normalizedDisabledAgents,
     agentOverrides,
     uiSelectedModel,
     availableModels,
     systemDefaultModel,
     isFirstRunNoCache,
     availableAgents,
-    availableSkills: buildAvailableSkills(discoveredSkills, browserProvider, disabledSkills, teamModeEnabled, "sisyphus"),
+    availableSkills: buildAvailableSkills(discoveredSkills, browserProvider, disabledSkills, teamModeEnabled, "orchestrator"),
     availableCategories,
     mergedCategories,
     directory,
@@ -136,17 +138,17 @@ export async function createBuiltinAgents(
     disableOmoEnv,
   })
   if (sisyphusConfig) {
-    result["sisyphus"] = sisyphusConfig
+    result["orchestrator"] = sisyphusConfig
   }
 
   const hephaestusConfig = maybeCreateHephaestusConfig({
-    disabledAgents,
+    disabledAgents: normalizedDisabledAgents,
     agentOverrides,
     availableModels,
     systemDefaultModel,
     isFirstRunNoCache,
     availableAgents,
-    availableSkills: buildAvailableSkills(discoveredSkills, browserProvider, disabledSkills, teamModeEnabled, "hephaestus"),
+    availableSkills: buildAvailableSkills(discoveredSkills, browserProvider, disabledSkills, teamModeEnabled, "developer"),
     availableCategories,
     mergedCategories,
     directory,
@@ -154,29 +156,36 @@ export async function createBuiltinAgents(
     disableOmoEnv,
   })
   if (hephaestusConfig) {
-    result["hephaestus"] = hephaestusConfig
+    result["developer"] = hephaestusConfig
   }
 
-  // Add pending agents after sisyphus and hephaestus to maintain order
   for (const [name, config] of pendingAgentConfigs) {
     result[name] = config
   }
 
   const atlasConfig = maybeCreateAtlasConfig({
-    disabledAgents,
+    disabledAgents: normalizedDisabledAgents,
     agentOverrides,
     uiSelectedModel,
     availableModels,
     systemDefaultModel,
     availableAgents,
-    availableSkills: buildAvailableSkills(discoveredSkills, browserProvider, disabledSkills, teamModeEnabled, "atlas"),
+    availableSkills: buildAvailableSkills(discoveredSkills, browserProvider, disabledSkills, teamModeEnabled, "approver"),
     mergedCategories,
     directory,
     userCategories: categories,
   })
   if (atlasConfig) {
-    result["atlas"] = atlasConfig
+    result["approver"] = atlasConfig
   }
 
-  return result
+  return Object.fromEntries(
+    Object.entries(result).map(([role, config]) => {
+      if (!HUSTLER_ROLES.includes(role as HustlerRole)) return [role, config]
+      return [
+        role,
+        applyHustlerRoleIdentity(config),
+      ]
+    }),
+  )
 }

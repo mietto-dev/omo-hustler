@@ -326,7 +326,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
     test("#when config is created #then user override is respected", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        hephaestus: {
+        developer: {
           model: "openai/gpt-5.4",
           permission: {
             apply_patch: "allow",
@@ -360,7 +360,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
     test("#when config is created #then Hephaestus is not registered", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        hephaestus: {
+        developer: {
           model: "anthropic/claude-opus-4-7",
           permission: {
             apply_patch: "allow",
@@ -392,7 +392,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
     test("#when config is created #then Hephaestus is not registered", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        hephaestus: {
+        developer: {
           model: "openai/gpt-4o",
           permission: {
             apply_patch: "allow",
@@ -424,7 +424,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
     test("#when config is created #then Hephaestus is not registered", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        hephaestus: {
+        developer: {
           model: "anthropic/claude-opus-4-7",
           permission: {
             grep: "allow",
@@ -457,7 +457,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
     test("#when config is created #then Hephaestus is not registered", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        hephaestus: {
+        developer: {
           model: "anthropic/claude-opus-4.7",
           permission: {
             grep: "allow",
@@ -490,7 +490,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
     test("#when config is created #then grep and glob are still denied", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        hephaestus: {
+        developer: {
           model: "openai/gpt-5.5",
           permission: {
             grep: "allow",
@@ -524,7 +524,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
     test("#when config is created #then stale grep and glob denies are cleared", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        hephaestus: {
+        developer: {
           category: "non-frontier",
         },
       };
@@ -559,7 +559,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
     test("#when config is created #then explicit user denies are preserved", () => {
       // given
       const agentOverrides: AgentOverrides = {
-        hephaestus: {
+        developer: {
           model: "openai/gpt-5.4",
           permission: {
             grep: "deny",
@@ -600,7 +600,7 @@ describe("maybeCreateHephaestusConfig apply_patch permission", () => {
         },
       };
       const agentOverrides: AgentOverrides = {
-        hephaestus: legacyOverride,
+        developer: legacyOverride,
       };
       const mergedCategories: Record<string, CategoryConfig> = {};
 

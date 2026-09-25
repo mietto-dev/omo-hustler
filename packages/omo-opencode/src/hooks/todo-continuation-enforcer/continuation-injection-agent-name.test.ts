@@ -36,17 +36,17 @@ describe("injectContinuation agent names", () => {
       ctx,
       sessionID: "ses_lowercase_builtin_agent",
       resolvedInfo: {
-        agent: "hephaestus",
+        agent: "developer",
         model: { providerID: "openai", modelID: "gpt-5.5" },
       },
       sessionStateStore,
     })
 
     // then
-    expect(capturedAgent).toBe("Hephaestus - Deep Agent")
+    expect(capturedAgent).toBe("Developer")
   })
 
-  test("#given resolved agent is an invisible-prefixed config key #when continuation is injected #then promptAsync receives the display name", async () => {
+    test("#given resolved agent is an invisible-prefixed canonical config key #when continuation is injected #then promptAsync receives the display name", async () => {
     // given
     let capturedAgent: string | undefined
     const ctx = unsafeTestValue<Parameters<typeof injectContinuation>[0]["ctx"]>({
@@ -70,13 +70,13 @@ describe("injectContinuation agent names", () => {
       ctx,
       sessionID: "ses_invisible_lowercase_builtin_agent",
       resolvedInfo: {
-        agent: "\u200Bhephaestus",
+         agent: "\u200Bdeveloper",
         model: { providerID: "openai", modelID: "gpt-5.5" },
       },
       sessionStateStore,
     })
 
     // then
-    expect(capturedAgent).toBe("Hephaestus - Deep Agent")
+    expect(capturedAgent).toBe("Developer")
   })
 })

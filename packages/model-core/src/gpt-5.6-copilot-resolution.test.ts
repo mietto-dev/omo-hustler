@@ -19,14 +19,14 @@ describe("GitHub Copilot GPT-5.6 and GPT-6 Astra resolution", () => {
   })
   const selectionCases = [
     {
-      name: "hephaestus",
-      requirement: AGENT_MODEL_REQUIREMENTS.hephaestus,
+      name: "developer",
+      requirement: AGENT_MODEL_REQUIREMENTS.developer,
       expectedModel: "github-copilot/gpt-5.6-sol",
       expectedVariant: "medium",
     },
     {
-      name: "momus",
-      requirement: AGENT_MODEL_REQUIREMENTS.momus,
+      name: "tester",
+      requirement: AGENT_MODEL_REQUIREMENTS.tester,
       expectedModel: "github-copilot/gpt-6-astra",
       expectedVariant: "high",
     },
@@ -77,7 +77,7 @@ describe("GitHub Copilot GPT-5.6 and GPT-6 Astra resolution", () => {
 
     // when
     const result = resolveModelWithFallback({
-      fallbackChain: AGENT_MODEL_REQUIREMENTS.momus.fallbackChain,
+      fallbackChain: AGENT_MODEL_REQUIREMENTS.tester.fallbackChain,
       availableModels,
       systemDefaultModel: "system/default",
     })
@@ -99,7 +99,7 @@ describe("GitHub Copilot GPT-5.6 and GPT-6 Astra resolution", () => {
 
     // when
     const result = resolveModelWithFallback({
-      fallbackChain: AGENT_MODEL_REQUIREMENTS.momus.fallbackChain,
+      fallbackChain: AGENT_MODEL_REQUIREMENTS.tester.fallbackChain,
       availableModels,
       systemDefaultModel: "system/default",
     })
@@ -136,13 +136,13 @@ describe("GitHub Copilot GPT-5.6 and GPT-6 Astra resolution", () => {
     expect(copilotXhighEntries).toEqual([])
   })
 
-  test("momus prefers native Astra xhigh over the Copilot Astra rung when both are available", () => {
+  test("tester prefers native Astra xhigh over the Copilot Astra rung when both are available", () => {
     // given
     const availableModels = new Set(["openai-codex/gpt-6-astra", "github-copilot/gpt-6-astra"])
 
     // when
     const result = resolveModelWithFallback({
-      fallbackChain: AGENT_MODEL_REQUIREMENTS.momus.fallbackChain,
+      fallbackChain: AGENT_MODEL_REQUIREMENTS.tester.fallbackChain,
       availableModels,
       systemDefaultModel: "system/default",
     })
@@ -155,13 +155,13 @@ describe("GitHub Copilot GPT-5.6 and GPT-6 Astra resolution", () => {
     })
   })
 
-  test("momus falls to claude-opus-5 max when no Astra rung is available", () => {
+  test("tester falls to claude-opus-5 max when no Astra rung is available", () => {
     // given
     const availableModels = new Set(["github-copilot/gpt-5.6-sol", "anthropic/claude-opus-5"])
 
     // when
     const result = resolveModelWithFallback({
-      fallbackChain: AGENT_MODEL_REQUIREMENTS.momus.fallbackChain,
+      fallbackChain: AGENT_MODEL_REQUIREMENTS.tester.fallbackChain,
       availableModels,
       systemDefaultModel: "system/default",
     })
@@ -175,8 +175,8 @@ describe("GitHub Copilot GPT-5.6 and GPT-6 Astra resolution", () => {
   })
 
   const fallbackCases = [
-    { name: "hephaestus", requirement: AGENT_MODEL_REQUIREMENTS.hephaestus },
-    { name: "momus", requirement: AGENT_MODEL_REQUIREMENTS.momus },
+    { name: "developer", requirement: AGENT_MODEL_REQUIREMENTS.developer },
+    { name: "tester", requirement: AGENT_MODEL_REQUIREMENTS.tester },
     { name: "deep", requirement: CATEGORY_MODEL_REQUIREMENTS.deep },
   ] as const
 

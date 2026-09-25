@@ -35,11 +35,10 @@ interface EventInput {
  * so reminding them to delegate to themselves is counterproductive.
  */
 const ORCHESTRATOR_AGENTS = new Set([
-  "sisyphus",
-  "sisyphus-junior",
-  "atlas",
-  "hephaestus",
-  "prometheus",
+  "orchestrator",
+  "planner",
+  "developer",
+  "approver",
 ]);
 
 const MAX_REMINDERS = 3;

@@ -64,7 +64,7 @@ export function createHephaestusAgentsMdInjectorHook(
     output: ChatMessageOutput,
   ): Promise<void> {
     if (injectedSessions.has(input.sessionID)) return
-    if (getAgentConfigKey(getEffectiveAgent(input, output)) !== "hephaestus") return
+    if (getAgentConfigKey(getEffectiveAgent(input, output)) !== "developer") return
 
     const textPart = output.parts.find(isRealUserTextPart)
     if (!textPart) return

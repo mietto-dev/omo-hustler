@@ -23,7 +23,7 @@ function createBackgroundManager() {
     id: "task-id",
     sessionId: "session-id",
     description: "Test task",
-    agent: "explore",
+  agent: "librarian",
     status: "pending",
   }))
 
@@ -45,7 +45,7 @@ function createBackgroundManager() {
 const toolContext = {
   sessionID: "parent-session",
   messageID: "message-id",
-  agent: "sisyphus-junior",
+  agent: "orchestrator",
   abort: new AbortController().signal,
 }
 
@@ -54,7 +54,7 @@ describe("call_omo_agent restricted agent set", () => {
     //#given
     clearCallableAgentsCache()
     const pluginInput = createPluginInput([
-      { name: "explore", mode: "subagent" },
+ { name: "librarian", mode: "subagent" },
       { name: "librarian", mode: "subagent" },
       { name: "general", mode: "subagent" },
     ])
@@ -69,7 +69,7 @@ describe("call_omo_agent restricted agent set", () => {
 
     //#then
     expect(result).toContain("Invalid agent type")
-    expect(result).toContain("Only explore, librarian are allowed")
+    expect(result).toContain("Only librarian are allowed")
     expect(launch).not.toHaveBeenCalled()
   })
 
@@ -77,7 +77,7 @@ describe("call_omo_agent restricted agent set", () => {
     //#given
     clearCallableAgentsCache()
     const pluginInput = createPluginInput([
-      { name: "explore", mode: "subagent" },
+ { name: "librarian", mode: "subagent" },
       { name: "librarian", mode: "subagent" },
       { name: "oracle", mode: "subagent" },
     ])
@@ -92,15 +92,15 @@ describe("call_omo_agent restricted agent set", () => {
 
     //#then
     expect(result).toContain("Invalid agent type")
-    expect(result).toContain("Only explore, librarian are allowed")
+    expect(result).toContain("Only librarian are allowed")
     expect(launch).not.toHaveBeenCalled()
   })
 
-  test("#when caller requests explore or librarian #then call_omo_agent still launches them", async () => {
+  test("#when caller requests Librarian #then call_omo_agent launches it", async () => {
     //#given
     clearCallableAgentsCache()
     const pluginInput = createPluginInput([
-      { name: "explore", mode: "subagent" },
+ { name: "librarian", mode: "subagent" },
       { name: "librarian", mode: "subagent" },
     ])
     const { manager, launch } = createBackgroundManager()
@@ -108,15 +108,29 @@ describe("call_omo_agent restricted agent set", () => {
 
     //#when
     await toolDefinition.execute(
-      { description: "Explore", prompt: "Read code", subagent_type: "explore", run_in_background: true },
-      toolContext,
-    )
-    await toolDefinition.execute(
       { description: "Research", prompt: "Find docs", subagent_type: "librarian", run_in_background: true },
       toolContext,
     )
 
     //#then
-    expect(launch).toHaveBeenCalledTimes(2)
+    expect(launch).toHaveBeenCalledTimes(1)
+  })
+
+  test("#when Architect requests Librarian #then only the typed mode is forwarded", async () => {
+    // given
+    clearCallableAgentsCache()
+    const pluginInput = createPluginInput([{ name: "librarian", mode: "subagent" }])
+    const { manager, launch } = createBackgroundManager()
+    const toolDefinition = createCallOmoAgent(pluginInput, manager)
+
+    // when
+    await toolDefinition.execute(
+      { description: "Search repository", prompt: "Find the pattern", subagent_type: "librarian", mode: "repository", run_in_background: true },
+      { ...toolContext, agent: "architect" },
+    )
+
+    // then
+    expect(launch).toHaveBeenCalledTimes(1)
+    expect(launch.mock.calls[0]?.[0].prompt).toContain("<librarian-mode>repository</librarian-mode>")
   })
 })

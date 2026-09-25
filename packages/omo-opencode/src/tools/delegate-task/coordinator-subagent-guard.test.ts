@@ -34,7 +34,7 @@ describe("coordinator subagent guard (#4027)", () => {
       }
 
       //#when
-      const result = await resolveSubagentExecution(args, ctx, "sisyphus", "")
+      const result = await resolveSubagentExecution(args, ctx, "orchestrator", "")
 
       //#then
       expect(result.error).toBeDefined()
@@ -44,11 +44,11 @@ describe("coordinator subagent guard (#4027)", () => {
     })
   }
 
-  test("#given subagent_type=prometheus #when resolveSubagentExecution is called #then error names the agent and explains the conflict", async () => {
+  test("#given subagent_type=planner #when resolveSubagentExecution is called #then error names the agent and explains the conflict", async () => {
     //#given
     const ctx = makeCtx()
     const args = {
-      subagent_type: "prometheus",
+      subagent_type: "planner",
       prompt: "plan something",
       load_skills: [],
       run_in_background: false,
@@ -56,21 +56,21 @@ describe("coordinator subagent guard (#4027)", () => {
     }
 
     //#when
-    const result = await resolveSubagentExecution(args, ctx, "sisyphus", "")
+    const result = await resolveSubagentExecution(args, ctx, "orchestrator", "")
 
     //#then
-    expect(result.error).toContain("prometheus")
+    expect(result.error).toContain("planner")
     expect(result.error).toContain("coordinator")
     expect(result.error).toContain("duplicate")
     expect(result.agentToUse).toBe("")
     expect(result.categoryModel).toBeUndefined()
   })
 
-  test("#given subagent_type=hephaestus #when resolveSubagentExecution is called #then it is not blocked by coordinator guard", async () => {
+  test("#given subagent_type=developer #when resolveSubagentExecution is called #then it is not blocked by coordinator guard", async () => {
     //#given
     const ctx = makeCtx()
     const args = {
-      subagent_type: "hephaestus",
+      subagent_type: "developer",
       prompt: "write some code",
       load_skills: [],
       run_in_background: false,
@@ -78,17 +78,17 @@ describe("coordinator subagent guard (#4027)", () => {
     }
 
     //#when
-    const result = await resolveSubagentExecution(args, ctx, "sisyphus", "")
+    const result = await resolveSubagentExecution(args, ctx, "orchestrator", "")
 
-    //#then — hephaestus may fail for other reasons (API call), but NOT the coordinator guard
+    //#then — developer may fail for other reasons (API call), but NOT the coordinator guard
     expect(result.error).not.toContain("coordinator agent")
   })
 
-  test("#given subagent_type=sisyphus #when resolveSubagentExecution is called #then sisyphus is NOT blocked by coordinator guard (registry: eligible)", async () => {
-    //#given — sisyphus is verdict:'eligible' in AGENT_ELIGIBILITY_REGISTRY; it must not be rejected by the coordinator guard
+  test("#given subagent_type=orchestrator #when resolveSubagentExecution is called #then orchestrator is NOT blocked by coordinator guard (registry: eligible)", async () => {
+    //#given — orchestrator is verdict:'eligible' in AGENT_ELIGIBILITY_REGISTRY; it must not be rejected by the coordinator guard
     const ctx = makeCtx()
     const args = {
-      subagent_type: "sisyphus",
+      subagent_type: "orchestrator",
       prompt: "do team-mode work",
       load_skills: [],
       run_in_background: false,
@@ -96,17 +96,17 @@ describe("coordinator subagent guard (#4027)", () => {
     }
 
     //#when
-    const result = await resolveSubagentExecution(args, ctx, "sisyphus", "")
+    const result = await resolveSubagentExecution(args, ctx, "orchestrator", "")
 
-    //#then — sisyphus may fail for primary-agent reasons (separate guard), but NOT the coordinator guard
+    //#then — orchestrator may fail for primary-agent reasons (separate guard), but NOT the coordinator guard
     expect(result.error).not.toContain("coordinator agent")
   })
 
-  test("#given subagent_type=atlas #when resolveSubagentExecution is called #then atlas is NOT blocked by coordinator guard (registry: eligible)", async () => {
-    //#given — atlas is verdict:'eligible' in AGENT_ELIGIBILITY_REGISTRY; it must not be rejected by the coordinator guard
+  test("#given subagent_type=approver #when resolveSubagentExecution is called #then approver is NOT blocked by coordinator guard (registry: eligible)", async () => {
+    //#given — approver is verdict:'eligible' in AGENT_ELIGIBILITY_REGISTRY; it must not be rejected by the coordinator guard
     const ctx = makeCtx()
     const args = {
-      subagent_type: "atlas",
+      subagent_type: "approver",
       prompt: "do team-mode work",
       load_skills: [],
       run_in_background: false,
@@ -114,17 +114,17 @@ describe("coordinator subagent guard (#4027)", () => {
     }
 
     //#when
-    const result = await resolveSubagentExecution(args, ctx, "sisyphus", "")
+    const result = await resolveSubagentExecution(args, ctx, "orchestrator", "")
 
-    //#then — atlas may fail for primary-agent reasons (separate guard), but NOT the coordinator guard
+    //#then — approver may fail for primary-agent reasons (separate guard), but NOT the coordinator guard
     expect(result.error).not.toContain("coordinator agent")
   })
 
-  test("#given subagent_type=prometheus AND allowPrimaryAgentDelegation=true #when resolveSubagentExecution is called #then prometheus is STILL rejected (registry hard-reject is authoritative)", async () => {
-    //#given — prometheus is verdict:'hard-reject' in AGENT_ELIGIBILITY_REGISTRY; the coordinator guard must fire even when the team-mode resolver opts into primary-agent delegation
+  test("#given subagent_type=planner AND allowPrimaryAgentDelegation=true #when resolveSubagentExecution is called #then planner is STILL rejected (registry hard-reject is authoritative)", async () => {
+    //#given — planner is verdict:'hard-reject' in AGENT_ELIGIBILITY_REGISTRY; the coordinator guard must fire even when the team-mode resolver opts into primary-agent delegation
     const ctx = makeCtx()
     const args = {
-      subagent_type: "prometheus",
+      subagent_type: "planner",
       prompt: "plan something",
       load_skills: [],
       run_in_background: false,
@@ -132,10 +132,10 @@ describe("coordinator subagent guard (#4027)", () => {
     }
 
     //#when
-    const result = await resolveSubagentExecution(args, ctx, "sisyphus", "", { allowPrimaryAgentDelegation: true })
+    const result = await resolveSubagentExecution(args, ctx, "orchestrator", "", { allowPrimaryAgentDelegation: true })
 
     //#then
-    expect(result.error).toContain("prometheus")
+    expect(result.error).toContain("planner")
     expect(result.error).toContain("coordinator agent")
     expect(result.agentToUse).toBe("")
   })

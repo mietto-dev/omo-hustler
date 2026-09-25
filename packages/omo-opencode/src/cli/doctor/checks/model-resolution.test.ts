@@ -61,12 +61,12 @@ describe("model-resolution check", () => {
       const info = getModelResolutionInfo()
 
       // then: Should have agent entries
-      const sisyphus = expectDefined(
-        info.agents.find((a) => a.name === "sisyphus"),
-        "sisyphus agent resolution",
+      const orchestrator = expectDefined(
+        info.agents.find((a) => a.name === "orchestrator"),
+        "orchestrator agent resolution",
       )
-      expect(sisyphus.requirement.fallbackChain[0]?.model).toBe("claude-opus-5")
-      expect(sisyphus.requirement.fallbackChain[0]?.providers).toContain("anthropic")
+      expect(orchestrator.requirement.fallbackChain[0]?.model).toBe("claude-opus-5")
+      expect(orchestrator.requirement.fallbackChain[0]?.providers).toContain("anthropic")
     })
 
     it("returns category requirements with provider chains", async () => {
@@ -92,19 +92,19 @@ describe("model-resolution check", () => {
     it("shows user override for agent when configured", async () => {
       const { getModelResolutionInfoWithOverrides } = await import("./model-resolution")
 
-      // given: User has override for oracle agent
+      // given: User has override for architect agent
       const mockConfig = {
         agents: {
-          oracle: { model: "anthropic/claude-opus-4-7" },
+          architect: { model: "anthropic/claude-opus-4-7" },
         },
       }
 
       const info = getModelResolutionInfoWithOverrides(mockConfig)
 
-      // then: Oracle should show the override
-      const oracle = expectDefined(info.agents.find((a) => a.name === "oracle"), "oracle agent resolution")
-      expect(oracle.userOverride).toBe("anthropic/claude-opus-4-7")
-      expect(oracle.effectiveResolution).toBe("User override: anthropic/claude-opus-4-7")
+      // then: Architect should show the override
+      const architect = expectDefined(info.agents.find((a) => a.name === "architect"), "architect agent resolution")
+      expect(architect.userOverride).toBe("anthropic/claude-opus-4-7")
+      expect(architect.effectiveResolution).toBe("User override: anthropic/claude-opus-4-7")
     })
 
     it("shows user override for category when configured", async () => {
@@ -137,32 +137,32 @@ describe("model-resolution check", () => {
       const info = getModelResolutionInfoWithOverrides(mockConfig)
 
       // then: Should show provider fallback chain
-      const sisyphus = expectDefined(
-        info.agents.find((a) => a.name === "sisyphus"),
-        "sisyphus agent resolution",
+      const orchestrator = expectDefined(
+        info.agents.find((a) => a.name === "orchestrator"),
+        "orchestrator agent resolution",
       )
-      expect(sisyphus.userOverride).toBeUndefined()
-      expect(sisyphus.effectiveResolution).toContain("Provider fallback:")
-      expect(sisyphus.effectiveResolution).toContain("anthropic")
+      expect(orchestrator.userOverride).toBeUndefined()
+      expect(orchestrator.effectiveResolution).toContain("Provider fallback:")
+      expect(orchestrator.effectiveResolution).toContain("anthropic")
     })
 
     it("captures user variant for agent when configured", async () => {
       const { getModelResolutionInfoWithOverrides } = await import("./model-resolution")
 
-      //#given User has model with variant override for oracle agent
+      //#given User has model with variant override for architect agent
       const mockConfig = {
         agents: {
-          oracle: { model: "openai/gpt-5.4", variant: "xhigh" },
+          architect: { model: "openai/gpt-5.4", variant: "xhigh" },
         },
       }
 
       //#when getting resolution info with config
       const info = getModelResolutionInfoWithOverrides(mockConfig)
 
-      //#then Oracle should have userVariant set
-      const oracle = expectDefined(info.agents.find((a) => a.name === "oracle"), "oracle agent resolution")
-      expect(oracle.userOverride).toBe("openai/gpt-5.4")
-      expect(oracle.userVariant).toBe("xhigh")
+      //#then Architect should have userVariant set
+      const architect = expectDefined(info.agents.find((a) => a.name === "architect"), "architect agent resolution")
+      expect(architect.userOverride).toBe("openai/gpt-5.4")
+      expect(architect.userVariant).toBe("xhigh")
     })
 
     it("captures user variant for category when configured", async () => {
@@ -191,12 +191,12 @@ describe("model-resolution check", () => {
       const { getModelResolutionInfoWithOverrides } = await import("./model-resolution")
 
       const info = getModelResolutionInfoWithOverrides({})
-      const sisyphus = expectDefined(
-        info.agents.find((a) => a.name === "sisyphus"),
-        "sisyphus agent resolution",
+      const orchestrator = expectDefined(
+        info.agents.find((a) => a.name === "orchestrator"),
+        "orchestrator agent resolution",
       )
 
-      expect(sisyphus.capabilityDiagnostics).toMatchObject({
+      expect(orchestrator.capabilityDiagnostics).toMatchObject({
         resolutionMode: "snapshot-backed",
         snapshot: { source: "bundled-snapshot" },
       })
@@ -230,13 +230,13 @@ describe("model-resolution check", () => {
 
       const info = getModelResolutionInfoWithOverrides({
         agents: {
-          oracle: { model: "anthropic/claude-opus-4-7-thinking" },
+          architect: { model: "anthropic/claude-opus-4-7-thinking" },
         },
       })
 
-      const oracle = expectDefined(info.agents.find((agent) => agent.name === "oracle"), "oracle agent resolution")
-      expect(oracle.effectiveModel).toBe("anthropic/claude-opus-4-7-thinking")
-      expect(oracle.capabilityDiagnostics).toMatchObject({
+      const architect = expectDefined(info.agents.find((agent) => agent.name === "architect"), "architect agent resolution")
+      expect(architect.effectiveModel).toBe("anthropic/claude-opus-4-7-thinking")
+      expect(architect.capabilityDiagnostics).toMatchObject({
         resolutionMode: "alias-backed",
         canonicalization: {
           source: "pattern-alias",
@@ -285,7 +285,7 @@ describe("model-resolution check", () => {
 
       const info = getModelResolutionInfoWithOverrides({
         agents: {
-          oracle: { model: "custom/unknown-llm" },
+          architect: { model: "custom/unknown-llm" },
         },
       })
 
@@ -293,7 +293,7 @@ describe("model-resolution check", () => {
 
       expect(issues).toHaveLength(1)
       expect(issues[0]?.title).toContain("compatibility fallback")
-      expect(issues[0]?.description).toContain("oracle=custom/unknown-llm")
+      expect(issues[0]?.description).toContain("architect=custom/unknown-llm")
     })
 
     it("does not warn for known provider aliases used by current recommended models", async () => {
@@ -302,8 +302,7 @@ describe("model-resolution check", () => {
       // #given current recommended provider aliases from user configuration
       const info = getModelResolutionInfoWithOverrides({
         agents: {
-          sisyphus: { model: "kimi-for-coding/k2pb" },
-          metis: { model: "github-copilot/claude-opus-4.7" },
+          orchestrator: { model: "kimi-for-coding/k2pb" },
         },
         categories: {
           "visual-engineering": { model: "github-copilot/claude-opus-4.7" },
@@ -324,8 +323,8 @@ describe("model-resolution check", () => {
       // #given Qwen Max is configured for planner agents with the refreshed snapshot
       const info = getModelResolutionInfoWithOverrides({
         agents: {
-          prometheus: { model: "opencode-go/qwen3.7-max" },
-          atlas: { model: "opencode-go/qwen3.7-max" },
+          planner: { model: "opencode-go/qwen3.7-max" },
+          approver: { model: "opencode-go/qwen3.7-max" },
         },
       })
 
@@ -334,8 +333,8 @@ describe("model-resolution check", () => {
 
       // #then Qwen Max uses snapshot-backed diagnostics (models.dev now includes Qwen data)
       expect(issues).toHaveLength(0)
-      const atlas = expectDefined(info.agents.find((agent) => agent.name === "atlas"), "atlas agent resolution")
-      expect(atlas.capabilityDiagnostics?.resolutionMode).toBe("snapshot-backed")
+      const approver = expectDefined(info.agents.find((agent) => agent.name === "approver"), "approver agent resolution")
+      expect(approver.capabilityDiagnostics?.resolutionMode).toBe("snapshot-backed")
     })
   })
 

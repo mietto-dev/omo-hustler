@@ -14,12 +14,12 @@ interface LoadBuiltinCommandsOptions {
   teamModeEnabled?: boolean
 }
 
-function resolveUlwExecuteAgent(options?: LoadBuiltinCommandsOptions): "atlas" | "sisyphus" {
+function resolveUlwExecuteAgent(options?: LoadBuiltinCommandsOptions): "approver" | "orchestrator" {
   if (options?.useRegisteredAgents) {
-    return isAgentRegistered("atlas") ? "atlas" : "sisyphus"
+    return isAgentRegistered("approver") ? "approver" : "orchestrator"
   }
 
-  return "atlas"
+  return "approver"
 }
 
 function withTeamModeAddendum(baseTemplate: string, addendum: string, teamModeEnabled: boolean): string {

@@ -2,6 +2,7 @@ import { assertNever } from "./state-types"
 import type {
   AgentsState,
   ConfigState,
+  HustlerWorkflowState,
   JobBoardState,
   LoopLive,
   LoopState,
@@ -15,24 +16,30 @@ export type ComputeViewSections = {
   readonly agents: AgentsState
   readonly jobs: JobBoardState
   readonly loop: LoopState
+  readonly hustler?: HustlerWorkflowState
 }
 
+const NO_HUSTLER_WORKFLOW: HustlerWorkflowState = { kind: "none" }
+
 export function computeView(sections: ComputeViewSections): SidebarView {
-  if (isActive(sections)) {
-    return {
+  const hustler = sections.hustler ?? NO_HUSTLER_WORKFLOW
+  if (isActive(sections, hustler)) {
+    const activeView: Extract<SidebarView, { readonly kind: "active" }> = {
       kind: "active",
       loop: sections.loop,
       agents: sections.agents,
       jobs: sections.jobs,
       configBanner: sections.config.kind === "invalid" ? { kind: "invalid" } : { kind: "none" },
     }
+    return hustler.kind === "none" ? activeView : { ...activeView, hustler }
   }
 
   if (sections.config.kind === "invalid") {
     return { kind: "broken", messages: sections.config.messages }
   }
 
-  return { kind: "idle", roster: sections.roster }
+  const idleView = { kind: "idle", roster: sections.roster } as const
+  return hustler.kind === "none" ? idleView : { ...idleView, hustler }
 }
 
 export function viewKey(view: SidebarView): string {
@@ -41,6 +48,7 @@ export function viewKey(view: SidebarView): string {
       return stableKey([
         "active",
         loopKeyParts(view.loop),
+        hustlerKeyParts(view.hustler ?? NO_HUSTLER_WORKFLOW),
         agentsKeyParts(view.agents),
         jobsKeyParts(view.jobs),
         ["configBanner", view.configBanner.kind],
@@ -48,14 +56,30 @@ export function viewKey(view: SidebarView): string {
     case "broken":
       return stableKey(["broken", [...view.messages]])
     case "idle":
-      return stableKey(["idle", rosterKeyParts(view.roster)])
+      return stableKey(["idle", rosterKeyParts(view.roster), hustlerKeyParts(view.hustler ?? NO_HUSTLER_WORKFLOW)])
     default:
       return assertNever(view)
   }
 }
 
-function isActive(sections: ComputeViewSections): boolean {
-  return sections.agents.kind === "list" || sections.jobs.kind === "list" || sections.loop.kind === "live"
+function isActive(sections: ComputeViewSections, hustler: HustlerWorkflowState): boolean {
+  return (
+    sections.agents.kind === "list"
+    || sections.jobs.kind === "list"
+    || sections.loop.kind === "live"
+    || isLiveHustlerWorkflow(hustler)
+  )
+}
+
+function isLiveHustlerWorkflow(workflow: HustlerWorkflowState): boolean {
+  switch (workflow.kind) {
+    case "none":
+      return false
+    case "workflow":
+      return workflow.workflow.terminalStatus === "active"
+    default:
+      return assertNever(workflow)
+  }
 }
 
 function stableKey(parts: readonly unknown[]): string {
@@ -107,6 +131,28 @@ function loopKeyParts(loop: LoopState): readonly unknown[] {
       return ["loop", "live", liveLoopKeyParts(loop)]
     default:
       return assertNever(loop)
+  }
+}
+
+function hustlerKeyParts(workflow: HustlerWorkflowState): readonly unknown[] {
+  switch (workflow.kind) {
+    case "none":
+      return ["hustler", "none"]
+    case "workflow": {
+      const workItem = workflow.workflow.workItem
+      return [
+        "hustler",
+        "workflow",
+        workflow.workflow.activeRole,
+        workflow.workflow.phase,
+        workflow.workflow.plannerGate,
+        workItem === null ? null : [workItem.id, workItem.role, workItem.status],
+        workflow.workflow.reviewState,
+        workflow.workflow.terminalStatus,
+      ]
+    }
+    default:
+      return assertNever(workflow)
   }
 }
 

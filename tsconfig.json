@@ -17,5 +17,15 @@
     "types": ["bun-types"]
   },
   "include": ["packages/omo-opencode/src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "script"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test-support.ts",
+    "**/test-support.ts",
+    "**/test-support/**",
+    "**/__tests__/**",
+    "script",
+    "packages/omo-opencode/src/cli/**"
+  ]
 }

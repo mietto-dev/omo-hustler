@@ -76,7 +76,7 @@ function createToolContext(): ToolContext {
   return {
     sessionID: "parent-session",
     messageID: "msg-1",
-    agent: "sisyphus",
+    agent: "orchestrator",
     abort: new AbortController().signal,
     metadata: mock(async () => {}),
   }
@@ -105,7 +105,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "test task",
       prompt: "find something",
       run_in_background: false,
@@ -118,7 +118,7 @@ describe("executeSync", () => {
     const promptInput = recorder.getCapturedInput()
     expect(promptInput).toBeDefined()
     expect(promptInput?.path.id).toBe("ses-test-123")
-    expect(promptInput?.body.agent).toBe("explore")
+    expect(promptInput?.body.agent).toBe("Librarian")
     expect(promptInput?.body.tools.question).toBe(false)
     expect(promptInput?.body.tools.task).toBe(false)
     expect(promptInput?.body.parts).toEqual([{ type: "text", text: "find something" }])
@@ -131,7 +131,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "\u200BSisyphus\u200B - Ultraworker",
+      subagent_type: "\u200BOrchestrator",
       description: "test task",
       prompt: "find something",
       run_in_background: false,
@@ -142,17 +142,17 @@ describe("executeSync", () => {
 
     //#then
     const promptInput = recorder.getCapturedInput()
-    expect(promptInput?.body.agent).toBe("Sisyphus - ultraworker")
+    expect(promptInput?.body.agent).toBe("Orchestrator")
   })
 
-  test("#given subagent_type is the lowercase config key 'hephaestus' #when executeSync runs #then prompt receives the registered display name 'Hephaestus - Deep Agent'", async () => {
+  test("#given subagent_type is the lowercase config key 'developer' #when executeSync runs #then prompt receives the registered display name 'Developer'", async () => {
     //#given
     const executeSync = await importExecuteSync()
     const deps = createDependencies()
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "hephaestus",
+      subagent_type: "developer",
       description: "task",
       prompt: "do the thing",
       run_in_background: false,
@@ -163,17 +163,17 @@ describe("executeSync", () => {
 
     //#then — SDK rejects raw config keys with UnknownError; the dispatch must translate
     const promptInput = recorder.getCapturedInput()
-    expect(promptInput?.body.agent).toBe("Hephaestus - Deep Agent")
+    expect(promptInput?.body.agent).toBe("Developer")
   })
 
-  test("#given subagent_type is the lowercase config key 'sisyphus-junior' #when executeSync runs #then prompt receives the registered display name 'Sisyphus-Junior'", async () => {
+  test("#given subagent_type is the lowercase config key 'developer' #when executeSync runs #then prompt receives the registered display name 'Developer'", async () => {
     //#given
     const executeSync = await importExecuteSync()
     const deps = createDependencies()
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "sisyphus-junior",
+      subagent_type: "developer",
       description: "task",
       prompt: "do the thing",
       run_in_background: false,
@@ -184,17 +184,17 @@ describe("executeSync", () => {
 
     //#then
     const promptInput = recorder.getCapturedInput()
-    expect(promptInput?.body.agent).toBe("Sisyphus-Junior")
+    expect(promptInput?.body.agent).toBe("Developer")
   })
 
-  test("#given subagent_type is already a display name like 'explore' (config key == display name) #when executeSync runs #then prompt receives 'explore' unchanged", async () => {
+  test("#given subagent_type is already a display name like 'librarian' (config key == display name) #when executeSync runs #then prompt receives 'librarian' unchanged", async () => {
     //#given a same-keyed agent must not be double-translated
     const executeSync = await importExecuteSync()
     const deps = createDependencies()
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "task",
       prompt: "do the thing",
       run_in_background: false,
@@ -205,7 +205,7 @@ describe("executeSync", () => {
 
     //#then
     const promptInput = recorder.getCapturedInput()
-    expect(promptInput?.body.agent).toBe("explore")
+    expect(promptInput?.body.agent).toBe("Librarian")
   })
 
   test("returns processed response with task metadata footer", async () => {
@@ -246,7 +246,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "test task",
       prompt: "find something",
       run_in_background: false,
@@ -298,7 +298,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "metadata title",
       prompt: "collect evidence",
       run_in_background: false,
@@ -323,7 +323,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "test task",
       prompt: "find something",
       run_in_background: false,
@@ -370,7 +370,7 @@ describe("executeSync", () => {
       return { data: {} }
     })
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "bootstrap state",
       prompt: "collect bootstrap evidence",
       run_in_background: false,
@@ -390,7 +390,7 @@ describe("executeSync", () => {
       )
 
       //#then
-      expect(observed[0]?.agent).toBe("explore")
+    expect(observed[0]?.agent).toBe("Librarian")
       expect(observed[0]?.tools?.question).toBe(false)
       expect(observed[0]?.tools?.task).toBe(false)
       expect(observed[0]?.bootstrap?.retryParts[0]?.text).toContain("collect bootstrap evidence")
@@ -417,7 +417,7 @@ describe("executeSync", () => {
       throw new Error("agent.name is undefined")
     })
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "missing agent",
       prompt: "find something",
       run_in_background: false,
@@ -427,7 +427,7 @@ describe("executeSync", () => {
     const result = await executeSync(args, toolContext, createContext(recorder.promptAsync) as never, deps)
 
     //#then
-    expect(result).toContain('Error: Agent "explore" not found')
+    expect(result).toContain('Error: Agent "librarian" not found')
     expect(result).toContain("session_id: ses-missing-agent")
     expect(deps.waitForCompletion).not.toHaveBeenCalled()
     expect(deps.processMessages).not.toHaveBeenCalled()
@@ -440,7 +440,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "\u200BSisyphus - Ultraworker",
+      subagent_type: "\u200BOrchestrator",
       description: "prefixed agent",
       prompt: "find something",
       run_in_background: false,
@@ -451,7 +451,7 @@ describe("executeSync", () => {
 
     //#then
     const promptInput = recorder.getCapturedInput()
-    expect(promptInput?.body.agent).toBe("Sisyphus - ultraworker")
+    expect(promptInput?.body.agent).toBe("Orchestrator")
   })
 
   test("returns generic prompt failure with task metadata", async () => {
@@ -523,7 +523,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "active reuse",
       prompt: "find something",
       run_in_background: false,
@@ -558,7 +558,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "reused hold",
       prompt: "find something",
       run_in_background: false,
@@ -596,7 +596,7 @@ describe("executeSync", () => {
     }
 
     const args = {
-      subagent_type: "explore",
+      subagent_type: "librarian",
       description: "test task",
       prompt: "find something",
     }
@@ -604,7 +604,7 @@ describe("executeSync", () => {
     const toolContext = {
       sessionID: "parent-session",
       messageID: "msg-4",
-      agent: "sisyphus",
+      agent: "orchestrator",
       abort: new AbortController().signal,
       metadata: mock(async () => {}),
     }
@@ -633,7 +633,7 @@ describe("executeSync", () => {
     const toolContext = createToolContext()
     const recorder = createPromptAsyncRecorder()
     const args = {
-      subagent_type: "\u200B\u200BHephaestus - Deep Agent",
+      subagent_type: "\u200B\u200BDeveloper",
       description: "legacy zwsp",
       prompt: "find something",
       run_in_background: false,
@@ -643,7 +643,7 @@ describe("executeSync", () => {
     await executeSync(args, toolContext, createContext(recorder.promptAsync) as never, deps)
 
     //#then
-    expect(recorder.getCapturedInput()?.body.agent).toBe("Hephaestus - Deep Agent")
+    expect(recorder.getCapturedInput()?.body.agent).toBe("Developer")
   })
 })
 

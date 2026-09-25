@@ -99,7 +99,7 @@ export async function handleCompletedBoulderIdle(input: {
     .replace(/{TASK_BREAKDOWN}/g, taskBreakdown.length > 0 ? taskBreakdown : "- (no task timings)")
 
   const atlasAgent = resolveRegisteredAgentName(
-    boulderState.agent ?? (isAgentRegistered("atlas") ? "atlas" : undefined),
+    boulderState.agent ?? (isAgentRegistered("approver") ? "approver" : undefined),
   )
   if (atlasAgent && isAgentRegistered(atlasAgent)) {
     if (!(await shouldPromptAfterSessionIdle(ctx.client, sessionID, options?.idleSettleMs))) {

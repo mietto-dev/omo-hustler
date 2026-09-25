@@ -7,6 +7,7 @@ import { getTaskToastManager } from "../task-toast-manager"
 import type { ConcurrencyManager } from "./concurrency"
 import type { OnSubagentSessionCreated, OpencodeClient, QueueItem } from "./constants"
 import type { BackgroundTask, LaunchInput, ResumeInput } from "./types"
+import { DelegationPolicyError, type DelegationPolicy } from "./delegation-policy"
 import { buildFallbackBody, FALLBACK_AGENT, isAgentNotFoundError } from "./spawner/fallback-agent"
 import { buildTaskRecord } from "./spawner/task-record"
 import { buildTaskPromptBody } from "./spawner/task-prompt-body"
@@ -21,6 +22,15 @@ export interface SpawnerContext {
   tmuxEnabled: boolean
   onSubagentSessionCreated?: OnSubagentSessionCreated
   onTaskError: (task: BackgroundTask, error: Error) => void
+  delegationPolicy: DelegationPolicy
+}
+
+function authorizeFallback(task: BackgroundTask, policy: DelegationPolicy | undefined): void {
+  if (!task.delegationLineage) return
+  if (!policy) {
+    throw new DelegationPolicyError("DELEGATION_FALLBACK_FORBIDDEN", "Fallback requires the shared delegation policy")
+  }
+  policy.assertFallbackTarget(task.delegationLineage.targetRole, FALLBACK_AGENT)
 }
 
 export function createTask(input: LaunchInput): BackgroundTask {
@@ -58,6 +68,7 @@ export async function startTask(
     body: {
       parentID: input.parentSessionId,
       ...(input.sessionPermission ? { permission: input.sessionPermission } : {}),
+      ...(input.workflowContract ? { metadata: { workflowContract: input.workflowContract } } : {}),
     } as Record<string, unknown>,
     query: {
       directory: parentDirectory,
@@ -112,6 +123,7 @@ export async function startTask(
     model: input.model,
     prompt: input.prompt,
     includeTeamToolDenylist: input.teamRunId === undefined,
+    workflowContract: input.workflowContract,
   })
   setSessionTools(sessionID, promptBody.tools)
 
@@ -121,6 +133,12 @@ export async function startTask(
     body: promptBody,
   }, parentDirectory).catch(async (error) => {
     if (isAgentNotFoundError(error) && input.agent !== FALLBACK_AGENT) {
+      try {
+        authorizeFallback(task, ctx.delegationPolicy)
+      } catch (fallbackError) {
+        onTaskError(task, fallbackError instanceof Error ? fallbackError : new Error(String(fallbackError)))
+        return
+      }
       log("[background-agent] Agent not found, retrying with fallback agent", {
         original: input.agent,
         fallback: FALLBACK_AGENT,
@@ -165,7 +183,7 @@ export async function startTask(
 export async function resumeTask(
   task: BackgroundTask,
   input: ResumeInput,
-  ctx: Pick<SpawnerContext, "client" | "concurrencyManager" | "directory" | "onTaskError">
+  ctx: Pick<SpawnerContext, "client" | "concurrencyManager" | "directory" | "onTaskError" | "delegationPolicy">
 ): Promise<void> {
   const { client, concurrencyManager, directory, onTaskError } = ctx
 
@@ -229,6 +247,7 @@ export async function resumeTask(
     model: task.model,
     prompt: input.prompt,
     includeTeamToolDenylist: task.teamRunId === undefined,
+    workflowContract: task.workflowContract,
   })
   setSessionTools(sessionID, resumeBody.tools)
 
@@ -237,6 +256,12 @@ export async function resumeTask(
     body: resumeBody,
   }, directory).catch(async (error) => {
     if (isAgentNotFoundError(error) && task.agent !== FALLBACK_AGENT) {
+      try {
+        authorizeFallback(task, ctx.delegationPolicy)
+      } catch (fallbackError) {
+        onTaskError(task, fallbackError instanceof Error ? fallbackError : new Error(String(fallbackError)))
+        return
+      }
       log("[background-agent] Resume agent not found, retrying with fallback agent", {
         original: task.agent,
         fallback: FALLBACK_AGENT,

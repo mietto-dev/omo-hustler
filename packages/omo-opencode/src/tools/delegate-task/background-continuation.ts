@@ -34,6 +34,7 @@ export async function executeBackgroundContinuation(
       parentModel: parentContext.model,
       parentAgent: parentContext.agent,
       parentTools: getSessionTools(parentContext.sessionID),
+      ...(args.workflow_contract ? { workflowContract: args.workflow_contract } : {}),
     })
     const sessionId = task.sessionId
     const backgroundTaskId = task.id
@@ -54,6 +55,7 @@ export async function executeBackgroundContinuation(
         sessionId,
         command: args.command,
         model: resolvedModel,
+        ...(task.workflowContract ? { workflowContract: task.workflowContract } : {}),
       },
     }
     await publishToolMetadata(ctx, bgContMeta)

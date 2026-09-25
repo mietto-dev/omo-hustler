@@ -98,6 +98,27 @@ export function toolCallEvents(callCount, name, callId, argsObj) {
   ]
 }
 
+export function hustlerToolCallEvents(callCount, kind, identity, contract) {
+  return toolCallEvents(callCount, "task", `hustler_task_${callCount}`, {
+    description: `hustler ${kind}`,
+    prompt: `HUSTLER_E2E_CHILD:${kind}`,
+    subagent_type: kind,
+    run_in_background: false,
+    load_skills: [],
+    workflow_contract: {
+      kind,
+      metadata: {
+        role: kind,
+        workflowId: identity.workflowId,
+        taskId: identity.taskId,
+        ...(kind === "planner" ? {} : { workItemId: contract.id ?? "work-1" }),
+        tier: identity.tier,
+      },
+      contract,
+    },
+  })
+}
+
 export function appendLog(logFile, line) {
   try {
     fs.appendFileSync(logFile, line)

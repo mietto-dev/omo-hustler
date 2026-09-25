@@ -26,6 +26,8 @@ export async function publishSyncTaskMetadata(input: {
       sessionId: input.currentSessionID,
       sync: true,
       spawnDepth: input.spawnDepth,
+       ...(input.args.delegationLineage ? { delegationLineage: input.args.delegationLineage } : {}),
+       ...(input.args.workflow_contract ? { workflowContract: input.args.workflow_contract } : {}),
       command: input.args.command,
       model: resolveMetadataModel(input.currentModel, input.parentContext.model),
     },

@@ -53,6 +53,7 @@ export async function executeSyncTask(
       description: args.description,
       defaultDirectory: directory,
       categoryModel,
+      workflowContract: args.workflow_contract,
     })
 
     if (!createSessionResult.ok) {
@@ -63,6 +64,9 @@ export async function executeSyncTask(
     const sessionID = createSessionResult.sessionID
     spawnReservation?.commit()
     syncSessionID = sessionID
+    if (args.delegationLineage) {
+      executorCtx.delegationPolicy?.remember(args.delegationLineage, `sync_${sessionID.slice(0, 8)}`, sessionID)
+    }
 
     const registerSyncSession = async (newSessionID: string): Promise<void> => {
       syncSessionID = newSessionID
@@ -163,6 +167,9 @@ export async function executeSyncTask(
       category: args.category,
     })
   } finally {
+    if (args.delegationLineage) {
+      executorCtx.delegationPolicy?.release(args.delegationLineage)
+    }
     if (syncSessionID) {
       cleanupSyncSessionSideEffects(syncSessionID, executorCtx)
       handedBackSyncSessions.add(syncSessionID)

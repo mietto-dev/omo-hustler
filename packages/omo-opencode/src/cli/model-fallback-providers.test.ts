@@ -39,8 +39,8 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Hephaestus uses the native Sol route
-      expect(result.agents?.hephaestus?.model).toBe("openai/gpt-5.6-sol")
-      expect(result.agents?.hephaestus?.variant).toBe("medium")
+      expect(result.agents?.developer?.model).toBe("openai/gpt-5.6-sol")
+      expect(result.agents?.developer?.variant).toBe("medium")
     })
 
     test("Hephaestus uses its merged Copilot GPT-5.6 Sol medium rung", () => {
@@ -51,7 +51,7 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Hephaestus uses the supported Copilot effort
-      expect(result.agents?.hephaestus).toEqual({
+      expect(result.agents?.developer).toEqual({
         model: "github-copilot/gpt-5.6-sol",
         variant: "medium",
       })
@@ -65,8 +65,8 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Hephaestus uses the OpenCode Sol route
-      expect(result.agents?.hephaestus?.model).toBe("opencode/gpt-5.6-sol")
-      expect(result.agents?.hephaestus?.variant).toBe("medium")
+      expect(result.agents?.developer?.model).toBe("opencode/gpt-5.6-sol")
+      expect(result.agents?.developer?.variant).toBe("medium")
     })
 
     test("Hephaestus is omitted when only Claude is available", () => {
@@ -77,7 +77,7 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Hephaestus has no eligible provider
-      expect(result.agents?.hephaestus).toBeUndefined()
+      expect(result.agents?.developer).toBeUndefined()
     })
 
     test("Hephaestus is omitted when only Gemini is available", () => {
@@ -88,7 +88,7 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Hephaestus has no eligible provider
-      expect(result.agents?.hephaestus).toBeUndefined()
+      expect(result.agents?.developer).toBeUndefined()
     })
 
     test("Hephaestus is omitted when only ZAI is available", () => {
@@ -99,7 +99,7 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Hephaestus has no eligible provider
-      expect(result.agents?.hephaestus).toBeUndefined()
+      expect(result.agents?.developer).toBeUndefined()
     })
   })
 
@@ -129,7 +129,7 @@ describe("generateModelConfig provider routes", () => {
   })
 
   describe("special-case agents include fallback_models", () => {
-    test("explore includes fallback_models when OpenAI and Claude are both available", () => {
+    test("librarian includes fallback_models when OpenAI and Claude are both available", () => {
       // given OpenAI and Claude are available
       const config = createConfig({ hasOpenAI: true, hasClaude: true })
 
@@ -137,13 +137,13 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Explore includes its remaining fallbacks
-      expect(result.agents?.explore?.model).toBe("openai/gpt-5.6-luna-fast")
-      expect(result.agents?.explore?.variant).toBe("low")
-      expect(result.agents?.explore?.fallback_models).toBeDefined()
-      expect(result.agents?.explore?.fallback_models?.length).toBeGreaterThan(0)
+      expect(result.agents?.librarian?.model).toBe("openai/gpt-5.6-luna-fast")
+      expect(result.agents?.librarian?.variant).toBe("low")
+      expect(result.agents?.librarian?.fallback_models).toBeDefined()
+      expect(result.agents?.librarian?.fallback_models?.length).toBeGreaterThan(0)
     })
 
-    test("explore omits fallback_models when only one provider matches chain entries", () => {
+    test("librarian omits fallback_models when only one provider matches chain entries", () => {
       // given only Claude is available
       const config = createConfig({ hasClaude: true })
 
@@ -151,11 +151,11 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Explore has no remaining fallback
-      expect(result.agents?.explore?.model).toBe("anthropic/claude-haiku-4-5")
-      expect(result.agents?.explore?.fallback_models).toBeUndefined()
+      expect(result.agents?.librarian?.model).toBe("anthropic/claude-haiku-4-5")
+      expect(result.agents?.librarian?.fallback_models).toBeUndefined()
     })
 
-    test("explore uses current OpenCode Zen nano model when only OpenCode Zen is available", () => {
+    test("librarian uses current OpenCode Zen nano model when only OpenCode Zen is available", () => {
       // given only OpenCode Zen is available
       const config = createConfig({ hasOpencodeZen: true })
 
@@ -163,7 +163,7 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Explore avoids retired OpenCode identifiers
-      expect(result.agents?.explore?.model).toBe("opencode/gpt-5-nano")
+      expect(result.agents?.librarian?.model).toBe("opencode/gpt-5-nano")
       expect(JSON.stringify(result)).not.toContain("opencode/claude-haiku-4-5")
       expect(JSON.stringify(result)).not.toContain("opencode/gpt-5.4-nano")
     })
@@ -228,23 +228,22 @@ describe("generateModelConfig provider routes", () => {
 
       // when the generated model config is resolved
       const result = generateModelConfig(config)
-      const serializedFallbacks = JSON.stringify(result.agents?.explore?.fallback_models ?? [])
+      const serializedFallbacks = JSON.stringify(result.agents?.librarian?.fallback_models ?? [])
 
       // then only native provider routes remain in the fallback lane
       expect(serializedFallbacks).not.toContain('"model":"opencode/')
       expect(serializedFallbacks).not.toContain('"model":"vercel/')
     })
 
-    test("explore never routes through the gateway when only gateway is available", () => {
+    test("librarian never routes through the gateway when only gateway is available", () => {
       // given only Vercel AI Gateway is available
       const config = createConfig({ hasVercelAiGateway: true })
 
       // when the generated model config is resolved
       const result = generateModelConfig(config)
 
-      // then Explore keeps the built-in nano default instead of a gateway lane
-      expect(result.agents?.explore?.model).toBe("opencode/gpt-5-nano")
-      expect(result.agents?.explore?.model).not.toContain("vercel/")
+      // then Librarian has no eligible lane when only the gateway is available
+      expect(result.agents?.librarian).toBeUndefined()
     })
 
     test("librarian is omitted when only gateway is available", () => {
@@ -266,7 +265,7 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then Hephaestus has no eligible lane now that vercel left the default lanes
-      expect(result.agents?.hephaestus).toBeUndefined()
+      expect(result.agents?.developer).toBeUndefined()
     })
 
     test("native providers take priority over gateway", () => {
@@ -277,7 +276,7 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then the native provider stays primary
-      expect(result.agents?.sisyphus?.model).toBe("anthropic/claude-opus-5")
+      expect(result.agents?.orchestrator?.model).toBe("anthropic/claude-opus-5")
     })
   })
 
@@ -291,9 +290,9 @@ describe("generateModelConfig provider routes", () => {
 
       // then utility agents use the global MiniMax provider
       expect(result.agents?.librarian?.model).toBe("minimax-coding-plan/MiniMax-M3")
-      expect(result.agents?.explore?.model).toBe("minimax-coding-plan/MiniMax-M3")
-      expect(result.agents?.atlas?.model).toBe("minimax-coding-plan/MiniMax-M3")
-      expect(result.agents?.["sisyphus-junior"]?.model).toBe("minimax-coding-plan/MiniMax-M3")
+      expect(result.agents?.librarian?.model).toBe("minimax-coding-plan/MiniMax-M3")
+      expect(result.agents?.approver?.model).toBe("minimax-coding-plan/MiniMax-M3")
+      expect(result.agents?.developer).toBeUndefined()
     })
 
     test("keeps opencode-go MiniMax M3 ahead of Coding Plan fallback when both are available", () => {
@@ -304,10 +303,10 @@ describe("generateModelConfig provider routes", () => {
       const result = generateModelConfig(config)
 
       // then OpenCode Go remains ahead of the Coding Plan fallback
-      expect(result.agents?.atlas?.model).toBe("opencode-go/kimi-k3")
-      expect(result.agents?.atlas?.fallback_models?.[0]?.model).toBe("opencode-go/minimax-m3")
-      expect(result.agents?.atlas?.fallback_models?.[1]?.model).toBe("minimax-coding-plan/MiniMax-M3")
-      expect(result.agents?.atlas?.fallback_models?.[2]?.model).toBe("opencode-go/minimax-m2.7")
+      expect(result.agents?.approver?.model).toBe("opencode-go/kimi-k3")
+      expect(result.agents?.approver?.fallback_models?.[0]?.model).toBe("opencode-go/minimax-m3")
+      expect(result.agents?.approver?.fallback_models?.[1]?.model).toBe("minimax-coding-plan/MiniMax-M3")
+      expect(result.agents?.approver?.fallback_models?.[2]?.model).toBe("opencode-go/minimax-m2.7")
     })
 
     test("uses minimaxi.com MiniMax-M3 when only MiniMax CN Coding Plan is available", () => {
@@ -319,9 +318,9 @@ describe("generateModelConfig provider routes", () => {
 
       // then utility agents use the regional MiniMax provider
       expect(result.agents?.librarian?.model).toBe("minimax-cn-coding-plan/MiniMax-M3")
-      expect(result.agents?.explore?.model).toBe("minimax-cn-coding-plan/MiniMax-M3")
-      expect(result.agents?.atlas?.model).toBe("minimax-cn-coding-plan/MiniMax-M3")
-      expect(result.agents?.["sisyphus-junior"]?.model).toBe("minimax-cn-coding-plan/MiniMax-M3")
+      expect(result.agents?.librarian?.model).toBe("minimax-cn-coding-plan/MiniMax-M3")
+      expect(result.agents?.approver?.model).toBe("minimax-cn-coding-plan/MiniMax-M3")
+      expect(result.agents?.developer).toBeUndefined()
     })
   })
 

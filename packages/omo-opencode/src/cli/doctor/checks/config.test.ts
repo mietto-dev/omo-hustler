@@ -107,7 +107,7 @@ describe("config check", () => {
         process.env.OPENCODE_CONFIG_DIR = join(testRootDir, "empty-user-config")
         writeFileSync(
           join(projectDir, ".omo", "omo.jsonc"),
-          JSON.stringify({ "[opencode]": { agents: { sisyphus: { model: 123 } } } }, null, 2) + "\n",
+          JSON.stringify({ "[opencode]": { agents: { orchestrator: { model: 123 } } } }, null, 2) + "\n",
           "utf-8",
         )
         process.chdir(childDir)
@@ -117,7 +117,7 @@ describe("config check", () => {
 
         //#then the ancestor project layer fails validation
         expect(result.status).toBe("fail")
-        expect(result.issues.some((issue) => issue.description.includes("agents.sisyphus.model"))).toBe(true)
+        expect(result.issues.some((issue) => issue.description.includes("agents.orchestrator.model"))).toBe(true)
       } finally {
         process.chdir(originalCwd)
         rmSync(testRootDir, { recursive: true, force: true })
@@ -158,7 +158,7 @@ describe("config check", () => {
         writeFileSync(
           join(testRootDir, ".omo", "omo.jsonc"),
           JSON.stringify(
-            { "[opencode]": { agents: { sisyphus: { model: "kiro/claude-opus-4-6" } } } },
+            { "[opencode]": { agents: { orchestrator: { model: "kiro/claude-opus-4-6" } } } },
             null,
             2,
           ) + "\n",
@@ -236,7 +236,7 @@ describe("config check", () => {
           JSON.stringify({
             "[opencode]": {
               agents: {
-                sisyphus: { reasoningEffort: "max" },
+                orchestrator: { reasoningEffort: "max" },
               },
             },
           }, null, 2) + "\n",

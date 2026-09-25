@@ -131,10 +131,12 @@ export async function executeBackgroundTask(
       skillContent: systemContent,
       category: args.category,
       sessionPermission: QUESTION_DENIED_SESSION_PERMISSION,
-      userPermission: categoryModel?.tools
+       userPermission: categoryModel?.tools
         ? migrateToolsToPermission(categoryModel.tools)
-        : undefined,
-    })
+         : undefined,
+       delegationLineage: args.delegationLineage,
+       workflowContract: args.workflow_contract,
+     })
 
     // OpenCode TUI's `Task` tool UI calculates toolcalls by looking up
     // `props.metadata.sessionId` and then counting tool parts in that session.
@@ -175,7 +177,8 @@ export async function executeBackgroundTask(
       sessionId = updatedTask.sessionId
     }
 
-    if (sessionId) {
+     if (sessionId && args.delegationLineage) {
+       executorCtx.delegationPolicy?.remember(args.delegationLineage, task.id, sessionId)
       registerBackgroundSessionContext({
         sessionId,
         fallbackChain,
@@ -195,7 +198,9 @@ export async function executeBackgroundTask(
       run_in_background: args.run_in_background,
       command: args.command,
       ...(sessionId ? { taskId: sessionId, sessionId } : {}),
-      backgroundTaskId: task.id,
+       backgroundTaskId: task.id,
+       ...(task.delegationLineage ? { delegationLineage: task.delegationLineage } : {}),
+       ...(task.workflowContract ? { workflowContract: task.workflowContract } : {}),
       ...(resolvedModel ? { model: resolvedModel } : {}),
     }
 
