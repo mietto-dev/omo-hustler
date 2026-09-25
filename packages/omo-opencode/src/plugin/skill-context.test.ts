@@ -4,7 +4,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 
 import { OhMyOpenCodeConfigSchema } from "../config"
-import * as mcpLoader from "../features/claude-code-mcp-loader"
+import * as mcpLoader from "../features/opencode-mcp-loader"
 import * as skillLoader from "../features/opencode-skill-loader"
 import * as opencodeConfigDir from "../shared/opencode-config-dir"
 import { createSkillContext } from "./skill-context"

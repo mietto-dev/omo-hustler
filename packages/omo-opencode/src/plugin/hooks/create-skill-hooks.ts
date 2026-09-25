@@ -40,8 +40,6 @@ export function createSkillHooks(args: {
     ? safeHook("auto-slash-command", () =>
         createAutoSlashCommandHook({
           skills: mergedSkills,
-          pluginsEnabled: pluginConfig.claude_code?.plugins ?? true,
-          enabledPluginsOverride: pluginConfig.claude_code?.plugins_override,
           directory: ctx.directory,
         }))
     : null

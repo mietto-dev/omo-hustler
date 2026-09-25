@@ -9,7 +9,7 @@ import {
 import {
   subagentSessions,
   _resetForTesting as resetClaudeCodeSessionState,
-} from "../claude-code-session-state/state"
+} from "../opencode-session-state/state"
 import { BackgroundManager } from "./manager"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 import type { PluginInput } from "@opencode-ai/plugin"

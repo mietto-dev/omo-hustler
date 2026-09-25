@@ -1,6 +1,6 @@
 const { describe, expect, test, spyOn } = require("bun:test")
 
-const sessionState = require("../features/claude-code-session-state")
+const sessionState = require("../features/opencode-session-state")
 const { createToolExecuteBeforeHandler } = require("./tool-execute-before")
 
 describe("createToolExecuteBeforeHandler session notification sessionID", () => {

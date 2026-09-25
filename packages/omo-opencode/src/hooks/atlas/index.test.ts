@@ -10,7 +10,7 @@ import {
   readBoulderState,
 } from "../../features/boulder-state"
 import type { BoulderState } from "../../features/boulder-state"
-import { _resetForTesting, registerAgentName, subagentSessions, updateSessionAgent } from "../../features/claude-code-session-state"
+import { _resetForTesting, registerAgentName, subagentSessions, updateSessionAgent } from "../../features/opencode-session-state"
 import {
   DEFAULT_PROMPT_DISPATCH_TIMEOUT_MS,
   releaseAllPromptAsyncReservationsForTesting,

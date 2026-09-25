@@ -1,7 +1,7 @@
 import type { PluginContext } from "./types"
 
 import { isTrackedBtwSideSession } from "../features/btw-side"
-import { getMainSessionID } from "../features/claude-code-session-state"
+import { getMainSessionID } from "../features/opencode-session-state"
 import { log, replaceToolArgs } from "../shared"
 import { resolveSessionAgent } from "./session-agent-resolver"
 import { stopContinuation } from "./stop-continuation"
@@ -93,7 +93,6 @@ export function createToolExecuteBeforeHandler(args: {
     await hooks.writeExistingFileGuard?.["tool.execute.before"]?.(input, output)
     await hooks.notepadWriteGuard?.["tool.execute.before"]?.(input, output)
     await hooks.questionLabelTruncator?.["tool.execute.before"]?.(input, output)
-    await hooks.claudeCodeHooks?.["tool.execute.before"]?.(input, output)
     await hooks.nonInteractiveEnv?.["tool.execute.before"]?.(input, output)
     await hooks.bashFileReadGuard?.["tool.execute.before"]?.(input, output)
     await hooks.commentChecker?.["tool.execute.before"]?.(input, output)

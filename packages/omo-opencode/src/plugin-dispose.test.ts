@@ -68,9 +68,6 @@ describe("createPluginDispose", () => {
 
   test("#given plugin with hooks that have dispose #when dispose() is called #then each hook's dispose is called", async () => {
     // given
-    const claudeCodeHooks = {
-      dispose: (): void => {},
-    }
     const commentChecker = {
       dispose: (): void => {},
     }
@@ -86,7 +83,6 @@ describe("createPluginDispose", () => {
     const autoSlashCommand = {
       dispose: (): void => {},
     }
-    const claudeCodeHooksDisposeSpy = spyOn(claudeCodeHooks, "dispose")
     const commentCheckerDisposeSpy = spyOn(commentChecker, "dispose")
     const runtimeFallbackDisposeSpy = spyOn(runtimeFallback, "dispose")
     const atlasHookDisposeSpy = spyOn(atlasHook, "dispose")
@@ -101,7 +97,6 @@ describe("createPluginDispose", () => {
       },
       disposeHooks: (): void => {
         disposeCreatedHooks({
-          claudeCodeHooks,
           commentChecker,
           runtimeFallback,
           atlasHook,
@@ -115,7 +110,6 @@ describe("createPluginDispose", () => {
     await dispose()
 
     // then
-    expect(claudeCodeHooksDisposeSpy).toHaveBeenCalledTimes(1)
     expect(commentCheckerDisposeSpy).toHaveBeenCalledTimes(1)
     expect(runtimeFallbackDisposeSpy).toHaveBeenCalledTimes(1)
     expect(atlasHookDisposeSpy).toHaveBeenCalledTimes(1)

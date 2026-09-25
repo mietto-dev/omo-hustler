@@ -5,7 +5,7 @@ import {
   _resetForTesting,
   getMainSessionID,
   setMainSession,
-} from "../features/claude-code-session-state"
+} from "../features/opencode-session-state"
 import {
   BTW_SIDE_METADATA_KEY,
   createBtwSideMetadata,

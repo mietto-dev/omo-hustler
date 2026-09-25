@@ -1,13 +1,12 @@
 import { Command, Option } from "commander"
 import { install } from "./install"
-import { configureCleanupCommand, resolveCleanupPlatform } from "./cleanup-command"
+import { configureCleanupCommand } from "./cleanup-command"
 import { run } from "./run"
 import { getLocalVersion } from "./get-local-version"
-import { doctor, resolveDoctorTarget } from "./doctor"
+import { doctor } from "./doctor"
 import { createMcpOAuthCommand } from "./mcp-oauth"
 import { configureRuntimeCommands } from "./runtime-commands"
 import { runConfigMigrate } from "./config-migrate"
-import { availableInstallPlatforms, isSenpiPlatformEnabled, SENPI_PLATFORM_ENV_FLAG } from "./senpi-platform-flag"
 import type { InstallArgs } from "./types"
 import type { RunOptions } from "./run"
 import type { GetLocalVersionOptions } from "./get-local-version/types"
@@ -24,7 +23,6 @@ type InstallCommandOptions = {
   readonly openai?: InstallArgs["openai"]
   readonly gemini?: InstallArgs["gemini"]
   readonly copilot?: InstallArgs["copilot"]
-  readonly platform?: InstallArgs["platform"]
   readonly opencodeZen?: InstallArgs["opencodeZen"]
   readonly zaiCodingPlan?: InstallArgs["zaiCodingPlan"]
   readonly kimiForCoding?: InstallArgs["kimiForCoding"]
@@ -33,12 +31,8 @@ type InstallCommandOptions = {
   readonly minimaxCnCodingPlan?: InstallArgs["minimaxCnCodingPlan"]
   readonly minimaxCodingPlan?: InstallArgs["minimaxCodingPlan"]
   readonly vercelAiGateway?: InstallArgs["vercelAiGateway"]
-  readonly codexAutonomous?: InstallArgs["codexAutonomous"]
-  readonly skipAuth?: boolean
-}
 
-type RootCommandOptions = {
-  readonly platform?: InstallArgs["platform"]
+  readonly skipAuth?: boolean
 }
 
 type ConfigMigrateCommandOptions = {
@@ -55,24 +49,13 @@ type DoctorCommandOptions = {
 
 export function resolveInstallArgs(
   options: InstallCommandOptions,
-  invocationName: string | undefined = process.env.OMO_INVOCATION_NAME,
 ): InstallArgs {
-  const defaultPlatform =
-    process.env.OMO_EDITION === "codex" || invocationName === "lazycodex" || invocationName === "lazycodex-ai" ? "codex" : undefined
-  const platform = options.platform ?? defaultPlatform
-  if (platform === "senpi" && !isSenpiPlatformEnabled()) {
-    throw new Error(
-      `The senpi install platform is not available in this release. Set ${SENPI_PLATFORM_ENV_FLAG}=1 to enable it from a source checkout.`,
-    )
-  }
-
   return {
     tui: options.tui !== false,
     claude: options.claude,
     openai: options.openai,
     gemini: options.gemini,
     copilot: options.copilot,
-    platform,
     opencodeZen: options.opencodeZen,
     zaiCodingPlan: options.zaiCodingPlan,
     kimiForCoding: options.kimiForCoding,
@@ -81,19 +64,16 @@ export function resolveInstallArgs(
     minimaxCnCodingPlan: options.minimaxCnCodingPlan,
     minimaxCodingPlan: options.minimaxCodingPlan,
     vercelAiGateway: options.vercelAiGateway,
-    codexAutonomous: options.codexAutonomous,
     skipAuth: options.skipAuth ?? false,
   }
 }
 
-export { resolveCleanupPlatform }
 
 program
   .name("oh-my-opencode")
   .description("The ultimate OpenCode plugin - multi-model orchestration, LSP tools, and more")
   .version(VERSION, "-v, --version", "Show version number")
   .helpOption("-h, --help", "Display help for command")
-  .addOption(new Option("--platform <platform>", `Install target platform: ${availableInstallPlatforms().join(", ")}`).choices(availableInstallPlatforms()).hideHelp())
   .enablePositionalOptions()
 
 program
@@ -105,7 +85,6 @@ program
   .option("--openai <value>", "OpenAI/ChatGPT subscription: no, yes (default: no)")
   .option("--gemini <value>", "Gemini integration: no, yes")
   .option("--copilot <value>", "GitHub Copilot subscription: no, yes")
-  .addOption(new Option("--platform <platform>", `Install target platform: ${availableInstallPlatforms().join(", ")}`).choices(availableInstallPlatforms()))
   .option("--opencode-zen <value>", "OpenCode Zen access: no, yes (default: no)")
   .option("--zai-coding-plan <value>", "Z.ai Coding Plan subscription: no, yes (default: no)")
   .option("--kimi-for-coding <value>", "Kimi For Coding subscription: no, yes (default: no)")
@@ -114,15 +93,10 @@ program
   .option("--minimax-cn-coding-plan <value>", "MiniMax Coding Plan (minimaxi.com) subscription: no, yes (default: no)")
   .option("--minimax-coding-plan <value>", "MiniMax Coding Plan (minimax.io) subscription: no, yes (default: no)")
   .option("--vercel-ai-gateway <value>", "Vercel AI Gateway: no, yes (default: no)")
-  .option("--codex-autonomous", "Configure Codex with approval never, full filesystem access, and network enabled")
-  .option("--no-codex-autonomous", "Leave existing Codex permission settings unchanged")
   .option("--skip-auth", "Skip authentication setup hints")
 .addHelpText("after", `
 Examples:
   $ bunx oh-my-opencode install
-  $ npx lazycodex-ai install --no-tui
-  $ bunx oh-my-opencode install --no-tui --platform=both --claude=max20 --openai=yes --gemini=yes --copilot=no
-  $ omo-agent-toolkit install --platform=codex --codex-autonomous
   $ bunx oh-my-opencode install --no-tui --claude=no --gemini=no --copilot=yes --opencode-zen=yes
 
 Model Providers (Priority: Native > Copilot > OpenCode Zen > Z.ai > Kimi > Bailian > MiniMax > Vercel):
@@ -139,8 +113,7 @@ Model Providers (Priority: Native > Copilot > OpenCode Zen > Z.ai > Kimi > Baili
   Vercel        vercel/ models (universal proxy, always last fallback)
 `)
   .action(async (options: InstallCommandOptions) => {
-    const rootOptions = program.opts<RootCommandOptions>()
-    const args = resolveInstallArgs({ ...options, platform: options.platform ?? rootOptions.platform })
+    const args = resolveInstallArgs(options)
     const exitCode = await install(args)
     process.exit(exitCode)
   })
@@ -241,22 +214,18 @@ program
   .option("--status", "Show compact system dashboard")
   .option("--verbose", "Show detailed diagnostic information")
   .option("--json", "Output results in JSON format")
-  .addOption(new Option("--platform <platform>", "Doctor target platform: opencode, codex").choices(["opencode", "codex"]))
   .addHelpText("after", `
 Examples:
   $ bunx oh-my-opencode doctor            # Show problems only
   $ bunx oh-my-opencode doctor --status   # Compact dashboard
   $ bunx oh-my-opencode doctor --verbose  # Deep diagnostics
   $ bunx oh-my-opencode doctor --json     # JSON output
-  $ omo-agent-toolkit doctor --platform=codex   # Codex/LazyCodex diagnostics only
 `)
   .action(async (options: DoctorCommandOptions) => {
-    const rootOptions = program.opts<RootCommandOptions>()
-    const rootDoctorPlatform = rootOptions.platform === "opencode" || rootOptions.platform === "codex" ? rootOptions.platform : undefined
     const mode = options.status ? "status" : options.verbose ? "verbose" : "default"
     const doctorOptions: DoctorOptions = {
       mode,
-      json: options.json ?? false, target: resolveDoctorTarget(process.env.OMO_INVOCATION_NAME, options.platform ?? rootDoctorPlatform),
+      json: options.json ?? false, target: "opencode",
     }
     const exitCode = await doctor(doctorOptions)
     process.exit(exitCode)

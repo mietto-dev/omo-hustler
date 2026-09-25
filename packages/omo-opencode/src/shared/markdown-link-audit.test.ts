@@ -13,7 +13,9 @@ const MAINTAINER_LOCAL_PATH_RE = /file:\/\/\/(?:Users|home)\/|(?:^|[\s(`'"])(?:\
 function collectMarkdownFiles(): string[] {
   const output = Bun.spawnSync(["git", "ls-files", "*.md"], { cwd: WORKSPACE_ROOT, stdout: "pipe" })
   expect(output.exitCode).toBe(0)
-  return output.stdout.toString("utf-8").trim().split("\n").filter(Boolean).map((filePath) => resolve(WORKSPACE_ROOT, filePath))
+  return output.stdout.toString("utf-8").trim().split("\n").filter(Boolean)
+    .map((filePath) => resolve(WORKSPACE_ROOT, filePath))
+    .filter((filePath) => existsSync(filePath))
 }
 
 function stripFencedCodeBlocks(markdown: string): string {

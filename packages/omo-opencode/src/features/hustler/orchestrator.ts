@@ -9,12 +9,12 @@ import {
   type OrchestratorTaskSignals,
   type WorkflowClassification,
   type WorkflowState,
-} from "../claude-tasks/orchestrator-workflow"
+} from "../opencode-tasks/orchestrator-workflow"
 import type {
   ApproverInput,
   PlannerPlan,
   TesterReview,
-} from "../claude-tasks/workflow-contracts"
+} from "../opencode-tasks/workflow-contracts"
 export { HUSTLER_ROLES, type HustlerRole } from "./role-constants"
 
 export type HustlerWorkflow = Readonly<{

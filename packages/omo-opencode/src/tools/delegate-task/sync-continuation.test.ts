@@ -482,7 +482,7 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
 
   test("marks and aborts resumed sync session after successful handback", async () => {
     //#given - a resumed sync continuation completes successfully
-    const { handedBackSyncSessions } = require("../../features/claude-code-session-state")
+    const { handedBackSyncSessions } = require("../../features/opencode-session-state")
     handedBackSyncSessions.clear()
     const abortCalls: Array<{ path: { id: string } }> = []
     const mockClient = {
@@ -551,7 +551,7 @@ describe("executeSyncContinuation - toast cleanup error paths", () => {
 
   test("does not mark or abort resumed sync session when handback fails", async () => {
     //#given - a resumed sync continuation returns a poll error instead of a handback result
-    const { handedBackSyncSessions } = require("../../features/claude-code-session-state")
+    const { handedBackSyncSessions } = require("../../features/opencode-session-state")
     handedBackSyncSessions.clear()
     const abortCalls: Array<{ path: { id: string } }> = []
     const mockClient = {

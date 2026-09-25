@@ -5,7 +5,7 @@ import { getOpenCodeConfigDir } from "../../shared/opencode-config-dir"
 import type { z } from "zod"
 import type { OhMyOpenCodeConfig } from "../../config/schema"
 
-function ignoreClaudeTaskStorageError(error: unknown): void {
+function ignoreTaskStorageError(error: unknown): void {
   if (error instanceof Error) return
   throw error
 }
@@ -30,9 +30,6 @@ export function sanitizePathSegment(value: string): string {
 export function resolveTaskListId(config: Partial<OhMyOpenCodeConfig> = {}): string {
   const envId = process.env.ULTRAWORK_TASK_LIST_ID?.trim()
   if (envId) return sanitizePathSegment(envId)
-
-  const claudeEnvId = process.env.CLAUDE_CODE_TASK_LIST_ID?.trim()
-  if (claudeEnvId) return sanitizePathSegment(claudeEnvId)
 
   const configId = config.sisyphus?.tasks?.task_list_id?.trim()
   if (configId) return sanitizePathSegment(configId)
@@ -62,7 +59,7 @@ export function readJsonSafe<T>(filePath: string, schema: z.ZodType<T>): T | nul
 
     return result.data
   } catch (error) {
-    ignoreClaudeTaskStorageError(error)
+    ignoreTaskStorageError(error)
     return null
   }
 }
@@ -82,7 +79,7 @@ export function writeJsonAtomic(filePath: string, data: unknown): void {
         unlinkSync(tempPath)
       }
     } catch (cleanupError) {
-      ignoreClaudeTaskStorageError(cleanupError)
+      ignoreTaskStorageError(cleanupError)
       // Ignore cleanup errors
     }
     throw error
@@ -121,7 +118,7 @@ export function acquireLock(dirPath: string): { acquired: boolean; release: () =
       const lockAge = Date.now() - lockData.timestamp
       return lockAge > STALE_LOCK_THRESHOLD_MS
     } catch (error) {
-      ignoreClaudeTaskStorageError(error)
+      ignoreTaskStorageError(error)
       return true
     }
   }
@@ -146,7 +143,7 @@ export function acquireLock(dirPath: string): { acquired: boolean; release: () =
     try {
       unlinkSync(lockPath)
     } catch (error) {
-      ignoreClaudeTaskStorageError(error)
+      ignoreTaskStorageError(error)
       // Ignore cleanup errors
     }
     acquired = tryAcquire()
@@ -171,7 +168,7 @@ export function acquireLock(dirPath: string): { acquired: boolean; release: () =
         if (lockData.id !== lockId) return
         unlinkSync(lockPath)
       } catch (error) {
-        ignoreClaudeTaskStorageError(error)
+        ignoreTaskStorageError(error)
         // Ignore cleanup errors
       }
     },

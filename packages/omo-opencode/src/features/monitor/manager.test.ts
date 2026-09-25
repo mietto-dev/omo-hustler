@@ -3,7 +3,7 @@
 import { afterEach, describe, expect, mock, test } from "bun:test"
 
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
-import { subagentSessions } from "../claude-code-session-state"
+import { subagentSessions } from "../opencode-session-state"
 import { _resetForTesting as resetProcessCleanupForTesting } from "../background-agent/process-cleanup"
 import { MonitorManager, createMonitorManager } from "./manager"
 import type { MonitoredProcess } from "./process"

@@ -7,8 +7,6 @@ import type { ClassificationInput, WorktreeClassification, WorktreeRecord } from
  * sweeping them would delete state we do not own.
  */
 export const DEFAULT_EXCLUDE_PREFIXES: readonly string[] = [
-  "~/.codex/worktrees",
-  "~/.codex-gui-cli-remote/worktrees",
 ]
 
 export function expandHome(value: string, home: string): string {

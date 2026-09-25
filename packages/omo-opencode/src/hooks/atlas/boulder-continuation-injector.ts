@@ -2,7 +2,7 @@ import type { PluginInput } from "@opencode-ai/plugin"
 import {
   isAgentRegistered,
   resolveRegisteredAgentName,
-} from "../../features/claude-code-session-state"
+} from "../../features/opencode-session-state"
 import { stripAgentListSortPrefix } from "../../shared/agent-display-names"
 import { log } from "../../shared/logger"
 import { createInternalAgentContinuationTextPart, resolveInheritedPromptTools } from "../../shared"

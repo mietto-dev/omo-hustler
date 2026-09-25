@@ -3,7 +3,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, test } from "bun:test"
 
-import { classifyTask } from "../claude-tasks/orchestrator-classification"
+import { classifyTask } from "../opencode-tasks/orchestrator-classification"
 import { createHustlerEventLifecycle } from "./event-lifecycle"
 import { createHustlerLifecycleAdapter } from "./lifecycle-state"
 

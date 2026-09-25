@@ -6,7 +6,7 @@ import {
 } from "./storage";
 import { TARGET_TOOLS, AGENT_TOOLS, REMINDER_MESSAGE } from "./constants";
 import type { AgentUsageState } from "./types";
-import { getSessionAgent } from "../../features/claude-code-session-state";
+import { getSessionAgent } from "../../features/opencode-session-state";
 import { getAgentConfigKey } from "../../shared/agent-display-names";
 import { resolveSessionEventID } from "../../shared/event-session-id";
 

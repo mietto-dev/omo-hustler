@@ -1,4 +1,4 @@
-import { handedBackSyncSessions, subagentSessions } from "../../features/claude-code-session-state"
+import { handedBackSyncSessions, subagentSessions } from "../../features/opencode-session-state"
 import { getTaskToastManager } from "../../features/task-toast-manager"
 import type { ModelFallbackInfo } from "../../features/task-toast-manager/types"
 import type { FallbackEntry } from "../../shared/model-requirements"

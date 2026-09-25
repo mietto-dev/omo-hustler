@@ -73,11 +73,10 @@ Hook name allowlist for `disabled_hooks`: all configurable hook names enumerated
 | `notepadWriteGuard` | tool.execute.before | Block `Write` to append-only notepad paths (`.omo/notepads`, `.sisyphus/notepads`) |
 | `planFormatValidator` | tool.execute.before | Validate plan/todo checkbox format on `Write`/`Edit` of boulder plans |
 
-### Tier 3: Transform Hooks (4 base + 1 monitor-gated)
+### Tier 3: Transform Hooks (3 base + 1 monitor-gated)
 
 | Hook | Event | Purpose |
 |------|-------|---------|
-| `claudeCodeHooks` | messages.transform | Claude Code settings.json compatibility |
 | `keywordDetector` | messages.transform | Detect ultrawork/search/analyze/team modes; inject mode-specific prompt |
 | `contextInjectorMessagesTransform` | messages.transform | Inject AGENTS.md/README.md into context |
 | `toolPairValidator` | messages.transform | Validate tool call/result pairing |

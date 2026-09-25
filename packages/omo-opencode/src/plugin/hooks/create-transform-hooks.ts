@@ -3,7 +3,6 @@ import type { MonitorManager } from "../../features/monitor"
 import type { PluginContext } from "../types"
 
 import {
-  createClaudeCodeHooksHook,
   createKeywordDetectorHook,
   createMonitorStatusInjectorHook,
   createTeamMailboxInjector,
@@ -18,7 +17,6 @@ import { createBtwSideContextInjectorHook } from "../../features/btw-side"
 import { safeCreateHook } from "../../shared/safe-create-hook"
 
 export type TransformHooks = {
-  claudeCodeHooks: ReturnType<typeof createClaudeCodeHooksHook> | null
   keywordDetector: ReturnType<typeof createKeywordDetectorHook> | null
   btwSideContextInjector: ReturnType<typeof createBtwSideContextInjectorHook>
   contextInjectorMessagesTransform: ReturnType<typeof createContextInjectorMessagesTransformHook>
@@ -37,22 +35,6 @@ export function createTransformHooks(args: {
 }): TransformHooks {
   const { ctx, pluginConfig, isHookEnabled, monitorManager } = args
   const safeHookEnabled = args.safeHookEnabled ?? true
-
-  const claudeCodeHooks = isHookEnabled("claude-code-hooks")
-    ? safeCreateHook(
-        "claude-code-hooks",
-        () =>
-          createClaudeCodeHooksHook(
-            ctx,
-            {
-              disabledHooks: (pluginConfig.claude_code?.hooks ?? true) ? undefined : true,
-              keywordDetectorDisabled: !isHookEnabled("keyword-detector"),
-            },
-            contextCollector,
-          ),
-        { enabled: safeHookEnabled },
-      )
-    : null
 
   const keywordDetector = isHookEnabled("keyword-detector")
     ? safeCreateHook(
@@ -111,7 +93,6 @@ export function createTransformHooks(args: {
     : null
 
   return {
-    claudeCodeHooks,
     keywordDetector,
     btwSideContextInjector,
     contextInjectorMessagesTransform,

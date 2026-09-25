@@ -6,7 +6,7 @@ import * as agents from "../agents"
 import * as shared from "../shared"
 import * as sisyphusJunior from "../agents/sisyphus-junior"
 import type { OhMyOpenCodeConfig } from "../config"
-import * as agentLoader from "../features/claude-code-agent-loader"
+import * as agentLoader from "../features/opencode-agent-loader"
 import * as skillLoader from "../features/opencode-skill-loader"
 import type { LoadedSkill } from "../features/opencode-skill-loader"
 import { getAgentDisplayName, getAgentListDisplayName } from "../shared/agent-display-names"
@@ -14,7 +14,7 @@ import {
   isAgentRegistered,
   registerAgentName,
   _resetForTesting as resetSessionStateForTesting,
-} from "../features/claude-code-session-state"
+} from "../features/opencode-session-state"
 import { applyAgentConfig } from "./agent-config-handler"
 import type { PluginComponents } from "./plugin-components-loader"
 import { HUSTLER_ROLES } from "../features/hustler/role-constants"
@@ -65,12 +65,10 @@ describe("applyAgentConfig builtin override protection", () => {
   let discoverOpencodeProjectSkillsSpy: ReturnType<typeof spyOn>
   let discoverProjectAgentsSkillsSpy: ReturnType<typeof spyOn>
   let discoverGlobalAgentsSkillsSpy: ReturnType<typeof spyOn>
-  let loadUserAgentsSpy: ReturnType<typeof spyOn>
-  let loadProjectAgentsSpy: ReturnType<typeof spyOn>
-  let loadOpencodeGlobalAgentsSpy: ReturnType<typeof spyOn>
-  let loadOpencodeProjectAgentsSpy: ReturnType<typeof spyOn>
+  let loadOpenCodeGlobalAgentsSpy: ReturnType<typeof spyOn>
+  let loadOpenCodeProjectAgentsSpy: ReturnType<typeof spyOn>
   let loadAgentDefinitionsSpy: ReturnType<typeof spyOn>
-  let readOpencodeConfigAgentsSpy: ReturnType<typeof spyOn>
+  let readOpenCodeConfigAgentsSpy: ReturnType<typeof spyOn>
   let migrateAgentConfigSpy: ReturnType<typeof spyOn>
   let logSpy: ReturnType<typeof spyOn>
 
@@ -150,14 +148,12 @@ describe("applyAgentConfig builtin override protection", () => {
       "discoverGlobalAgentsSkills",
     ).mockResolvedValue([])
 
-    loadUserAgentsSpy = spyOn(agentLoader, "loadUserAgents").mockReturnValue({})
-    loadProjectAgentsSpy = spyOn(agentLoader, "loadProjectAgents").mockReturnValue({})
-    loadOpencodeGlobalAgentsSpy = spyOn(agentLoader, "loadOpencodeGlobalAgents").mockReturnValue({})
-    loadOpencodeProjectAgentsSpy = spyOn(agentLoader, "loadOpencodeProjectAgents").mockReturnValue({})
+  loadOpenCodeGlobalAgentsSpy = spyOn(agentLoader, "loadOpenCodeGlobalAgents").mockReturnValue({})
+  loadOpenCodeProjectAgentsSpy = spyOn(agentLoader, "loadOpenCodeProjectAgents").mockReturnValue({})
     loadAgentDefinitionsSpy = spyOn(agentLoader, "loadAgentDefinitions").mockReturnValue({})
-    readOpencodeConfigAgentsSpy = spyOn(
+    readOpenCodeConfigAgentsSpy = spyOn(
       agentLoader,
-      "readOpencodeConfigAgents",
+      "readOpenCodeConfigAgents",
     ).mockReturnValue({})
 
     migrateAgentConfigSpy = spyOn(shared, "migrateAgentConfig").mockImplementation(
@@ -178,12 +174,10 @@ describe("applyAgentConfig builtin override protection", () => {
     discoverOpencodeProjectSkillsSpy.mockRestore()
     discoverProjectAgentsSkillsSpy.mockRestore()
     discoverGlobalAgentsSkillsSpy.mockRestore()
-    loadUserAgentsSpy.mockRestore()
-    loadProjectAgentsSpy.mockRestore()
-    loadOpencodeGlobalAgentsSpy.mockRestore()
-    loadOpencodeProjectAgentsSpy.mockRestore()
+  loadOpenCodeGlobalAgentsSpy.mockRestore()
+  loadOpenCodeProjectAgentsSpy.mockRestore()
     loadAgentDefinitionsSpy.mockRestore()
-    readOpencodeConfigAgentsSpy.mockRestore()
+    readOpenCodeConfigAgentsSpy.mockRestore()
     migrateAgentConfigSpy.mockRestore()
     logSpy.mockRestore()
   })
@@ -370,7 +364,7 @@ describe("applyAgentConfig builtin override protection", () => {
 
   test("filters user agents whose key matches the builtin display-name alias", async () => {
     // given
-    loadUserAgentsSpy.mockReturnValue({
+    loadOpenCodeGlobalAgentsSpy.mockReturnValue({
       [BUILTIN_SISYPHUS_DISPLAY_NAME]: {
         name: BUILTIN_SISYPHUS_DISPLAY_NAME,
         prompt: "user alias prompt",
@@ -395,7 +389,7 @@ describe("applyAgentConfig builtin override protection", () => {
 
   test("filters user agents whose key differs from a builtin key only by case", async () => {
     // given
-    loadUserAgentsSpy.mockReturnValue({
+    loadOpenCodeGlobalAgentsSpy.mockReturnValue({
         OrChEsTrAtOr: {
           name: "OrChEsTrAtOr",
         prompt: "mixed-case prompt",
@@ -511,7 +505,7 @@ describe("applyAgentConfig builtin override protection", () => {
           architect: builtinOracleConfig,
           approver: builtinAtlasConfig,
         })
-        loadUserAgentsSpy.mockReturnValue({
+    loadOpenCodeGlobalAgentsSpy.mockReturnValue({
           multimodal_looker: {
             name: "multimodal_looker",
             prompt: "user multimodal alias prompt",
@@ -540,7 +534,7 @@ describe("applyAgentConfig builtin override protection", () => {
     describe("#when a user agent uses the retired junior alias", () => {
       test("uses the canonical developer key", async () => {
         // given
-        loadUserAgentsSpy.mockReturnValue({
+    loadOpenCodeGlobalAgentsSpy.mockReturnValue({
           developer: {
             name: "developer",
             prompt: "user junior alias prompt",
@@ -630,7 +624,7 @@ describe("applyAgentConfig builtin override protection", () => {
     expect(customAgent.mode).toBe("primary")
   })
 
-  test("defaults mode to subagent for plugin agents missing mode", async () => {
+  test("does not load removed plugin agents", async () => {
     // given
     const pluginComponents = createPluginComponents()
     pluginComponents.agents = {
@@ -650,9 +644,7 @@ describe("applyAgentConfig builtin override protection", () => {
     })
 
     // then
-    const pluginAgent = result["plugin-worker"] as Record<string, unknown>
-    expect(pluginAgent).toBeDefined()
-    expect(pluginAgent.mode).toBe("subagent")
+    expect(result["plugin-worker"]).toBeUndefined()
   })
 
   test("replaces registered agent names when config is re-applied", async () => {
@@ -715,60 +707,6 @@ describe("applyAgentConfig builtin override protection", () => {
     )
   })
 
-  test.each([
-    [
-      "skills.disable",
-      (config: OhMyOpenCodeConfig) => {
-        Object.assign(config, { skills: { disable: ["blocked-skill"] } })
-      },
-    ],
-    [
-      "skills.<name>: false",
-      (config: OhMyOpenCodeConfig) => {
-        Object.assign(config, { skills: { "blocked-skill": false } })
-      },
-    ],
-    [
-      "skills.<name>.disable",
-      (config: OhMyOpenCodeConfig) => {
-        Object.assign(config, { skills: { "blocked-skill": { disable: true } } })
-      },
-    ],
-  ])("passes %s entries into builtin agent disabled skill aliases", async (_label, configure) => {
-    // given
-    const disabledDescription = "IGNORE_ALL_PRIOR_INSTRUCTIONS_DISABLED_SKILL_DESC"
-    const projectSkill = {
-      name: "Blocked-Skill",
-      definition: {
-        name: "Blocked-Skill",
-        description: disabledDescription,
-        template: "template",
-      },
-      scope: "project",
-    } satisfies LoadedSkill
-    discoverProjectClaudeSkillsSpy.mockResolvedValue([projectSkill])
-    const pluginConfig = createPluginConfig()
-    configure(pluginConfig)
-
-    // when
-    await applyAgentConfig({
-      config: createBaseConfig(),
-      pluginConfig,
-      ctx: { directory: "/tmp" },
-      pluginComponents: createPluginComponents(),
-    })
-
-    // then
-    const discoveredSkills = createBuiltinAgentsSpy.mock.calls[0]?.[6]
-    expect(discoveredSkills).toEqual([expect.objectContaining({ name: "Blocked-Skill" })])
-
-    const disabledSkills = createBuiltinAgentsSpy.mock.calls[0]?.[10]
-    expect(disabledSkills).toBeInstanceOf(Set)
-    if (disabledSkills instanceof Set) {
-      expect(disabledSkills.has("blocked-skill")).toBe(true)
-    }
-  })
-
   describe("agent_definitions and opencode.json integration", () => {
     test("agent_definitions agents appear in output", async () => {
       // given
@@ -797,7 +735,7 @@ describe("applyAgentConfig builtin override protection", () => {
 
     test("opencode.json agents appear in output", async () => {
       // given
-      readOpencodeConfigAgentsSpy.mockReturnValue({
+        readOpenCodeConfigAgentsSpy.mockReturnValue({
         "opencode-agent": {
           name: "opencode-agent",
           prompt: "test opencode config agent",
@@ -913,28 +851,28 @@ describe("applyAgentConfig builtin override protection", () => {
           mode: "subagent",
         },
       }
-      loadUserAgentsSpy.mockReturnValue({
+      loadOpenCodeGlobalAgentsSpy.mockReturnValue({
         "shared-name": {
           name: "shared-name",
           prompt: "from-user",
           mode: "subagent",
         },
       })
-      loadOpencodeGlobalAgentsSpy.mockReturnValue({
+    loadOpenCodeGlobalAgentsSpy.mockReturnValue({
         "shared-name": {
           name: "shared-name",
           prompt: "from-opencode-global",
           mode: "subagent",
         },
       })
-      loadProjectAgentsSpy.mockReturnValue({
+    loadOpenCodeProjectAgentsSpy.mockReturnValue({
         "shared-name": {
           name: "shared-name",
           prompt: "from-project",
           mode: "subagent",
         },
       })
-      loadOpencodeProjectAgentsSpy.mockReturnValue({
+    loadOpenCodeProjectAgentsSpy.mockReturnValue({
         "shared-name": {
           name: "shared-name",
           prompt: "from-opencode-project",
@@ -948,7 +886,7 @@ describe("applyAgentConfig builtin override protection", () => {
           mode: "subagent",
         },
       })
-      readOpencodeConfigAgentsSpy.mockReturnValue({
+      readOpenCodeConfigAgentsSpy.mockReturnValue({
         "shared-name": {
           name: "shared-name",
           prompt: "from-opencode-config",
@@ -980,7 +918,7 @@ describe("applyAgentConfig builtin override protection", () => {
 
     test("precedence: agent_definitions overrides project agents", async () => {
       // given
-      loadProjectAgentsSpy.mockReturnValue({
+    loadOpenCodeProjectAgentsSpy.mockReturnValue({
         "shared-name": {
           name: "shared-name",
           prompt: "from-project",
@@ -1019,7 +957,7 @@ describe("applyAgentConfig builtin override protection", () => {
           mode: "subagent",
         },
       })
-      readOpencodeConfigAgentsSpy.mockReturnValue({
+      readOpenCodeConfigAgentsSpy.mockReturnValue({
         "opencode-agent": {
           name: "opencode-agent",
           prompt: "from opencode.json",

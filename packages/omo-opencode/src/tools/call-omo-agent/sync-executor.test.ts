@@ -349,7 +349,7 @@ describe("executeSync", () => {
   test("registers child-session bootstrap and tracked prompt state before sync prompt dispatch", async () => {
     //#given
     const executeSync = await importExecuteSync()
-    const { _resetForTesting, getSessionAgent } = require("../../features/claude-code-session-state")
+    const { _resetForTesting, getSessionAgent } = require("../../features/opencode-session-state")
     const { clearAllDelegatedChildSessionBootstrap, getDelegatedChildSessionBootstrap } = require("../../shared/delegated-child-session-bootstrap")
     const { clearSessionTools, getSessionTools } = require("../../shared/session-tools-store")
     const deps = createDependencies({

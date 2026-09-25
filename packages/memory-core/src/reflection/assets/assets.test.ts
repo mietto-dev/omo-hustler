@@ -6,21 +6,15 @@ import { describe, expect, it } from "bun:test"
 import { loadDreamPersona, loadReflectionPersona } from "./assets"
 
 describe("dream persona asset", () => {
-  it("#given the source asset and the packaged plugin copy #when loaded and read #then all copies are identical", () => {
+  it("#given the source asset #when loaded and read #then the loader returns the source", () => {
     // given
     const here = dirname(fileURLToPath(import.meta.url))
     const source = readFileSync(join(here, "dream-persona.md"), "utf8")
 
     // when
     const loaded = loadDreamPersona().markdown
-    const packaged = readFileSync(
-      join(here, "..", "..", "..", "..", "omo-senpi", "plugin", "extensions", "dream-persona.md"),
-      "utf8",
-    )
-
     // then
     expect(loaded).toBe(source)
-    expect(packaged).toBe(source)
   })
 
   it("#given the dream persona #when parsed as sections #then the machine budget-contract anchor is embedded", () => {

@@ -23,27 +23,20 @@ const corePackagePaths: readonly string[] = [
   "packages/boulder-state",
   "packages/memory-core",
   "packages/telemetry-core",
-  "packages/claude-code-compat-core",
   "packages/skills-loader-core",
 ] as const
 
 const mcpPackagePaths: readonly string[] = [
-  "packages/ast-grep-mcp",
   "packages/git-bash-mcp",
-  "packages/lsp-daemon",
   "packages/lsp-tools-mcp",
 ] as const
 const adapterPackagePaths: readonly string[] = [
-  "packages/omo-codex",
-  "packages/omo-senpi",
-  "packages/senpi-task",
+  "packages/hustler",
   "packages/omo-opencode",
-  "packages/pi-goal",
-  "packages/pi-webfetch",
-  "packages/omo-native",
 ] as const
 const skillPackagePaths: readonly string[] = ["packages/shared-skills"] as const
-const shimSourceRoots: readonly string[] = ["packages/omo-opencode/src", "packages/omo-codex/src"] as const
+const shimSourceRoots: readonly string[] = ["packages/omo-opencode/src"] as const
+const rootTypecheckPackagePaths: readonly string[] = ["packages/hustler", "packages/omo-opencode"] as const
 const reExportShimFirstLinePattern = /^export (\*|\{).*from ["'](@oh-my-opencode\/[^/"']+)/
 
 const layerRanks = {
@@ -224,13 +217,11 @@ describe("package registration audit", () => {
     const root = await readRootManifest()
     const managedPackagePaths = (await discoverPackagePaths()).filter(isManagedWorkspacePackage)
     const managedWorkspacePaths = managedPackagePaths.filter((path) => !mcpPackagePaths.includes(path) || root.workspaces.includes(path))
-    const expectedTypecheckPaths = managedWorkspacePaths.filter((path) => existsSync(join(path, "tsconfig.json")))
+    const expectedTypecheckPaths = rootTypecheckPackagePaths.filter((path) => existsSync(join(path, "tsconfig.json")))
     const expectedDevDependencyNames = (
       await Promise.all(
         managedWorkspacePaths
-          // omo-opencode stays linked because the Senpi build imports its config-migration export.
-          // omo-native publishes under its own npm name and is not an internal workspace devDependency.
-          .filter((path) => path !== "packages/omo-native")
+          .filter((path) => !mcpPackagePaths.includes(path))
           .map((path) => readManifest(join(path, "package.json")).then((manifest) => manifest.name)),
       )
     ).toSorted()

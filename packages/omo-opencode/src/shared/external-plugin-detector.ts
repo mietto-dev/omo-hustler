@@ -187,8 +187,7 @@ Both ${PLUGIN_NAME} and ${pluginName} scan ~/.config/opencode/skills/ and regist
 
    Consider either:
    1. Remove ${pluginName} from your opencode.json plugins to use ${PLUGIN_NAME}'s skill loading
-   2. Or disable ${PLUGIN_NAME}'s skill loading by setting "claude_code.skills": false in .omo/omo.jsonc
-   3. Or uninstall ${PLUGIN_NAME} if you prefer ${pluginName}'s skill management`
+   2. Or uninstall ${PLUGIN_NAME} if you prefer ${pluginName}'s skill management`
 }
 
 export function getDuplicateOmoPluginWarning(duplicatePlugins: readonly string[]): string {

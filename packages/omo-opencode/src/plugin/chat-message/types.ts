@@ -62,7 +62,6 @@ export type ChatMessageHooks = {
   runtimeFallback?: ChatMessageHook | null
   keywordDetector?: ChatMessageHook | null
   thinkMode?: ChatMessageHook | null
-  claudeCodeHooks?: ChatMessageHook | null
   autoSlashCommand?: ChatMessageHook | null
   noSisyphusGpt?: ChatMessageHook | null
   noHephaestusNonGpt?: ChatMessageHook | null

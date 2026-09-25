@@ -3,7 +3,7 @@ import { afterEach, describe, it, expect } from "bun:test"
 import { createMessagesTransformHandler } from "./messages-transform"
 import { createCategorySkillReminderHook } from "../hooks/category-skill-reminder"
 import { createToolPairValidatorHook } from "../hooks/tool-pair-validator/hook"
-import { _resetForTesting, updateSessionAgent } from "../features/claude-code-session-state"
+import { _resetForTesting, updateSessionAgent } from "../features/opencode-session-state"
 import { OMO_INTERNAL_INITIATOR_MARKER } from "../shared/internal-initiator-marker"
 import type { CreatedHooks } from "../create-hooks"
 

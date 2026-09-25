@@ -222,13 +222,6 @@ describe("parseWorktreeList", () => {
 })
 
 describe("isExcludedPath", () => {
-  test("default exclude prefixes protect codex-managed worktree roots", () => {
-    expect(isExcludedPath("/home/dev/.codex/worktrees/lane-a", DEFAULT_EXCLUDE_PREFIXES, "/home/dev")).toBe(true)
-    expect(
-      isExcludedPath("/home/dev/.codex-gui-cli-remote/worktrees/pr-9", DEFAULT_EXCLUDE_PREFIXES, "/home/dev"),
-    ).toBe(true)
-  })
-
   test("paths outside the prefixes are not excluded, and prefix siblings do not match", () => {
     expect(isExcludedPath("/home/dev/src/omo", DEFAULT_EXCLUDE_PREFIXES, "/home/dev")).toBe(false)
     expect(isExcludedPath("/home/dev/.codex-other/worktrees/x", DEFAULT_EXCLUDE_PREFIXES, "/home/dev")).toBe(false)

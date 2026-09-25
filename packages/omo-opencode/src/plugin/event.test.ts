@@ -5,7 +5,7 @@ import type { PluginInput } from "@opencode-ai/plugin"
 import { createEventHandler, extractErrorMessage } from "./event"
 import { createChatMessageHandler } from "./chat-message"
 import * as openclawRuntimeDispatch from "../openclaw/runtime-dispatch"
-import { _resetForTesting, setMainSession, subagentSessions } from "../features/claude-code-session-state"
+import { _resetForTesting, setMainSession, subagentSessions } from "../features/opencode-session-state"
 import { clearPendingModelFallback, createModelFallbackHook } from "../hooks/model-fallback/hook"
 import { getSessionPromptParams, setSessionPromptParams } from "../shared/session-prompt-params-state"
 
@@ -620,7 +620,6 @@ describe("createEventHandler - idle deduplication", () => {
 			}),
 			hooks: createEventHandlerHooks({
 				autoUpdateChecker: { event: async () => {} },
-				claudeCodeHooks: { event: async () => {} },
 				backgroundNotificationHook: { event: async () => {} },
 				sessionNotification: async () => {},
 				todoContinuationEnforcer: { handler: async () => {} },
@@ -704,7 +703,6 @@ describe("createEventHandler - idle deduplication", () => {
 						dispatchCalls.push(input)
 					},
 				},
-				claudeCodeHooks: { event: async () => {} },
 				backgroundNotificationHook: { event: async () => {} },
 				sessionNotification: async () => {},
 				todoContinuationEnforcer: { handler: async () => {} },
@@ -760,7 +758,6 @@ describe("createEventHandler - idle deduplication", () => {
 						}
 					},
 				},
-				claudeCodeHooks: { event: async () => {} },
 				backgroundNotificationHook: { event: async () => {} },
 				sessionNotification: async () => {},
 				todoContinuationEnforcer: { handler: async () => {} },
@@ -1441,7 +1438,6 @@ describe("createEventHandler - retry dedupe lifecycle", () => {
 				modelFallback,
 				stopContinuationGuard: null,
 				keywordDetector: null,
-				claudeCodeHooks: null,
 				autoSlashCommand: null,
 				ulwExecute: null,
 				ralphLoop: null,
@@ -1608,11 +1604,6 @@ describe("createEventHandler - event hook isolation", () => {
 						throw new Error("toast failed")
 					},
 				},
-				claudeCodeHooks: {
-					event: async () => {
-						calls.push("claudeCodeHooks")
-					},
-				},
 				backgroundNotificationHook: {
 					event: async () => {
 						calls.push("backgroundNotificationHook")
@@ -1648,7 +1639,6 @@ describe("createEventHandler - event hook isolation", () => {
 		expect(calls).toEqual([
 			"autoUpdateChecker",
 			"legacyPluginToast",
-			"claudeCodeHooks",
 			"backgroundNotificationHook",
 			"sessionNotification",
 			"runtimeFallback",

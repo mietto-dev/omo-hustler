@@ -7,7 +7,6 @@ import { readFileSync, readdirSync } from "node:fs";
 import { chmod, mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 // Import PLATFORMS from build-binaries.ts
 // We need to export it first, but for now we'll test the expected structure
@@ -17,24 +16,6 @@ const EXPECTED_BASELINE_TARGETS = [
   "bun-darwin-x64-baseline",
   "bun-windows-x64-baseline",
 ];
-
-async function writeFakeCli(tempDir: string): Promise<void> {
-  const cliPath = join(tempDir, "dist", "cli", "index.js");
-  await mkdir(join(tempDir, "dist", "cli"), { recursive: true });
-  await writeFile(
-    cliPath,
-    [
-      "#!/usr/bin/env node",
-      "console.log(`bun-cli ${process.argv.slice(1).join(\" \")}`);",
-      "",
-    ].join("\n"),
-  );
-  await chmod(cliPath, 0o755);
-}
-
-function normalizeOutputPath(output: string): string {
-  return output.replace(/\\/g, "/");
-}
 
 describe("build-binaries", () => {
   describe("PLATFORMS array", () => {
@@ -99,130 +80,6 @@ describe("build-binaries", () => {
       // then
       expect(windowsBaseline?.binary).toBe("oh-my-opencode.js");
       expect(linuxBaseline?.binary).toBe("oh-my-opencode.js");
-    });
-
-    it("launcher can print lazycodex help when Bun is unavailable", async () => {
-      // given
-      const module = await import("./build-binaries.ts");
-      const createPlatformLauncherSource = (module as { createPlatformLauncherSource: () => string }).createPlatformLauncherSource;
-      const root = fileURLToPath(new URL("..", import.meta.url));
-      const tempDir = await mkdtemp(join(tmpdir(), "lazycodex-launcher-"));
-      const launcherPath = join(tempDir, "oh-my-opencode.js");
-      await writeFile(launcherPath, createPlatformLauncherSource());
-      await chmod(launcherPath, 0o755);
-
-      // when
-      const result = spawnSync(process.execPath, [launcherPath, "--help"], {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          BUN_BINARY: join(tempDir, "missing-bun"),
-          OMO_INVOCATION_NAME: "lazycodex-ai",
-          OMO_WRAPPER_PACKAGE_ROOT: root,
-        },
-      });
-
-      // then
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("Usage: lazycodex-ai install");
-      expect(result.stderr).not.toContain("failed to execute Bun");
-    });
-
-    it("launcher routes omo codex-only install through the Node installer before requiring Bun", async () => {
-      // given
-      const module = await import("./build-binaries.ts");
-      const createPlatformLauncherSource = (module as { createPlatformLauncherSource: () => string }).createPlatformLauncherSource;
-      const tempDir = await mkdtemp(join(tmpdir(), "omo-codex-only-launcher-"));
-      const launcherPath = join(tempDir, "oh-my-opencode.js");
-      const installerPath = join(tempDir, "packages", "omo-codex", "scripts", "install-local.mjs");
-      await mkdir(join(tempDir, "packages", "omo-codex", "scripts"), { recursive: true });
-      await writeFile(launcherPath, createPlatformLauncherSource());
-      await chmod(launcherPath, 0o755);
-      await writeFile(
-        installerPath,
-        [
-          "#!/usr/bin/env node",
-          "console.log(`node-installer ${process.argv.slice(2).join(\" \")}`);",
-          "",
-        ].join("\n"),
-      );
-      await chmod(installerPath, 0o755);
-
-      // when
-      const result = spawnSync(process.execPath, [launcherPath, "install", "--platform=codex", "--no-tui"], {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          BUN_BINARY: join(tempDir, "missing-bun"),
-          OMO_INVOCATION_NAME: "omo-agent-toolkit",
-          OMO_WRAPPER_PACKAGE_ROOT: tempDir,
-        },
-      });
-
-      // then
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("node-installer install --platform=codex --no-tui");
-      expect(result.stderr).not.toContain("failed to execute Bun");
-    });
-
-    it("launcher preserves lazycodex explicit both-platform install on the Bun CLI path", async () => {
-      // given
-      const module = await import("./build-binaries.ts");
-      const createPlatformLauncherSource = (module as { createPlatformLauncherSource: () => string }).createPlatformLauncherSource;
-      const tempDir = await mkdtemp(join(tmpdir(), "lazycodex-both-launcher-"));
-      const launcherPath = join(tempDir, "oh-my-opencode.js");
-      const installerPath = join(tempDir, "packages", "omo-codex", "scripts", "install-local.mjs");
-      await mkdir(join(tempDir, "packages", "omo-codex", "scripts"), { recursive: true });
-      await writeFile(launcherPath, createPlatformLauncherSource());
-      await chmod(launcherPath, 0o755);
-      await writeFakeCli(tempDir);
-      await writeFile(installerPath, "#!/usr/bin/env node\nconsole.log('node-installer');\n");
-      await chmod(installerPath, 0o755);
-
-      // when
-      const result = spawnSync(process.execPath, [launcherPath, "--platform=both", "install", "--no-tui"], {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          BUN_BINARY: process.execPath,
-          OMO_INVOCATION_NAME: "lazycodex-ai",
-          OMO_WRAPPER_PACKAGE_ROOT: tempDir,
-        },
-      });
-
-      // then
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("bun-cli");
-      expect(normalizeOutputPath(result.stdout)).toContain("dist/cli/index.js --platform=both install --no-tui");
-      expect(result.stdout).not.toContain("node-installer");
-    });
-
-    it("launcher routes lazycodex ulw-loop through the Bun CLI instead of the installer", async () => {
-      // given
-      const module = await import("./build-binaries.ts");
-      const createPlatformLauncherSource = (module as { createPlatformLauncherSource: () => string }).createPlatformLauncherSource;
-      const tempDir = await mkdtemp(join(tmpdir(), "lazycodex-ulw-loop-launcher-"));
-      const launcherPath = join(tempDir, "oh-my-opencode.js");
-      await writeFile(launcherPath, createPlatformLauncherSource());
-      await chmod(launcherPath, 0o755);
-      await writeFakeCli(tempDir);
-
-      // when
-      const result = spawnSync(process.execPath, [launcherPath, "ulw-loop", "--help"], {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          BUN_BINARY: process.execPath,
-          OMO_INVOCATION_NAME: "lazycodex-ai",
-          OMO_WRAPPER_PACKAGE_ROOT: tempDir,
-        },
-      });
-
-      // then
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("bun-cli");
-      expect(normalizeOutputPath(result.stdout)).toContain("dist/cli/index.js ulw-loop --help");
-      expect(result.stdout).not.toContain("Unsupported lazycodex-ai command");
     });
 
     it("has descriptions mentioning no AVX2 for baseline platforms", async () => {

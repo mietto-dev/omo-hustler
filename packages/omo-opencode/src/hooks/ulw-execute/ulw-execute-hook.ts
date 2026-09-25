@@ -9,7 +9,7 @@ import {
   isAgentRegistered,
   resolveRegisteredAgentName,
   updateSessionAgent,
-} from "../../features/claude-code-session-state"
+} from "../../features/opencode-session-state"
 import { detectWorktreePath } from "./worktree-detector"
 import { parseUserRequest } from "./parse-user-request"
 import { buildUlwExecuteContextInfo } from "./context-info-builder"

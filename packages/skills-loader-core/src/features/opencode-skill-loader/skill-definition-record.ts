@@ -1,4 +1,4 @@
-import type { CommandDefinition } from "@oh-my-opencode/claude-code-compat-core/claude-code-command-loader/types"
+import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
 import type { BuiltinSkill } from "../builtin-skills/types"
 import type { LoadedSkill } from "./types"
 

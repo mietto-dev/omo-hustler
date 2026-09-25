@@ -5,8 +5,6 @@ export const SisyphusTasksConfigSchema = z.object({
   storage_path: z.string().optional(),
   /** Force task list ID (alternative to env ULTRAWORK_TASK_LIST_ID) */
   task_list_id: z.string().optional(),
-  /** Enable Claude Code path compatibility mode */
-  claude_code_compat: z.boolean().default(false),
 })
 
 export const SisyphusConfigSchema = z.object({

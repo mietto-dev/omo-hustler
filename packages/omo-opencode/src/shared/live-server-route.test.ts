@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test"
-import { subagentSessions } from "../features/claude-code-session-state/state"
+import { subagentSessions } from "../features/opencode-session-state/state"
 import {
   LIVE_ROUTE_DISPATCH_LOG,
   LIVE_ROUTE_UNAVAILABLE_LOG,

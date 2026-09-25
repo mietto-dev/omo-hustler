@@ -1,5 +1,5 @@
 import { getPlanProgress, normalizeSessionId, readBoulderState, resolveBoulderPlanPath } from "../../features/boulder-state"
-import { getSessionAgent } from "../../features/claude-code-session-state"
+import { getSessionAgent } from "../../features/opencode-session-state"
 import {
   getActiveContinuationMarkerReason,
   isContinuationMarkerActive,

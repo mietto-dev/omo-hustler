@@ -19,7 +19,7 @@ const readProviderModelsCacheMock = mock(
   } | null,
 )
 
-type ClaudeCodeAgentRecord = Record<
+type OpenCodeAgentRecord = Record<
   string,
   {
     description?: string
@@ -29,8 +29,8 @@ type ClaudeCodeAgentRecord = Record<
   }
 >
 
-const loadUserAgentsMock = mock((): ClaudeCodeAgentRecord => ({}))
-const loadProjectAgentsMock = mock((_directory?: string): ClaudeCodeAgentRecord => ({}))
+const loadOpenCodeGlobalAgentsMock = mock((): OpenCodeAgentRecord => ({}))
+const loadOpenCodeProjectAgentsMock = mock((_directory?: string): OpenCodeAgentRecord => ({}))
 
 async function importFreshSubagentResolverModule(): Promise<SubagentResolverModule> {
   return await import(`../subagent-resolver?test=${Date.now()}-${Math.random()}`)
@@ -75,10 +75,10 @@ describe("resolveSubagentExecution", () => {
     readProviderModelsCacheMock.mockReset()
     readConnectedProvidersCacheMock.mockReturnValue(null)
     readProviderModelsCacheMock.mockReturnValue(null)
-    loadUserAgentsMock.mockReset()
-    loadProjectAgentsMock.mockReset()
-    loadUserAgentsMock.mockImplementation(() => ({}))
-    loadProjectAgentsMock.mockImplementation(() => ({}))
+    loadOpenCodeGlobalAgentsMock.mockReset()
+    loadOpenCodeProjectAgentsMock.mockReset()
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => ({}))
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => ({}))
     mock.module("../../../shared/logger", () => ({
       log: logMock,
     }))
@@ -89,13 +89,13 @@ describe("resolveSubagentExecution", () => {
       hasProviderModelsCache: () => readProviderModelsCacheMock() !== null,
       _resetMemCacheForTesting: () => {},
     }))
-    mock.module("../../../features/claude-code-agent-loader/loader", () => ({
-      loadUserAgents: loadUserAgentsMock,
-      loadProjectAgents: loadProjectAgentsMock,
+    mock.module("../../../features/opencode-agent-loader/loader", () => ({
+      loadOpenCodeGlobalAgents: loadOpenCodeGlobalAgentsMock,
+      loadOpenCodeProjectAgents: loadOpenCodeProjectAgentsMock,
     }))
-    mock.module("../../../features/claude-code-agent-loader", () => ({
-      loadUserAgents: loadUserAgentsMock,
-      loadProjectAgents: loadProjectAgentsMock,
+    mock.module("../../../features/opencode-agent-loader", () => ({
+      loadOpenCodeGlobalAgents: loadOpenCodeGlobalAgentsMock,
+      loadOpenCodeProjectAgents: loadOpenCodeProjectAgentsMock,
     }))
     ;({ resolveSubagentExecution } = await importFreshSubagentResolverModule())
   })
@@ -358,7 +358,7 @@ describe("resolveSubagentExecution", () => {
         updatedAt: "2026-03-03T00:00:00.000Z",
       })
 
-      loadUserAgentsMock.mockImplementation(() => {
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => {
         if (loader === "user") {
           return {
             [aliasName]: {
@@ -366,12 +366,12 @@ describe("resolveSubagentExecution", () => {
               mode: "subagent",
               model: "openai/gpt-5.5",
             },
-          } satisfies ClaudeCodeAgentRecord
+} satisfies OpenCodeAgentRecord
         }
         return {}
       })
 
-      loadProjectAgentsMock.mockImplementation(() => {
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => {
         if (loader === "project") {
           return {
             [aliasName]: {
@@ -379,7 +379,7 @@ describe("resolveSubagentExecution", () => {
               mode: "subagent",
               model: "openai/gpt-5.5",
             },
-          } satisfies ClaudeCodeAgentRecord
+} satisfies OpenCodeAgentRecord
         }
         return {}
       })
@@ -413,7 +413,7 @@ describe("resolveSubagentExecution", () => {
     "uses built-in hidden plan fallback when a $loader primary $aliasName alias exists",
     async ({ loader, aliasName }) => {
       //#given
-      loadUserAgentsMock.mockImplementation(() => {
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => {
         if (loader === "user") {
           return {
             [aliasName]: {
@@ -421,12 +421,12 @@ describe("resolveSubagentExecution", () => {
               mode: "primary",
               model: "openai/gpt-5.5",
             },
-          } satisfies ClaudeCodeAgentRecord
+} satisfies OpenCodeAgentRecord
         }
         return {}
       })
 
-      loadProjectAgentsMock.mockImplementation(() => {
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => {
         if (loader === "project") {
           return {
             [aliasName]: {
@@ -434,7 +434,7 @@ describe("resolveSubagentExecution", () => {
               mode: "primary",
               model: "openai/gpt-5.5",
             },
-          } satisfies ClaudeCodeAgentRecord
+} satisfies OpenCodeAgentRecord
         }
         return {}
       })
@@ -472,7 +472,7 @@ describe("resolveSubagentExecution", () => {
     "rejects omitted hidden build when a $loader $aliasName alias exists",
     async ({ loader, aliasName }) => {
       //#given
-      loadUserAgentsMock.mockImplementation(() => {
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => {
         if (loader === "user") {
           return {
             [aliasName]: {
@@ -480,12 +480,12 @@ describe("resolveSubagentExecution", () => {
               mode: "subagent",
               model: "openai/gpt-5.5",
             },
-          } satisfies ClaudeCodeAgentRecord
+} satisfies OpenCodeAgentRecord
         }
         return {}
       })
 
-      loadProjectAgentsMock.mockImplementation(() => {
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => {
         if (loader === "project") {
           return {
             [aliasName]: {
@@ -493,7 +493,7 @@ describe("resolveSubagentExecution", () => {
               mode: "subagent",
               model: "openai/gpt-5.5",
             },
-          } satisfies ClaudeCodeAgentRecord
+} satisfies OpenCodeAgentRecord
         }
         return {}
       })
@@ -586,7 +586,7 @@ describe("resolveSubagentExecution", () => {
 
   test("rejects ZWSP-prefixed project agent that canonicalizes to hidden build (regression #3957 canonical-key bypass)", async () => {
     //#given
-    loadProjectAgentsMock.mockImplementation(() => ({
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => ({
       "\u200Bbuild": {
         description: "Aliases hidden build via zero-width prefix",
         mode: "subagent",
@@ -610,7 +610,7 @@ describe("resolveSubagentExecution", () => {
 
   test("uses built-in hidden plan instead of quoted user agent alias", async () => {
     //#given
-    loadUserAgentsMock.mockImplementation(() => ({
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => ({
       '"plan"': {
         description: "Aliases hidden plan via quote wrappers",
         mode: "subagent",
@@ -634,7 +634,7 @@ describe("resolveSubagentExecution", () => {
 
   test("rejects sort-prefixed project agent that canonicalizes to hidden build (regression #3957 canonical-key bypass)", async () => {
     //#given
-    loadProjectAgentsMock.mockImplementation(() => ({
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => ({
       "1|build": {
         description: "Aliases hidden build via sort prefix",
         mode: "subagent",
@@ -1188,7 +1188,7 @@ describe("resolveSubagentExecution", () => {
     })
   })
 
-  test("resolves user agent from loadUserAgents when calling task(subagent_type=...)", async () => {
+    test("resolves global OpenCode agent when calling task(subagent_type=...)", async () => {
     //#given
     readProviderModelsCacheMock.mockReturnValue({
       models: { openai: ["gpt-5.4"] },
@@ -1196,7 +1196,7 @@ describe("resolveSubagentExecution", () => {
       updatedAt: "2026-03-03T00:00:00.000Z",
     })
     readConnectedProvidersCacheMock.mockReturnValue(["openai"])
-    loadUserAgentsMock.mockImplementation(() => ({
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => ({
       "my-user-agent": {
         description: "A user agent",
         mode: "subagent",
@@ -1216,7 +1216,7 @@ describe("resolveSubagentExecution", () => {
     expect(result.categoryModel?.modelID).toBe("gpt-5.4")
   })
 
-  test("resolves project agent from loadProjectAgents when calling task(subagent_type=...)", async () => {
+    test("resolves project OpenCode agent when calling task(subagent_type=...)", async () => {
     //#given
     readProviderModelsCacheMock.mockReturnValue({
       models: { anthropic: ["claude-sonnet-4"] },
@@ -1224,7 +1224,7 @@ describe("resolveSubagentExecution", () => {
       updatedAt: "2026-03-03T00:00:00.000Z",
     })
     readConnectedProvidersCacheMock.mockReturnValue(["anthropic"])
-    loadProjectAgentsMock.mockImplementation(() => ({
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => ({
       "my-project-agent": {
         description: "A project agent",
         mode: "subagent",
@@ -1252,7 +1252,7 @@ describe("resolveSubagentExecution", () => {
       updatedAt: "2026-03-03T00:00:00.000Z",
     })
     readConnectedProvidersCacheMock.mockReturnValue(["openai"])
-    loadUserAgentsMock.mockImplementation(() => ({
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => ({
       "librarian": {
         description: "User librarian agent",
         mode: "subagent",
@@ -1282,7 +1282,7 @@ describe("resolveSubagentExecution", () => {
       updatedAt: "2026-03-03T00:00:00.000Z",
     })
     readConnectedProvidersCacheMock.mockReturnValue(["minimaxi"])
-    loadUserAgentsMock.mockImplementation(() => ({
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => ({
       "my-custom-agent": {
         description: "User agent",
         mode: "subagent",
@@ -1290,7 +1290,7 @@ describe("resolveSubagentExecution", () => {
         model: "minimaxi/claude-3-haiku",
       },
     }))
-    loadProjectAgentsMock.mockImplementation(() => ({
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => ({
       "my-custom-agent": {
         description: "Project agent",
         mode: "subagent",
@@ -1312,7 +1312,7 @@ describe("resolveSubagentExecution", () => {
 
   test("filters out primary agents from user/project when resolving", async () => {
     //#given
-    loadUserAgentsMock.mockImplementation(() => ({
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => ({
       "my-primary-agent": {
         description: "A primary agent",
         mode: "primary",
@@ -1341,10 +1341,10 @@ describe("resolveSubagentExecution - agent name sanitization", () => {
     readProviderModelsCacheMock.mockReset()
     readConnectedProvidersCacheMock.mockReturnValue(null)
     readProviderModelsCacheMock.mockReturnValue(null)
-    loadUserAgentsMock.mockReset()
-    loadProjectAgentsMock.mockReset()
-    loadUserAgentsMock.mockImplementation(() => ({}))
-    loadProjectAgentsMock.mockImplementation(() => ({}))
+    loadOpenCodeGlobalAgentsMock.mockReset()
+    loadOpenCodeProjectAgentsMock.mockReset()
+    loadOpenCodeGlobalAgentsMock.mockImplementation(() => ({}))
+    loadOpenCodeProjectAgentsMock.mockImplementation(() => ({}))
     mock.module("../../../shared/logger", () => ({
       log: logMock,
     }))
@@ -1355,13 +1355,13 @@ describe("resolveSubagentExecution - agent name sanitization", () => {
       hasProviderModelsCache: () => readProviderModelsCacheMock() !== null,
       _resetMemCacheForTesting: () => {},
     }))
-    mock.module("../../../features/claude-code-agent-loader/loader", () => ({
-      loadUserAgents: loadUserAgentsMock,
-      loadProjectAgents: loadProjectAgentsMock,
+    mock.module("../../../features/opencode-agent-loader/loader", () => ({
+      loadOpenCodeGlobalAgents: loadOpenCodeGlobalAgentsMock,
+      loadOpenCodeProjectAgents: loadOpenCodeProjectAgentsMock,
     }))
-    mock.module("../../../features/claude-code-agent-loader", () => ({
-      loadUserAgents: loadUserAgentsMock,
-      loadProjectAgents: loadProjectAgentsMock,
+    mock.module("../../../features/opencode-agent-loader", () => ({
+      loadOpenCodeGlobalAgents: loadOpenCodeGlobalAgentsMock,
+      loadOpenCodeProjectAgents: loadOpenCodeProjectAgentsMock,
     }))
     ;({ resolveSubagentExecution } = await importFreshSubagentResolverModule())
   })

@@ -4,7 +4,7 @@ import type { CreatedHooks } from "../create-hooks";
 import type { Managers } from "../create-managers";
 import type { PluginContext } from "./types";
 
-import { getMainSessionID, subagentSessions, syncSubagentSessions } from "../features/claude-code-session-state";
+import { getMainSessionID, subagentSessions, syncSubagentSessions } from "../features/opencode-session-state";
 import { invalidateContextWindowUsageCache } from "../shared/dynamic-truncator";
 import { resolveSessionEventID } from "../shared/event-session-id";
 import { log } from "../shared/logger";

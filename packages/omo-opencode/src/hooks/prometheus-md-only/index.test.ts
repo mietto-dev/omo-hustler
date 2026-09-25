@@ -5,7 +5,7 @@ import { tmpdir } from "node:os"
 import { randomUUID } from "node:crypto"
 import { SYSTEM_DIRECTIVE_PREFIX } from "../../shared/system-directive"
 import { PLANNING_CONTEXT_OPEN } from "./constants"
-import { clearSessionAgent, setSessionAgent } from "../../features/claude-code-session-state"
+import { clearSessionAgent, setSessionAgent } from "../../features/opencode-session-state"
 // Force stable (JSON) mode for tests that rely on message file storage
 mock.module("../../shared/opencode-storage-detection", () => ({
   isSqliteBackend: () => false,

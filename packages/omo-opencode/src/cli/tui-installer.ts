@@ -12,8 +12,6 @@ import {
 import { detectedToInitialValues, formatConfigSummary, SYMBOLS } from "./install-validators"
 import { getUnsupportedOpenCodeVersionMessage } from "./minimum-opencode-version"
 import { promptInstallConfig, promptInstallPlatform } from "./tui-install-prompts"
-import { detectCodexInstallation, formatCodexInstallationWarning, runCodexInstaller } from "./install-codex"
-import { runSenpiInstaller } from "./install-senpi"
 import { starGitHubRepositories } from "./star-request"
 import { getNoModelProvidersWarning, hasAnyConfiguredProvider } from "./provider-availability"
 import { ensureTuiPluginEntry } from "./config-manager/add-tui-plugin-to-tui-config"
@@ -28,28 +26,9 @@ export async function runTuiInstaller(args: InstallArgs, version: string): Promi
   const selectedPlatform = await promptInstallPlatform(args.platform ?? "opencode")
   if (!selectedPlatform) return 1
 
-  const hasOpenCode = selectedPlatform === "opencode" || selectedPlatform === "both"
-  const detected = hasOpenCode
-    ? detectCurrentConfig()
-    : {
-        isInstalled: false,
-        installedVersion: null,
-        hasClaude: false,
-        isMax20: false,
-        hasOpenAI: false,
-        hasGemini: false,
-        hasCopilot: false,
-        hasCodex: false,
-        hasOpencodeZen: false,
-        hasZaiCodingPlan: false,
-        hasKimiForCoding: false,
-        hasOpencodeGo: false,
-        hasBailianCodingPlan: false,
-        hasMinimaxCnCodingPlan: false,
-        hasMinimaxCodingPlan: false,
-        hasVercelAiGateway: false,
-      }
-  const isUpdate = hasOpenCode && detected.isInstalled
+  const hasOpenCode = true
+  const detected = detectCurrentConfig()
+  const isUpdate = detected.isInstalled
 
   p.intro(color.bgMagenta(color.white(isUpdate ? " oMoMoMoMo... Update " : " oMoMoMoMo... ")))
 
@@ -80,7 +59,7 @@ export async function runTuiInstaller(args: InstallArgs, version: string): Promi
     }
   }
 
-  const config = await promptInstallConfig(detected, selectedPlatform, args.codexAutonomous)
+  const config = await promptInstallConfig(detected, selectedPlatform)
   if (!config) return 1
 
   if (config.hasOpenCode) {
@@ -122,45 +101,6 @@ export async function runTuiInstaller(args: InstallArgs, version: string): Promi
   }
 
   p.note(formatConfigSummary(config), isUpdate ? "Updated Configuration" : "Installation Complete")
-
-  if (config.hasCodex) {
-    const codexInstallation = await detectCodexInstallation()
-    if (!codexInstallation.found) {
-      p.log.warn(formatCodexInstallationWarning(codexInstallation))
-    }
-
-    spinner.start("Installing Codex harness adapter")
-    try {
-      const codexResult = await runCodexInstaller({ autonomousPermissions: config.codexAutonomous })
-      spinner.stop(`Codex plugin installed to ${color.cyan(codexResult.configPath)}`)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      spinner.stop(`Codex install failed ${color.yellow("[!]")}`)
-      if (!config.hasOpenCode) {
-        p.log.error(`Codex install failed: ${message}`)
-        p.outro(color.red("Installation failed."))
-        return 1
-      }
-      p.log.warn(`Codex install failed (OpenCode install remains successful): ${message}`)
-      p.log.info(
-        "The Codex harness is NOT installed. Fix the error above, then re-run: bunx oh-my-openagent install --platform=codex",
-      )
-    }
-  }
-
-  if (config.hasSenpi) {
-    spinner.start("Installing Senpi harness adapter")
-    try {
-      const senpiResult = await runSenpiInstaller()
-      spinner.stop(`Senpi adapter installed to ${color.cyan(senpiResult.settingsPath)}`)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      spinner.stop(`Senpi install failed ${color.yellow("[!]")}`)
-      p.log.error(`Senpi install failed: ${message}`)
-      p.outro(color.red("Installation failed."))
-      return 1
-    }
-  }
 
   p.log.success(color.bold(isUpdate ? "Configuration updated!" : "Installation complete!"))
   if (config.hasOpenCode) {

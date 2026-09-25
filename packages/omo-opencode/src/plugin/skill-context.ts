@@ -8,8 +8,6 @@ import type {
 
 import {
   discoverConfigSourceSkills,
-  discoverUserClaudeSkills,
-  discoverProjectClaudeSkills,
   discoverOpencodeGlobalSkills,
   discoverOpencodeProjectSkills,
   discoverProjectAgentsSkills,
@@ -22,7 +20,7 @@ import {
   readOpencodeConfigSkills,
 } from "../features/opencode-skill-loader"
 import { resolveActiveBuiltinSkills } from "@oh-my-opencode/skills-loader-core/builtin-skills"
-import { getSystemMcpServerNames } from "../features/claude-code-mcp-loader"
+import { getSystemMcpServerNames } from "../features/opencode-mcp-loader"
 import { adaptHostSkillConfig } from "../shared/host-skill-config"
 
 export type SkillContext = {
@@ -97,14 +95,11 @@ export async function createSkillContext(args: {
     systemMcpNames: getSystemMcpServerNames(),
   })
 
-  const includeClaudeSkills = pluginConfig.claude_code?.skills !== false
   const hostSkillConfig = adaptHostSkillConfig(hostSkills ?? readOpencodeConfigSkills(directory))
   const [
     configSourceSkills,
     hostConfigSkills,
-    userSkills,
     globalSkills,
-    projectSkills,
     opencodeProjectSkills,
     agentsProjectSkills,
     agentsGlobalSkills,
@@ -118,9 +113,7 @@ export async function createSkillContext(args: {
       config: hostSkillConfig,
       configDir: directory,
     }),
-    includeClaudeSkills ? discoverUserClaudeSkills() : Promise.resolve([]),
     discoverOpencodeGlobalSkills(),
-    includeClaudeSkills ? discoverProjectClaudeSkills(directory) : Promise.resolve([]),
     discoverOpencodeProjectSkills(directory),
     discoverProjectAgentsSkills(directory),
     discoverGlobalAgentsSkills(),
@@ -141,9 +134,7 @@ export async function createSkillContext(args: {
     Array.from(configSkillsHostWins.values()),
     browserProvider,
   )
-  const filteredUserSkills = filterProviderGatedSkills(userSkills, browserProvider)
   const filteredGlobalSkills = filterProviderGatedSkills(globalSkills, browserProvider)
-  const filteredProjectSkills = filterProviderGatedSkills(projectSkills, browserProvider)
   const filteredOpencodeProjectSkills = filterProviderGatedSkills(
     opencodeProjectSkills,
     browserProvider,
@@ -157,9 +148,7 @@ export async function createSkillContext(args: {
     browserProvider,
   )
   const activeConfigSourceSkills = filterDisabledSkills(filteredConfigSourceSkills, disabledSkills)
-  const activeUserSkills = filterDisabledSkills(filteredUserSkills, disabledSkills)
   const activeGlobalSkills = filterDisabledSkills(filteredGlobalSkills, disabledSkills)
-  const activeProjectSkills = filterDisabledSkills(filteredProjectSkills, disabledSkills)
   const activeOpencodeProjectSkills = filterDisabledSkills(
     filteredOpencodeProjectSkills,
     disabledSkills,
@@ -180,9 +169,9 @@ export async function createSkillContext(args: {
     builtinSkills,
     pluginConfig.skills,
     activeConfigSourceSkills,
-    [...activeUserSkills, ...activeAgentsGlobalSkills, ...filteredSharedSkills],
-    activeGlobalSkills,
-    [...activeProjectSkills, ...activeAgentsProjectSkills],
+     [...activeAgentsGlobalSkills, ...filteredSharedSkills],
+     activeGlobalSkills,
+     activeAgentsProjectSkills,
     activeOpencodeProjectSkills,
     {
       configDir: directory,

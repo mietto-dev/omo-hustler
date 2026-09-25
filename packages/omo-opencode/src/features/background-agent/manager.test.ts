@@ -14,7 +14,7 @@ import {
   setSessionAgent,
   _resetForTesting as resetClaudeCodeSessionState,
   subagentSessions,
-} from "../claude-code-session-state"
+} from "../opencode-session-state"
 import { _resetTaskToastManagerForTesting, initTaskToastManager } from "../task-toast-manager/manager"
 import type { ConcurrencyManager } from "./concurrency"
 import { MIN_IDLE_TIME_MS } from "./constants"
@@ -5855,7 +5855,7 @@ describe("BackgroundManager.handleEvent - session.deleted cascade", () => {
 
   test("should clear session agent state for deleted sessions to prevent map leak", async () => {
     //#given
-    const { setSessionAgent } = await import("../claude-code-session-state")
+    const { setSessionAgent } = await import("../opencode-session-state")
     resetClaudeCodeSessionState()
     const manager = createBackgroundManager()
     const sessionID = "session-deleted-agent-leak"

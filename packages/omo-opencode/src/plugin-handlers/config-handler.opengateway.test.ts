@@ -8,16 +8,16 @@ import * as path from "node:path"
 import type { OhMyOpenCodeConfig } from "../config"
 import type { ModelCacheState } from "../plugin-state"
 import * as agents from "../agents"
-import * as agentLoader from "../features/claude-code-agent-loader"
+import * as agentLoader from "../features/opencode-agent-loader"
 import * as builtinCommands from "../features/builtin-commands"
-import * as commandLoader from "../features/claude-code-command-loader"
-import * as mcpLoader from "../features/claude-code-mcp-loader"
+import * as commandLoader from "../features/opencode-command-loader"
+import * as mcpLoader from "../features/opencode-mcp-loader"
 import * as mcpModule from "../mcp"
-import * as pluginLoader from "@oh-my-opencode/claude-code-compat-core/claude-code-plugin-loader"
 import * as shared from "../shared"
 import * as skillLoader from "../features/opencode-skill-loader"
 import * as configDir from "../shared/opencode-config-dir"
 import * as modelResolver from "../shared/model-resolver"
+const pluginLoader = { loadAllPluginComponents: async () => ({}) }
 import * as permissionCompat from "../shared/permission-compat"
 import { OPENGATEWAY_ENV_VAR, OPENGATEWAY_PROVIDER_ID } from "../features/opengateway-provider"
 import { _resetProviderAuthCacheForTesting } from "../shared/opencode-provider-auth"
@@ -56,10 +56,8 @@ describe("config handler OpenGateway provider injection", () => {
     spyOn(agents, unsafeTestValue("createBuiltinAgents")).mockResolvedValue({
       sisyphus: { name: "sisyphus", prompt: "test", mode: "primary" },
     })
-    spyOn(commandLoader, unsafeTestValue("loadUserCommands")).mockResolvedValue({})
-    spyOn(commandLoader, unsafeTestValue("loadProjectCommands")).mockResolvedValue({})
-    spyOn(commandLoader, unsafeTestValue("loadOpencodeGlobalCommands")).mockResolvedValue({})
-    spyOn(commandLoader, unsafeTestValue("loadOpencodeProjectCommands")).mockResolvedValue({})
+  spyOn(commandLoader, unsafeTestValue("loadOpenCodeGlobalCommands")).mockResolvedValue({})
+  spyOn(commandLoader, unsafeTestValue("loadOpenCodeProjectCommands")).mockResolvedValue({})
     spyOn(builtinCommands, unsafeTestValue("loadBuiltinCommands")).mockReturnValue({})
     spyOn(skillLoader, unsafeTestValue("loadUserSkills")).mockResolvedValue({})
     spyOn(skillLoader, unsafeTestValue("loadProjectSkills")).mockResolvedValue({})
@@ -69,10 +67,8 @@ describe("config handler OpenGateway provider injection", () => {
     spyOn(skillLoader, unsafeTestValue("discoverProjectClaudeSkills")).mockResolvedValue([])
     spyOn(skillLoader, unsafeTestValue("discoverOpencodeGlobalSkills")).mockResolvedValue([])
     spyOn(skillLoader, unsafeTestValue("discoverOpencodeProjectSkills")).mockResolvedValue([])
-    spyOn(agentLoader, unsafeTestValue("loadUserAgents")).mockReturnValue({})
-    spyOn(agentLoader, unsafeTestValue("loadProjectAgents")).mockReturnValue({})
-    spyOn(agentLoader, unsafeTestValue("loadOpencodeGlobalAgents")).mockReturnValue({})
-    spyOn(agentLoader, unsafeTestValue("loadOpencodeProjectAgents")).mockReturnValue({})
+  spyOn(agentLoader, unsafeTestValue("loadOpenCodeGlobalAgents")).mockReturnValue({})
+  spyOn(agentLoader, unsafeTestValue("loadOpenCodeProjectAgents")).mockReturnValue({})
     spyOn(mcpLoader, unsafeTestValue("loadMcpConfigs")).mockResolvedValue({ servers: {}, loadedServers: [] })
     spyOn(mcpLoader, "setAdditionalAllowedMcpEnvVars").mockImplementation(() => {})
     spyOn(pluginLoader, unsafeTestValue("loadAllPluginComponents")).mockResolvedValue({

@@ -30,7 +30,7 @@ mock.module("./storage", () => ({
 
 preserveModuleMocksForTestFile(import.meta.url)
 
-import { _resetForTesting as resetSessionState, updateSessionAgent } from "../../features/claude-code-session-state/state"
+import { _resetForTesting as resetSessionState, updateSessionAgent } from "../../features/opencode-session-state/state"
 import { runAggressiveTruncationStrategy } from "./aggressive-truncation-strategy"
 
 type FakeClient = {

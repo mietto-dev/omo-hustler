@@ -31,8 +31,6 @@ describe("published package layout", () => {
       "packages/hustler/dist",
       "packages/lsp-tools-mcp/package.json",
       "packages/lsp-tools-mcp/dist",
-      "packages/lsp-daemon/package.json",
-      "packages/lsp-daemon/dist",
     ])
   })
 
@@ -40,9 +38,8 @@ describe("published package layout", () => {
     const manifest = readRootManifest()
     const workspaces = manifest.workspaces as string[]
 
+    expect(workspaces).toContain("packages/hustler")
     expect(workspaces).not.toContain("packages/omo-codex")
-    expect(workspaces).not.toContain("packages/omo-senpi")
-    expect(workspaces).not.toContain("packages/web")
   })
 
   test("#given the root build graph #when selecting the plugin entry #then it uses the OpenCode adapter directly", () => {

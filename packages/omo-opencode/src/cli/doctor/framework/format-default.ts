@@ -12,14 +12,6 @@ export function formatDefault(result: DoctorResult): string {
   const allIssues = result.results.flatMap((r) => r.issues)
 
   if (allIssues.length === 0) {
-    if (result.target === "codex" && result.codex) {
-      const codex = result.codex.codexPath ?? result.codex.codexAppId ?? "unknown"
-      const pluginVer = result.codex.pluginVersion ?? "unknown"
-      const packageName = result.codex.packageName ?? "lazycodex-ai"
-      const packageVer = result.codex.packageVersion ?? result.codex.installerVersion
-      lines.push(` ${color.green(SYMBOLS.check)} ${color.green(`LazyCodex OK (codex ${codex} · omo ${pluginVer} · ${packageName} ${packageVer})`)}`)
-      return lines.join("\n")
-    }
     const opencodeVer = result.systemInfo.opencodeVersion ?? "unknown"
     const pluginVer = result.systemInfo.pluginVersion ?? "unknown"
     lines.push(

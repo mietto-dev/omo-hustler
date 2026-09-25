@@ -138,37 +138,15 @@ describe("slashcommand command discovery plugin integration", () => {
     rmSync(tempDir, { recursive: true, force: true })
   })
 
-  it("discovers marketplace plugin commands and skills as command items", () => {
-    const commands = discoverCommandsSync(projectDir, { pluginsEnabled: true })
-    const names = commands.map(command => command.name)
+  it("retains OpenCode project command discovery", () => {
+    const commandDir = join(projectDir, ".opencode", "commands")
+    mkdirSync(commandDir, { recursive: true })
+    writeFileSync(join(commandDir, "project-command.md"), "---\ndescription: Project command\n---\nRun project command.\n")
 
-    expect(names).toContain("daplug:run-prompt")
-    expect(names).toContain("daplug:plugin-plan")
+    const command = discoverCommandsSync(projectDir).find((item) => item.name === "project-command")
 
-    const pluginCommand = commands.find(command => command.name === "daplug:run-prompt")
-    const pluginSkill = commands.find(command => command.name === "daplug:plugin-plan")
-
-    expect(pluginCommand?.scope).toBe("plugin")
-    expect(pluginSkill?.scope).toBe("plugin")
-  })
-
-  it("omits marketplace plugin commands when plugins are disabled", () => {
-    const commands = discoverCommandsSync(projectDir, { pluginsEnabled: false })
-    const names = commands.map(command => command.name)
-
-    expect(names).not.toContain("daplug:run-prompt")
-    expect(names).not.toContain("daplug:plugin-plan")
-  })
-
-  it("honors plugins_override by disabling overridden plugin keys", () => {
-    const commands = discoverCommandsSync(projectDir, {
-      pluginsEnabled: true,
-      enabledPluginsOverride: { "daplug@1.0.0": false },
-    })
-    const names = commands.map(command => command.name)
-
-    expect(names).not.toContain("daplug:run-prompt")
-    expect(names).not.toContain("daplug:plugin-plan")
+    expect(command?.scope).toBe("opencode-project")
+    expect(command?.content).toContain("Run project command.")
   })
 
   it("discovers parent opencode commands when profile config dir is active", () => {
@@ -339,21 +317,21 @@ describe("non-directory commands path", () => {
     rmSync(testDir, { recursive: true, force: true })
   })
 
-  it("#given .claude/commands is a file #when discoverCommandsSync runs #then returns without crashing", () => {
+  it("#given .opencode/commands is a file #when discoverCommandsSync runs #then returns without crashing", () => {
     const projectDir = join(testDir, "project")
-    mkdirSync(join(projectDir, ".claude"), { recursive: true })
-    writeFileSync(join(projectDir, ".claude", "commands"), "")  // file, not directory
+    mkdirSync(join(projectDir, ".opencode"), { recursive: true })
+    writeFileSync(join(projectDir, ".opencode", "commands"), "")  // file, not directory
 
     // Should not throw
     const commands = discoverCommandsSync(projectDir)
     expect(commands).toBeInstanceOf(Array)
   })
 
-  it("#given .claude/commands is a directory #when discoverCommandsSync runs #then discovers commands normally", () => {
+  it("#given .opencode/commands is a directory #when discoverCommandsSync runs #then discovers commands normally", () => {
     const projectDir = join(testDir, "project")
-    mkdirSync(join(projectDir, ".claude", "commands"), { recursive: true })
+    mkdirSync(join(projectDir, ".opencode", "commands"), { recursive: true })
     writeFileSync(
-      join(projectDir, ".claude", "commands", "test-cmd.md"),
+      join(projectDir, ".opencode", "commands", "test-cmd.md"),
       "---\ndescription: Test\n---\nTest command content.\n",
     )
 
@@ -363,10 +341,10 @@ describe("non-directory commands path", () => {
     expect(testCmd?.content).toContain("Test command content.")
   })
 
-  it("#given excluded subdirectories under .claude/commands #when discoverCommandsSync runs #then prunes commands beneath them", () => {
+  it("#given excluded subdirectories under .opencode/commands #when discoverCommandsSync runs #then prunes commands beneath them", () => {
     // given
     const projectDir = join(testDir, "project")
-    const commandsDir = join(projectDir, ".claude", "commands")
+    const commandsDir = join(projectDir, ".opencode", "commands")
 
     mkdirSync(join(commandsDir, "node_modules", "fake-pkg"), { recursive: true })
     mkdirSync(join(commandsDir, ".git", "branches"), { recursive: true })

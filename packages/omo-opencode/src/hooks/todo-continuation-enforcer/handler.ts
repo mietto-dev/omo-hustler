@@ -1,7 +1,7 @@
 import type { PluginInput } from "@opencode-ai/plugin"
 
 import type { BackgroundManager } from "../../features/background-agent"
-import { handedBackSyncSessions } from "../../features/claude-code-session-state"
+import { handedBackSyncSessions } from "../../features/opencode-session-state"
 import {
   clearContinuationMarker,
 } from "../../features/run-continuation-state"

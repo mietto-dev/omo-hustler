@@ -1,4 +1,4 @@
-import { loadProjectAgents, loadUserAgents } from "../../features/claude-code-agent-loader"
+import { loadOpenCodeProjectAgents, loadOpenCodeGlobalAgents } from "../../features/opencode-agent-loader"
 import {
   getAgentConfigKey,
   getAgentDisplayName,
@@ -18,12 +18,12 @@ export function sanitizeSubagentType(subagentType: string): string {
   return subagentType.trim().replace(/^[\\/"']+|[\\/"']+$/g, "").trim()
 }
 
-export function mergeWithClaudeCodeAgents(
+export function mergeWithOpenCodeAgents(
   serverAgents: AgentInfo[],
   directory: string | undefined,
 ): AgentInfo[] {
-  const userAgentsRecord = loadUserAgents()
-  const projectAgentsRecord = loadProjectAgents(directory)
+  const userAgentsRecord = loadOpenCodeGlobalAgents()
+  const projectAgentsRecord = loadOpenCodeProjectAgents(directory)
 
   const toAgentInfoList = (record: Record<string, { mode?: string; hidden?: boolean; model?: AgentInfo["model"] }>): AgentInfo[] =>
     Object.entries(record).map(([name, config]) => ({

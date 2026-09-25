@@ -1,4 +1,4 @@
-import { subagentSessions } from "../../features/claude-code-session-state"
+import { subagentSessions } from "../../features/opencode-session-state"
 import {
   diagnoseSubAgentUnpairedToolParts,
   getMessageSessionID,

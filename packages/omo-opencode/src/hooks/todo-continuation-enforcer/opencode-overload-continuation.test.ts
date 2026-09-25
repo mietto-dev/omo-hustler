@@ -4,7 +4,7 @@ import type { PluginInput } from "@opencode-ai/plugin"
 import { createOpencodeClient } from "@opencode-ai/sdk"
 import { describe, expect, test } from "bun:test"
 
-import { _resetForTesting, setMainSession } from "../../features/claude-code-session-state"
+import { _resetForTesting, setMainSession } from "../../features/opencode-session-state"
 import { createTodoContinuationEnforcer } from "."
 
 type PromptCall = {

@@ -3,7 +3,7 @@
 import { describe, test, expect, spyOn, beforeEach, afterEach } from "bun:test"
 import type { OhMyOpenCodeConfig } from "../config"
 
-import * as mcpLoader from "../features/claude-code-mcp-loader"
+import * as mcpLoader from "../features/opencode-mcp-loader"
 import * as mcpModule from "../mcp"
 import * as shared from "../shared"
 import { unsafeTestValue } from "../../../../test-support/unsafe-test-value"
@@ -118,7 +118,7 @@ describe("applyMcpConfig", () => {
     await applyMcpConfig({ config, ctx: TEST_CTX, pluginConfig, pluginComponents: EMPTY_PLUGIN_COMPONENTS })
 
     //#then
-    expect(loadMcpConfigsSpy).toHaveBeenCalledWith(["firecrawl", "exa"])
+    expect(loadMcpConfigsSpy).toHaveBeenCalledWith(["firecrawl", "exa"], { cwd: TEST_CTX.directory })
   })
 
   test("works when no user MCPs have enabled:false", async () => {

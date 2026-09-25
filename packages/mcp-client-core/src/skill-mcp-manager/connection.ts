@@ -1,5 +1,5 @@
-import { expandEnvVarsInObject } from "@oh-my-opencode/claude-code-compat-core/claude-code-mcp-loader/env-expander"
-import type { ClaudeCodeMcpServer } from "@oh-my-opencode/claude-code-compat-core/claude-code-mcp-loader/types"
+import { expandEnvVarsInObject } from "./env-expander"
+import type { ClaudeCodeMcpServer } from "./mcp-types"
 import { forceReconnect } from "./cleanup"
 import { getConnectionType } from "./connection-type"
 import { createHttpClient } from "./http-client"

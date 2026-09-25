@@ -6,7 +6,7 @@ import {
   findPrimaryAgentMatch,
   isDemotedPlanAgent,
   listCallableAgentNames,
-  mergeWithClaudeCodeAgents,
+  mergeWithOpenCodeAgents,
 } from "./subagent-discovery"
 import { getAgentConfigKey, stripAgentListSortPrefix } from "../../shared/agent-display-names"
 import { normalizeSDKResponse } from "../../shared"
@@ -59,7 +59,7 @@ export async function resolveSubagentAgentMatch(
   const serverPrimaryAgent = findPrimaryAgentMatch(agents, requestedAgent)
   const serverMatchedAgent = findCallableAgentMatch(agents, requestedAgent)
 
-  const mergedAgents = mergeWithClaudeCodeAgents(agents, executorCtx.directory)
+  const mergedAgents = mergeWithOpenCodeAgents(agents, executorCtx.directory)
   const matchedPrimaryAgent = findPrimaryAgentMatch(mergedAgents, requestedAgent)
   const useHiddenPlanFallback = shouldUseHiddenPlanAgent(
     requestedAgent,

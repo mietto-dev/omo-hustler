@@ -10,7 +10,7 @@ import {
 	normalizeSDKResponse,
 	resolveInheritedPromptTools,
 } from "../../shared"
-import { resolveRegisteredAgentName } from "../../features/claude-code-session-state"
+import { resolveRegisteredAgentName } from "../../features/opencode-session-state"
 import { normalizeAgentForPromptKey, stripAgentListSortPrefix } from "../../shared/agent-display-names"
 import { dispatchInternalPrompt } from "../shared/prompt-async-gate"
 

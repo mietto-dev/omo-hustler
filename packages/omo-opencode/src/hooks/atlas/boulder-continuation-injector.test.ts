@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach, mock } from "bun:test"
 import type { PluginInput } from "@opencode-ai/plugin"
-import { registerAgentName, _resetForTesting } from "../../features/claude-code-session-state"
+import { registerAgentName, _resetForTesting } from "../../features/opencode-session-state"
 import { injectBoulderContinuation } from "./boulder-continuation-injector"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 

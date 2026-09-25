@@ -1,7 +1,6 @@
-import type { CommandDefinition } from "@oh-my-opencode/claude-code-compat-core/claude-code-command-loader/types"
-import type { ClaudeCodeMcpServer } from "@oh-my-opencode/claude-code-compat-core/claude-code-mcp-loader/types"
+import type { ClaudeCodeMcpServer } from "@oh-my-opencode/mcp-client-core/skill-mcp-manager/mcp-types"
 
-export type { CommandDefinition }
+export type { CommandDefinition } from "./command-types"
 
 export type SkillMcpConfig = Record<string, ClaudeCodeMcpServer>
 

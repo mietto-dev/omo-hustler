@@ -1,7 +1,8 @@
+import { join } from "node:path"
 import type { PluginInput } from "@opencode-ai/plugin"
 import type { RalphLoopOptions, RalphLoopState } from "./types"
 import { log } from "../../shared/logger"
-import { getTranscriptPath as getDefaultTranscriptPath } from "../claude-code-hooks/transcript"
+import { TRANSCRIPT_DIR } from "../../tools/session-manager/constants"
 import { releasePromptAsyncReservation } from "../shared/prompt-async-gate"
 import { HOOK_NAME } from "./constants"
 import { createLoopStateController } from "./loop-state-controller"
@@ -27,6 +28,10 @@ export interface RalphLoopHook {
 
 const DEFAULT_API_TIMEOUT = 5000 as const
 const DEFAULT_IDLE_SETTLE_MS = 150 as const
+
+function getDefaultTranscriptPath(sessionID: string): string {
+  return join(TRANSCRIPT_DIR, `${sessionID}.jsonl`)
+}
 
 function getMessageCountFromResponse(messagesResponse: unknown): number {
   if (Array.isArray(messagesResponse)) {

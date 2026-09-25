@@ -9,7 +9,7 @@ import path from "node:path"
 import { type ToolContext, type ToolResult } from "@opencode-ai/plugin/tool"
 import { z } from "zod"
 import { TeamModeConfigSchema } from "../../../config/schema/team-mode"
-import { _resetForTesting, registerAgentName } from "../../claude-code-session-state"
+import { _resetForTesting, registerAgentName } from "../../opencode-session-state"
 import { SessionCategoryRegistry } from "../../../shared/session-category-registry"
 import {
   clearAllSessionPromptParams,

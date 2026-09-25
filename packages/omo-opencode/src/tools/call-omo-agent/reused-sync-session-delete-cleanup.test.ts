@@ -4,7 +4,7 @@ import {
   _resetForTesting,
   subagentSessions,
   syncSubagentSessions,
-} from "../../features/claude-code-session-state"
+} from "../../features/opencode-session-state"
 import { createEventHandler } from "../../plugin/event"
 
 function createMinimalEventHandler() {
@@ -26,7 +26,6 @@ function createMinimalEventHandler() {
     } as never,
     hooks: {
       autoUpdateChecker: { event: async () => {} },
-      claudeCodeHooks: { event: async () => {} },
       backgroundNotificationHook: { event: async () => {} },
       sessionNotification: async () => {},
       todoContinuationEnforcer: { handler: async () => {} },

@@ -8,8 +8,8 @@ import {
   PlannerPlanSchema,
   TesterReviewSchema,
   WorkflowContractSchema,
-} from "../claude-tasks/workflow-contracts"
-import { classifyTask } from "../claude-tasks/orchestrator-classification"
+} from "../opencode-tasks/workflow-contracts"
+import { classifyTask } from "../opencode-tasks/orchestrator-classification"
 import { createHustlerEventLifecycle } from "./event-lifecycle"
 import { createHustlerLifecycleAdapter } from "./lifecycle-state"
 import { buildTaskPromptBody } from "../background-agent/spawner/task-prompt-body"
@@ -23,7 +23,7 @@ function fixture() {
   fixtures.add(storagePath)
   return {
     storagePath,
-    config: { sisyphus: { tasks: { storage_path: storagePath, claude_code_compat: false } } },
+    config: { sisyphus: { tasks: { storage_path: storagePath } } },
   }
 }
 

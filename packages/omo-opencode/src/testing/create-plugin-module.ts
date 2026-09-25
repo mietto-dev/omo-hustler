@@ -31,7 +31,6 @@ import { initI18n } from "../shared/i18n"
 import { log } from "../shared/logger"
 import { logLegacyPluginStartupWarning } from "../shared/log-legacy-plugin-startup-warning"
 import { migrateLegacyWorkspaceDirectory } from "../shared/legacy-workspace-migration"
-import { sweepOmoFamiliesBestEffort } from "../shared/omo-process-sweep"
 import { injectServerAuthIntoClient } from "../shared/opencode-server-auth"
 import { recordPluginTelemetry } from "../shared/posthog"
 import {
@@ -95,7 +94,7 @@ const defaultPluginModuleDeps: PluginModuleDeps = {
   logLegacyPluginStartupWarning,
   migrateLegacyWorkspaceDirectory,
   runOpenCodeStartupMigration,
-  startOmoProcessSweep: () => sweepOmoFamiliesBestEffort({ log }),
+  startOmoProcessSweep: () => Promise.resolve(),
   detectDuplicateOmoPlugin,
   getDuplicateOmoPluginWarning,
   detectExternalSkillPlugin,

@@ -1,4 +1,4 @@
-import type { ClaudeCodeMcpServer } from "@oh-my-opencode/claude-code-compat-core/claude-code-mcp-loader/types"
+import type { ClaudeCodeMcpServer } from "./mcp-types"
 import type { ConnectionType } from "./types"
 
 /**

@@ -32,7 +32,7 @@ import {
 import { SessionCategoryRegistry } from "../../shared/session-category-registry"
 import { applySessionPromptParams } from "../../shared/session-prompt-params-helpers"
 import { setSessionTools } from "../../shared/session-tools-store"
-import { clearSessionAgent, setSessionAgent, subagentSessions, updateSessionAgent } from "../claude-code-session-state"
+import { clearSessionAgent, setSessionAgent, subagentSessions, updateSessionAgent } from "../opencode-session-state"
 import { MESSAGE_STORAGE } from "../hook-message-injector"
 import { getTaskToastManager } from "../task-toast-manager"
 import { abortWithTimeout } from "./abort-with-timeout"
@@ -83,7 +83,7 @@ import { ParentWakeNotifier, type ParentWakePromptContext } from "./parent-wake-
 import type { PendingParentWake } from "./parent-wake-dedupe"
 import { registerManagerForCleanup, unregisterManagerForCleanup } from "./process-cleanup"
 import { createDelegationPolicy, DelegationPolicyError, type DelegationPolicy } from "./delegation-policy"
-import { validateWorkflowContractForDelegation } from "../claude-tasks/workflow-contracts"
+import { validateWorkflowContractForDelegation } from "../opencode-tasks/workflow-contracts"
 import { removeTaskToastTracking } from "./remove-task-toast-tracking"
 import {
   MIN_SESSION_GONE_POLLS,

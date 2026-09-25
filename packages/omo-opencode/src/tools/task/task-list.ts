@@ -4,7 +4,7 @@ import { existsSync, readdirSync } from "fs"
 import type { OhMyOpenCodeConfig } from "../../config/schema"
 import type { TaskObject, TaskStatus } from "./types"
 import { TaskObjectSchema } from "./types"
-import { readJsonSafe, getTaskDir } from "../../features/claude-tasks/storage"
+import { readJsonSafe, getTaskDir } from "../../features/opencode-tasks/storage"
 
 interface TaskSummary {
   id: string

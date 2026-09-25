@@ -2,8 +2,8 @@
 
 import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
 import * as builtinCommands from "../features/builtin-commands";
-import * as commandLoader from "../features/claude-code-command-loader";
-import * as mcpLoader from "../features/claude-code-mcp-loader";
+import * as commandLoader from "../features/opencode-command-loader";
+import * as mcpLoader from "../features/opencode-mcp-loader";
 import * as skillLoader from "../features/opencode-skill-loader";
 import { OhMyOpenCodeConfigSchema, type OhMyOpenCodeConfig } from "../config";
 import type { LoadedSkill } from "../features/opencode-skill-loader/types";
@@ -46,10 +46,8 @@ function createParsedPluginConfig(overrides: Record<string, unknown>): OhMyOpenC
 
 describe("applyCommandConfig", () => {
   let loadBuiltinCommandsSpy: ReturnType<typeof spyOn>;
-  let loadUserCommandsSpy: ReturnType<typeof spyOn>;
-  let loadProjectCommandsSpy: ReturnType<typeof spyOn>;
-  let loadOpencodeGlobalCommandsSpy: ReturnType<typeof spyOn>;
-  let loadOpencodeProjectCommandsSpy: ReturnType<typeof spyOn>;
+  let loadOpenCodeGlobalCommandsSpy: ReturnType<typeof spyOn>;
+  let loadOpenCodeProjectCommandsSpy: ReturnType<typeof spyOn>;
   let discoverConfigSourceSkillsSpy: ReturnType<typeof spyOn>;
   let loadUserSkillsSpy: ReturnType<typeof spyOn>;
   let loadProjectSkillsSpy: ReturnType<typeof spyOn>;
@@ -62,10 +60,8 @@ describe("applyCommandConfig", () => {
   beforeEach(() => {
     getSystemMcpServerNamesSpy = spyOn(mcpLoader, "getSystemMcpServerNames").mockReturnValue(new Set());
     loadBuiltinCommandsSpy = spyOn(builtinCommands, "loadBuiltinCommands").mockReturnValue({});
-    loadUserCommandsSpy = spyOn(commandLoader, "loadUserCommands").mockResolvedValue({});
-    loadProjectCommandsSpy = spyOn(commandLoader, "loadProjectCommands").mockResolvedValue({});
-    loadOpencodeGlobalCommandsSpy = spyOn(commandLoader, "loadOpencodeGlobalCommands").mockResolvedValue({});
-    loadOpencodeProjectCommandsSpy = spyOn(commandLoader, "loadOpencodeProjectCommands").mockResolvedValue({});
+  loadOpenCodeGlobalCommandsSpy = spyOn(commandLoader, "loadOpenCodeGlobalCommands").mockResolvedValue({});
+  loadOpenCodeProjectCommandsSpy = spyOn(commandLoader, "loadOpenCodeProjectCommands").mockResolvedValue({});
     discoverConfigSourceSkillsSpy = spyOn(skillLoader, "discoverConfigSourceSkills").mockResolvedValue([]);
     loadUserSkillsSpy = spyOn(skillLoader, "loadUserSkills").mockResolvedValue({});
     loadProjectSkillsSpy = spyOn(skillLoader, "loadProjectSkills").mockResolvedValue({});
@@ -78,10 +74,8 @@ describe("applyCommandConfig", () => {
   afterEach(() => {
     getSystemMcpServerNamesSpy.mockRestore();
     loadBuiltinCommandsSpy.mockRestore();
-    loadUserCommandsSpy.mockRestore();
-    loadProjectCommandsSpy.mockRestore();
-    loadOpencodeGlobalCommandsSpy.mockRestore();
-    loadOpencodeProjectCommandsSpy.mockRestore();
+  loadOpenCodeGlobalCommandsSpy.mockRestore();
+  loadOpenCodeProjectCommandsSpy.mockRestore();
     discoverConfigSourceSkillsSpy.mockRestore();
     loadUserSkillsSpy.mockRestore();
     loadProjectSkillsSpy.mockRestore();

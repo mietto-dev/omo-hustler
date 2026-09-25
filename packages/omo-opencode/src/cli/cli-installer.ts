@@ -24,8 +24,6 @@ import {
   validateNonTuiArgs,
 } from "./install-validators"
 import { getUnsupportedOpenCodeVersionMessage } from "./minimum-opencode-version"
-import { runCodexInstaller } from "./install-codex"
-import { runSenpiInstaller } from "./install-senpi"
 import { starGitHubRepositories } from "./star-request"
 import { getNoModelProvidersWarning, hasAnyConfiguredProvider } from "./provider-availability"
 import { ensureTuiPluginEntry } from "./config-manager/add-tui-plugin-to-tui-config"
@@ -49,27 +47,8 @@ export async function runCliInstaller(args: InstallArgs, version: string): Promi
 
   const config = argsToConfig(args)
   const hasOpenCode = config.hasOpenCode
-  const detected = hasOpenCode
-    ? detectCurrentConfig()
-    : {
-        isInstalled: false,
-        installedVersion: null,
-        hasClaude: false,
-        isMax20: false,
-        hasOpenAI: false,
-        hasGemini: false,
-        hasCopilot: false,
-        hasCodex: false,
-        hasOpencodeZen: false,
-        hasZaiCodingPlan: false,
-        hasKimiForCoding: false,
-        hasOpencodeGo: false,
-        hasBailianCodingPlan: false,
-        hasMinimaxCnCodingPlan: false,
-        hasMinimaxCodingPlan: false,
-        hasVercelAiGateway: false,
-      }
-  const isUpdate = hasOpenCode && detected.isInstalled
+  const detected = detectCurrentConfig()
+  const isUpdate = detected.isInstalled
 
   printHeader(isUpdate)
 
@@ -146,38 +125,6 @@ export async function runCliInstaller(args: InstallArgs, version: string): Promi
     console.log(`  Run ${color.cyan("opencode")} to start!`)
   }
   console.log()
-
-  if (config.hasCodex) {
-    printInfo("Installing Codex harness adapter...")
-    try {
-      const codexResult = await runCodexInstaller({ autonomousPermissions: config.codexAutonomous })
-      printSuccess(`Codex plugin installed ${SYMBOLS.arrow} ${color.dim(codexResult.configPath)}`)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      if (!config.hasOpenCode) {
-        printError(`Codex install failed: ${message}`)
-        return 1
-      }
-      printWarning(`Codex install failed (OpenCode install is still complete): ${message}`)
-      printInfo(
-        `The Codex harness is NOT installed. Fix the error above, then re-run: ${color.cyan("bunx oh-my-openagent install --platform=codex")}`,
-      )
-    }
-    console.log()
-  }
-
-  if (config.hasSenpi) {
-    printInfo("Installing Senpi harness adapter...")
-    try {
-      const senpiResult = await runSenpiInstaller()
-      printSuccess(`Senpi adapter installed ${SYMBOLS.arrow} ${color.dim(senpiResult.settingsPath)}`)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      printError(`Senpi install failed: ${message}`)
-      return 1
-    }
-    console.log()
-  }
 
   printInfo(
     "Anonymous telemetry is enabled by default. Disable it with OMO_SEND_ANONYMOUS_TELEMETRY=0 or OMO_DISABLE_POSTHOG=1.",

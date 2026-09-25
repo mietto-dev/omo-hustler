@@ -69,7 +69,6 @@ const mockCreateHooks = mock(() => ({
   disposeHooks: () => {},
   compactionContextInjector: undefined,
   compactionTodoPreserver: undefined,
-  claudeCodeHooks: undefined,
 }))
 const mockCreatePluginInterface = mock(() => ({}))
 const mockInitializeOpenClaw = mock(async () => {})

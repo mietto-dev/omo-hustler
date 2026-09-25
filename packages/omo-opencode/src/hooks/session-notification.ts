@@ -1,5 +1,5 @@
 import type { PluginInput } from "@opencode-ai/plugin"
-import { subagentSessions, getMainSessionID } from "../features/claude-code-session-state"
+import { subagentSessions, getMainSessionID } from "../features/opencode-session-state"
 import { buildReadyNotificationContent } from "./session-notification-content"
 import { type Platform } from "./session-notification-sender"
 import * as sessionNotificationSender from "./session-notification-sender"

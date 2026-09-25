@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 
-import { _resetForTesting, subagentSessions } from "../../features/claude-code-session-state/state"
+import { _resetForTesting, subagentSessions } from "../../features/opencode-session-state/state"
 import { createToolPairValidatorHook } from "./hook"
 import { INTERRUPTED_TOOL_ERROR } from "./tool-result-repair"
 import { createToolPart, runToolPairValidator, type TestMessage } from "./hook.test-support"

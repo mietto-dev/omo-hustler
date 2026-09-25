@@ -1,7 +1,7 @@
 import type { CallOmoAgentArgs } from "./types"
 import type { PluginInput } from "@opencode-ai/plugin"
 import type { DelegatedModelConfig } from "../../shared/model-resolution-types"
-import { subagentSessions, syncSubagentSessions } from "../../features/claude-code-session-state"
+import { subagentSessions, syncSubagentSessions } from "../../features/opencode-session-state"
 import { log } from "../../shared"
 
 export async function createOrGetSession(

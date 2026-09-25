@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Registry of built-in commands shipped inside the plugin. Each command is a template literal with title, description, and instructions. Registered via `createBuiltinCommandDefinitions()` factory in `commands.ts`. Loaded by `claude-code-command-loader`.
+Registry of built-in commands shipped inside the plugin. Each command is a template literal with title, description, and instructions. Registered via `createBuiltinCommandDefinitions()` factory in `commands.ts`.
 
 ## FILE CATALOG
 

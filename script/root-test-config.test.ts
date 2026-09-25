@@ -34,11 +34,13 @@ describe("root test Bun config", () => {
     }
   })
 
-  test("#given the dedicated Senpi compatibility job #when root tests run #then omo-senpi is excluded", () => {
+  test("#given removed adapter paths #when root tests run #then deleted package paths are not ignored", () => {
     expect(existsSync(rootConfigPath)).toBe(true)
     if (!existsSync(rootConfigPath)) return
 
-    expect(quotedPatterns(readFileSync(rootConfigPath, "utf8"))).toContain("packages/omo-senpi/**")
+    const patterns = quotedPatterns(readFileSync(rootConfigPath, "utf8"))
+    expect(patterns).not.toContain("packages/omo-senpi/**")
+    expect(patterns).not.toContain("packages/lsp-daemon/**")
   })
 
   test("#given bun 1.3.x test argv #when CI selects the dedicated config #then --config= is passed before test", () => {
@@ -49,7 +51,7 @@ describe("root test Bun config", () => {
     expect(workflow).not.toContain("--path-ignore-patterns=")
   })
 
-  test("#given bunfig.root.toml #when bun loads it via --config= #then Senpi tests are ignored", () => {
+  test("#given bunfig.root.toml #when bun loads it via --config= #then removed adapter paths are not selected", () => {
     const output = spawnBun([
       "--config=bunfig.root.toml",
       "test",

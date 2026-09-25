@@ -1,6 +1,6 @@
 import type { OhMyOpenCodeConfig } from "../config"
 
-import { updateSessionAgent } from "../features/claude-code-session-state"
+import { updateSessionAgent } from "../features/opencode-session-state"
 import { detectSlashCommand, extractPromptText } from "../hooks/auto-slash-command/detector"
 import {
   isRuntimeFallbackRetryTextParts,
@@ -69,7 +69,6 @@ async function runChatMessageHooks(args: {
   await hooks.runtimeFallback?.["chat.message"]?.(input, output)
   await hooks.keywordDetector?.["chat.message"]?.(input, output)
   await hooks.thinkMode?.["chat.message"]?.(input, output)
-  await hooks.claudeCodeHooks?.["chat.message"]?.(input, output)
   await hooks.autoSlashCommand?.["chat.message"]?.(input, output)
   await hooks.noSisyphusGpt?.["chat.message"]?.(input, output)
   await hooks.noHephaestusNonGpt?.["chat.message"]?.(input, output)

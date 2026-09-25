@@ -1,7 +1,7 @@
 import type { AutoRetryDispatchOutcome, HookDeps } from "./types"
 import { HOOK_NAME } from "./constants"
 import { log } from "../../shared/logger"
-import { getSessionAgent, resolveRegisteredAgentName } from "../../features/claude-code-session-state"
+import { getSessionAgent, resolveRegisteredAgentName } from "../../features/opencode-session-state"
 import { buildRetryModelPayload } from "./retry-model-payload"
 import { getLastUserRetryPayload } from "./last-user-retry-parts"
 import {

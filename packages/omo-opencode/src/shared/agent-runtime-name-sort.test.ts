@@ -68,8 +68,8 @@ describe("OpenCode Agent.list() sort with runtime display names", () => {
 
       expect(orderedConfigKeys).toEqual([
         "orchestrator",
-        "developer",
         "planner",
+        "developer",
         "approver",
         "librarian",
         "architect",
@@ -91,15 +91,15 @@ describe("OpenCode Agent.list() sort with runtime display names", () => {
 
       expect(orderedConfigKeys.slice(0, 4)).toEqual([
         "orchestrator",
-        "developer",
         "planner",
+        "developer",
         "approver",
       ])
     })
   })
 
   describe("#given runtime names containing only core agents", () => {
-    test("#when sorted #then orchestrator, developer, planner, approver in that order", () => {
+    test("#when sorted #then orchestrator, planner, developer, approver in that order", () => {
       const orchestrator = getAgentListDisplayName("orchestrator")
       const developer = getAgentListDisplayName("developer")
       const planner = getAgentListDisplayName("planner")
@@ -110,8 +110,8 @@ describe("OpenCode Agent.list() sort with runtime display names", () => {
 
       expect(orderedConfigKeys).toEqual([
         "orchestrator",
-        "developer",
         "planner",
+        "developer",
         "approver",
       ])
     })

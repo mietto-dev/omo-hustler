@@ -8,14 +8,14 @@ import {
   readJsonSafe,
   sanitizePathSegment,
   writeJsonAtomic,
-} from "../claude-tasks/storage"
+} from "../opencode-tasks/storage"
 import {
   createWorkflowState,
   WorkflowStateSchema,
   type WorkflowState,
-} from "../claude-tasks/orchestrator-state"
-import type { WorkflowClassification } from "../claude-tasks/orchestrator-classification"
-import type { ApproverInput } from "../claude-tasks/workflow-contracts"
+} from "../opencode-tasks/orchestrator-state"
+import type { WorkflowClassification } from "../opencode-tasks/orchestrator-classification"
+import type { ApproverInput } from "../opencode-tasks/workflow-contracts"
 import {
   HUSTLER_LIFECYCLE_RECORD_VERSION,
   HustlerLifecycleRecordSchema,

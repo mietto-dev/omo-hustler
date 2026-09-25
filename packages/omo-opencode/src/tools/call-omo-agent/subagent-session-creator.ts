@@ -1,7 +1,7 @@
 import type { PluginInput } from "@opencode-ai/plugin"
 import { log } from "../../shared"
 import { resolveSessionDirectory } from "../../shared"
-import { subagentSessions, syncSubagentSessions } from "../../features/claude-code-session-state"
+import { subagentSessions, syncSubagentSessions } from "../../features/opencode-session-state"
 import type { CallOmoAgentArgs } from "./types"
 import type { ToolContextWithMetadata } from "./tool-context-with-metadata"
 

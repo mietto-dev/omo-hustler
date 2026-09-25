@@ -8,7 +8,6 @@ import { load } from "js-yaml"
 
 const classifierPath = new URL("./ci-fast-path.mjs", import.meta.url)
 const ciWorkflowPath = new URL("../.github/workflows/ci.yml", import.meta.url)
-const webWorkflowPath = new URL("../.github/workflows/web-ci.yml", import.meta.url)
 
 interface CiMode {
   readonly generatedReleasePush: boolean
@@ -106,17 +105,17 @@ describe("CI fast-path classifier", () => {
       expected: { generatedReleasePush: false, webOnly: false, runHeavy: true },
     },
     {
-      name: "web-only pull request",
+      name: "docs-only pull request",
       event: "pull_request",
       message: "feat(web): update landing page",
-      paths: ["packages/web/app/page.tsx", "docs/guide/install.md"],
+      paths: ["docs/guide/install.md"],
       expected: { generatedReleasePush: false, webOnly: true, runHeavy: false },
     },
     {
-      name: "mixed web and root change",
+      name: "mixed docs and root change",
       event: "pull_request",
       message: "feat: update web and runtime",
-      paths: ["packages/web/app/page.tsx", "packages/model-core/src/index.ts"],
+      paths: ["docs/guide/install.md", "packages/model-core/src/index.ts"],
       expected: { generatedReleasePush: false, webOnly: false, runHeavy: true },
     },
   ])("$name", ({ event, message, paths, expected }) => {
@@ -155,43 +154,20 @@ describe("CI fast-path workflow wiring", () => {
     const mode = jobs["ci-mode"]
     if (!isRecord(mode)) throw new Error("CI must define ci-mode")
 
-    for (const jobName of [
-      "test",
-      "typecheck",
-      "codex-compatibility",
-      "senpi-compatibility",
-      "lazycodex-published-smoke",
-      "build",
-      "omo-ai-payload-check",
-    ]) {
+    for (const jobName of ["test", "typecheck", "build"]) {
       const job = jobs[jobName]
       if (!isRecord(job)) throw new Error(`CI must define ${jobName}`)
       expect(job["needs"]).toContain("ci-mode")
     }
   })
 
-  test("keeps schema generation on master and skips duplicate draft generation", () => {
+  test("keeps schema generation on master", () => {
     const jobs = workflowJobs(ciWorkflowPath)
     const schema = jobs["auto-commit-schema"]
-    const draft = jobs["draft-release"]
-    if (!isRecord(schema) || !isRecord(draft)) throw new Error("CI write jobs must exist")
+    if (!isRecord(schema)) throw new Error("CI schema job must exist")
 
     expect(String(schema["if"])).toContain("refs/heads/master")
     expect(String(schema["if"])).not.toContain("run_heavy")
-    expect(String(draft["if"])).toContain("needs.ci-mode.outputs.run_heavy == 'true'")
   })
 
-  test("keeps the Web CI path contract aligned with classifier inputs", () => {
-    const webWorkflow = parseWorkflow(webWorkflowPath)
-    const triggers = webWorkflow["on"]
-    if (!isRecord(triggers)) throw new Error("Web CI must define triggers")
-    const pullRequest = triggers["pull_request"]
-    if (!isRecord(pullRequest)) throw new Error("Web CI must define pull_request")
-
-    expect(pullRequest["paths"]).toEqual([
-      "packages/web/**",
-      "docs/**",
-      ".github/workflows/web-ci.yml",
-    ])
-  })
 })

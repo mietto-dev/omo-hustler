@@ -6,7 +6,7 @@ import { join } from "node:path"
 import { unsafeTestValue } from "../../../../test-support/unsafe-test-value"
 import type { OhMyOpenCodeConfig } from "../config"
 import { readBoulderState } from "../features/boulder-state"
-import { _resetForTesting, getSessionAgent, registerAgentName, setMainSession, subagentSessions, updateSessionAgent } from "../features/claude-code-session-state"
+import { _resetForTesting, getSessionAgent, registerAgentName, setMainSession, subagentSessions, updateSessionAgent } from "../features/opencode-session-state"
 import { createAutoSlashCommandHook } from "../hooks/auto-slash-command"
 import { validateObjective } from "../hooks/goal/validation"
 import { createUlwExecuteHook } from "../hooks/ulw-execute"
@@ -107,7 +107,6 @@ function createMockHandlerArgs(overrides?: {
       stopContinuationGuard: null,
       backgroundNotificationHook: null,
       keywordDetector: null,
-      claudeCodeHooks: null,
       autoSlashCommand: null,
       ulwExecute: null,
       goal: null,

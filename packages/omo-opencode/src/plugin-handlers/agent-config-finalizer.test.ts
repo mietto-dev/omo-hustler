@@ -3,7 +3,7 @@ import {
   isAgentRegistered,
   registerAgentName,
   _resetForTesting as resetSessionStateForTesting,
-} from "../features/claude-code-session-state";
+} from "../features/opencode-session-state";
 import type { OhMyOpenCodeConfig } from "../config";
 import { finalizeAgentConfig } from "./agent-config-finalizer";
 

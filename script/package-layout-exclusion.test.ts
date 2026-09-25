@@ -13,7 +13,6 @@ const forbiddenRoots = [
   "packages/pi-webfetch",
   "packages/ast-grep-mcp",
   "packages/git-bash-mcp",
-  "packages/web",
 ] as const
 
 describe("published package exclusions", () => {

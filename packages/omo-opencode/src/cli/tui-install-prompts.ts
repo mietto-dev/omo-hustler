@@ -8,7 +8,6 @@ import type {
 } from "./types"
 import { detectedToInitialValues } from "./install-validators"
 import { ULTIMATE_FALLBACK } from "./model-fallback"
-import { isSenpiPlatformEnabled } from "./senpi-platform-flag"
 
 async function selectOrCancel<TValue extends Readonly<string | boolean | number>>(params: {
   message: string
@@ -32,18 +31,9 @@ async function selectOrCancel<TValue extends Readonly<string | boolean | number>
 export async function promptInstallPlatform(
   initialValue: InstallPlatform = "opencode",
 ): Promise<InstallPlatform | null> {
-  const options: Option<InstallPlatform>[] = [
-    { value: "opencode", label: "OpenCode", hint: "Install OpenCode plugin only" },
-    { value: "codex", label: "Codex", hint: "Install Codex harness adapter only" },
-    { value: "both", label: "Both", hint: "Install OpenCode plugin and Codex adapter" },
-  ]
-  if (isSenpiPlatformEnabled()) {
-    options.push({ value: "senpi", label: "Senpi", hint: "Install Senpi harness adapter only" })
-  }
-
   return selectOrCancel<InstallPlatform>({
     message: "Which platform do you want to install?",
-    options,
+    options: [{ value: "opencode", label: "OpenCode", hint: "Install OpenCode plugin" }],
     initialValue,
   })
 }
@@ -51,37 +41,7 @@ export async function promptInstallPlatform(
 export async function promptInstallConfig(
   detected: DetectedConfig,
   platform: InstallPlatform,
-  codexAutonomousOverride?: boolean,
 ): Promise<InstallConfig | null> {
-  const hasOpenCode = platform === "opencode" || platform === "both"
-  const hasCodex = platform === "codex" || platform === "both"
-  const hasSenpi = platform === "senpi"
-  const codexAutonomous = await resolveCodexAutonomous(hasCodex, codexAutonomousOverride)
-  if (codexAutonomous === null) return null
-
-  if (!hasOpenCode) {
-    return {
-      platform,
-      hasOpenCode: false,
-      hasClaude: false,
-      isMax20: false,
-      hasOpenAI: false,
-      hasGemini: false,
-      hasCopilot: false,
-      hasCodex,
-      hasSenpi,
-      hasOpencodeZen: false,
-      hasZaiCodingPlan: false,
-      hasKimiForCoding: false,
-      hasOpencodeGo: false,
-      hasBailianCodingPlan: false,
-      hasMinimaxCnCodingPlan: false,
-      hasMinimaxCodingPlan: false,
-      hasVercelAiGateway: false,
-      codexAutonomous,
-    }
-  }
-
   const initial = detectedToInitialValues(detected)
 
   const claude = await selectOrCancel<ClaudeSubscription>({
@@ -213,8 +173,6 @@ export async function promptInstallConfig(
     hasOpenAI: openai === "yes",
     hasGemini: gemini === "yes",
     hasCopilot: copilot === "yes",
-    hasCodex,
-    hasSenpi,
     hasOpencodeZen: opencodeZen === "yes",
     hasZaiCodingPlan: zaiCodingPlan === "yes",
     hasKimiForCoding: kimiForCoding === "yes",
@@ -223,15 +181,5 @@ export async function promptInstallConfig(
     hasMinimaxCnCodingPlan: minimaxCnCodingPlan === "yes",
     hasMinimaxCodingPlan: minimaxCodingPlan === "yes",
     hasVercelAiGateway: vercelAiGateway === "yes",
-    codexAutonomous,
   }
-}
-
-async function resolveCodexAutonomous(
-  hasCodex: boolean,
-  override: boolean | undefined,
-): Promise<boolean | null> {
-  if (!hasCodex) return false
-  if (override !== undefined) return override
-  return true
 }

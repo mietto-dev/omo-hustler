@@ -15,7 +15,7 @@ import {
   _resetForTesting,
 } from "./state"
 
-describe("claude-code-session-state", () => {
+describe("opencode-session-state", () => {
   beforeEach(() => {
     // given - clean state before each test
     _resetForTesting()

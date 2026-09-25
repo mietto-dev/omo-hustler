@@ -17,10 +17,6 @@ const RECOMMENDATION_FILES = [
   "docs/examples/planning-focused.jsonc",
   "packages/model-core/src/agent-model-requirements.ts",
   "packages/model-core/src/category-model-requirements.ts",
-  "packages/web/messages/en.json",
-  "packages/web/messages/ja.json",
-  "packages/web/messages/ko.json",
-  "packages/web/messages/zh.json",
 ] as const
 
 const LEGACY_OPUS_RECOMMENDATION = /\b(?:claude[- ]?)?opus[ _-]?4[._-]?(?:6|8)\b/i

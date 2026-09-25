@@ -1,13 +1,13 @@
 import type { OhMyOpenCodeConfig } from "../../config/schema"
-import { resolveRetryRoute, transitionWorkflowState, WorkflowStateSchema, type WorkflowRetryRoute } from "../claude-tasks/orchestrator-state"
-import { recordApproverResult, recordTesterReview } from "../claude-tasks/orchestrator-review"
+import { resolveRetryRoute, transitionWorkflowState, WorkflowStateSchema, type WorkflowRetryRoute } from "../opencode-tasks/orchestrator-state"
+import { recordApproverResult, recordTesterReview } from "../opencode-tasks/orchestrator-review"
 import type {
   ApproverInput,
   TesterReview,
-} from "../claude-tasks/workflow-contracts"
-import { resolveApproverResult } from "../claude-tasks/workflow-contracts"
+} from "../opencode-tasks/workflow-contracts"
+import { resolveApproverResult } from "../opencode-tasks/workflow-contracts"
 import type { HustlerLifecycleRecord } from "./lifecycle-state-schema"
-import type { WorkflowClassification } from "../claude-tasks/orchestrator-classification"
+import type { WorkflowClassification } from "../opencode-tasks/orchestrator-classification"
 import {
   HustlerLifecycleError,
   acquireHustlerLock,

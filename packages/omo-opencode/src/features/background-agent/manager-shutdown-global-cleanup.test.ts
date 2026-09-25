@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test"
 import { tmpdir } from "node:os"
 
-import { _resetForTesting, subagentSessions } from "../claude-code-session-state"
+import { _resetForTesting, subagentSessions } from "../opencode-session-state"
 import { SessionCategoryRegistry } from "../../shared/session-category-registry"
 import { BackgroundManager } from "./manager"
 import type { BackgroundTask } from "./types"

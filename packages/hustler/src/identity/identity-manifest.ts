@@ -50,7 +50,6 @@ const includedPackageRoots = [
   "packages/omo-opencode",
   "packages/agents-md-core",
   "packages/boulder-state",
-  "packages/claude-code-compat-core",
   "packages/comment-checker-core",
   "packages/delegate-core",
   "packages/hashline-core",
@@ -82,14 +81,10 @@ const excludedPackageRoots = [
   "packages/ast-grep-mcp",
   "packages/git-bash-mcp",
   "packages/lsp-daemon",
-  "packages/web",
   "packages/oh-my-opencode-*",
 ] as const
 
-const includedArtifactPaths = [
-  "packages/lsp-daemon/package.json",
-  "packages/lsp-daemon/dist/**",
-] as const
+const includedArtifactPaths = [] as const
 
 const unresolved = (): IdentityDecision => ({ status: "unresolved", value: null })
 
@@ -145,16 +140,6 @@ export const identityManifest: IdentityManifest = {
         classification: "generated",
         path: "assets/oh-my-opencode.schema.json",
         reason: "Generated schema retained only as a source-derived artifact until the independent schema exists.",
-      },
-      {
-        classification: "included",
-        path: "packages/lsp-daemon/package.json",
-        reason: "Preserve the packaged Node runtime metadata for the included LSP daemon artifact.",
-      },
-      {
-        classification: "generated",
-        path: "packages/lsp-daemon/dist/**",
-        reason: "Ship the built LSP daemon runtime without its vendored source, tests, or development files.",
       },
       ...excludedPackageRoots.map((path) => ({
         classification: "excluded" as const,

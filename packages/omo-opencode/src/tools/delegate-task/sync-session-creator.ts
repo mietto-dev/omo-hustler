@@ -1,8 +1,8 @@
 import type { OpencodeClient } from "./types"
 import type { DelegatedModelConfig } from "../../shared/model-resolution-types"
 import { QUESTION_DENIED_SESSION_PERMISSION } from "../../shared/question-denied-session-permission"
-import type { WorkflowContract } from "../../features/claude-tasks/workflow-contracts"
-import { validateWorkflowContractForDelegation } from "../../features/claude-tasks/workflow-contracts"
+import type { WorkflowContract } from "../../features/opencode-tasks/workflow-contracts"
+import { validateWorkflowContractForDelegation } from "../../features/opencode-tasks/workflow-contracts"
 
 export async function createSyncSession(
   client: OpencodeClient,

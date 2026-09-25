@@ -3,7 +3,7 @@ import {
   _resetForTesting,
   subagentSessions,
   syncSubagentSessions,
-} from "../../features/claude-code-session-state"
+} from "../../features/opencode-session-state"
 import { executeSync } from "./sync-executor"
 
 type ExecuteSyncArgs = Parameters<typeof executeSync>[0]

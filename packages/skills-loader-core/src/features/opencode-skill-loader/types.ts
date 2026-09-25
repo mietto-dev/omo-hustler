@@ -1,4 +1,4 @@
-import type { CommandDefinition } from "@oh-my-opencode/claude-code-compat-core/claude-code-command-loader/types"
+import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
 import type { SkillMcpConfig } from "../../types"
 
 export type SkillScope = "builtin" | "config" | "user" | "project" | "opencode" | "opencode-project" | "shared"

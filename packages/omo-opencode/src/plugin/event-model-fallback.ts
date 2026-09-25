@@ -1,5 +1,5 @@
 import type { OhMyOpenCodeConfig } from "../config";
-import { getMainSessionID, getSessionAgent } from "../features/claude-code-session-state";
+import { getMainSessionID, getSessionAgent } from "../features/opencode-session-state";
 import {
   clearPendingModelFallback,
   clearSessionFallbackChain,

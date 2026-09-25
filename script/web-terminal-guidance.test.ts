@@ -6,10 +6,7 @@ describe("web terminal visual QA guidance", () => {
     // given
     const repo = new URL("..", import.meta.url)
     const centralDoc = readFileSync(new URL("docs/reference/web-terminal-visual-qa.md", repo), "utf8")
-    const pointerFiles = [
-      ".agents/skills/opencode-qa/SKILL.md",
-      ".agents/skills/codex-qa/SKILL.md",
-    ] as const
+    const pointerFiles = [".agents/skills/opencode-qa/SKILL.md"] as const
 
     // when
     const pointers = pointerFiles.map((path) => ({

@@ -1,7 +1,7 @@
 import type { DelegateTaskArgs, ToolContextWithMetadata } from "./types"
 import type { ExecutorContext, ParentContext, SessionMessage } from "./executor-types"
 import { getDeliverableTag, isPlanFamily } from "./constants"
-import { handedBackSyncSessions } from "../../features/claude-code-session-state"
+import { handedBackSyncSessions } from "../../features/opencode-session-state"
 import { publishToolMetadata } from "../../features/tool-metadata-store"
 import { getTaskToastManager } from "../../features/task-toast-manager"
 import { getAgentToolRestrictions } from "../../shared/agent-tool-restrictions"
@@ -17,7 +17,7 @@ import { getTaskID } from "./task-id"
 import { resolveMetadataModel } from "./resolve-metadata-model"
 import { log } from "../../shared/logger"
 import { cancelSyncSessionDeletion, scheduleSyncSessionDeletion } from "./sync-session-cleanup"
-import { validateWorkflowContractForDelegation } from "../../features/claude-tasks/workflow-contracts"
+import { validateWorkflowContractForDelegation } from "../../features/opencode-tasks/workflow-contracts"
 
 type ResumeModel = { providerID: string; modelID: string }
 

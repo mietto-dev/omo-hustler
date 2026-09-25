@@ -6,7 +6,7 @@ import { HANDOFF_TEMPLATE } from "./templates/handoff"
 import { REFACTOR_TEMPLATE } from "./templates/refactor"
 import { REMOVE_AI_SLOPS_TEMPLATE } from "./templates/remove-ai-slops"
 import type { BuiltinCommandName } from "./types"
-import { _resetForTesting, registerAgentName } from "../claude-code-session-state"
+import { _resetForTesting, registerAgentName } from "../opencode-session-state"
 
 beforeEach(() => {
   _resetForTesting()

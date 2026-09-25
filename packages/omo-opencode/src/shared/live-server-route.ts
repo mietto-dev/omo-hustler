@@ -1,5 +1,5 @@
 import { createOpencodeClient as createOpencodeClientSdk } from "@opencode-ai/sdk"
-import { subagentSessions } from "../features/claude-code-session-state/state"
+import { subagentSessions } from "../features/opencode-session-state/state"
 import { getServerBasicAuthHeader, injectServerAuthIntoClient } from "./opencode-server-auth"
 import { log } from "./logger"
 

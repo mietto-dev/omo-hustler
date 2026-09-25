@@ -10,7 +10,7 @@ import {
 } from "../../shared"
 import {
   type CommandDefinition,
-} from "@oh-my-opencode/claude-code-compat-core/claude-code-command-loader/types"
+} from "@oh-my-opencode/skills-loader-core/command-types"
 import { matchSkillByName } from "../../tools/skill/skill-matcher"
 import type { LoadedSkill } from "./types"
 import { skillsToCommandDefinitionRecord } from "./skill-definition-record"

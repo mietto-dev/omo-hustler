@@ -2,14 +2,14 @@ import { afterAll, describe, expect, test } from "bun:test"
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { acquireLock, ensureDir } from "../claude-tasks/storage"
-import { classifyTask } from "../claude-tasks/orchestrator-classification"
+import { acquireLock, ensureDir } from "../opencode-tasks/storage"
+import { classifyTask } from "../opencode-tasks/orchestrator-classification"
 import {
   createHustlerLifecycleAdapter,
   getHustlerWorkflowPath,
   HustlerLifecycleError,
 } from "./lifecycle-state"
-import { ApproverInputSchema, TesterReviewSchema } from "../claude-tasks/workflow-contracts"
+import { ApproverInputSchema, TesterReviewSchema } from "../opencode-tasks/workflow-contracts"
 
 type TestFixture = Readonly<{
   storagePath: string
@@ -17,7 +17,6 @@ type TestFixture = Readonly<{
     sisyphus: Readonly<{
       tasks: Readonly<{
         storage_path: string
-        claude_code_compat: false
       }>
     }>
   }>
@@ -34,7 +33,6 @@ function createTestFixture(): TestFixture {
       sisyphus: {
         tasks: {
           storage_path: storagePath,
-          claude_code_compat: false,
         },
       },
     },
@@ -194,7 +192,7 @@ describe("HUSTLER lifecycle identity", () => {
     const lifecycleModule = JSON.stringify(join(process.cwd(), "packages/omo-opencode/src/features/hustler/lifecycle-state.ts"))
     const childCode = `
       import { createHustlerLifecycleAdapter } from ${lifecycleModule};
-      const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE, claude_code_compat: false } } };
+  const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE } } };
       const adapter = createHustlerLifecycleAdapter(config);
       adapter.transition(process.env.HUSTLER_TEST_WORKFLOW_ID, { eventKey: "idle:1", nextPhase: "implementation" });
     `
@@ -261,7 +259,7 @@ describe("HUSTLER lifecycle identity", () => {
     const reviewJson = JSON.stringify(approvedReview)
     const childCode = `
       import { createHustlerLifecycleAdapter } from ${lifecycleModule};
-      const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE, claude_code_compat: false } } };
+  const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE } } };
       const adapter = createHustlerLifecycleAdapter(config);
       adapter.recordTesterReview(process.env.HUSTLER_TEST_WORKFLOW_ID, { eventKey: "review:concurrent", review: JSON.parse(process.env.HUSTLER_TEST_REVIEW) });
     `
@@ -328,7 +326,7 @@ describe("HUSTLER lifecycle identity", () => {
     const approvalJson = JSON.stringify(acceptedInput)
     const childCode = `
       import { createHustlerLifecycleAdapter } from ${lifecycleModule};
-      const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE, claude_code_compat: false } } };
+  const config = { sisyphus: { tasks: { storage_path: process.env.HUSTLER_TEST_STORAGE } } };
       const adapter = createHustlerLifecycleAdapter(config);
       adapter.recordApproverResult(process.env.HUSTLER_TEST_WORKFLOW_ID, { eventKey: "approval:concurrent", result: JSON.parse(process.env.HUSTLER_TEST_APPROVAL) });
     `

@@ -1,9 +1,9 @@
 import { describe, expect, test, beforeEach, afterEach, spyOn } from "bun:test"
 import type { PluginInput } from "@opencode-ai/plugin"
 import { createKeywordDetectorHook } from "./index"
-import { setMainSession, _resetForTesting } from "../../features/claude-code-session-state"
+import { setMainSession, _resetForTesting } from "../../features/opencode-session-state"
 import * as sharedModule from "../../shared"
-import * as sessionState from "../../features/claude-code-session-state"
+import * as sessionState from "../../features/opencode-session-state"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 
 describe("keyword-detector hyperplan-ultrawork combo", () => {

@@ -1,6 +1,6 @@
 export type ClaudeSubscription = "no" | "yes" | "max20"
 export type BooleanArg = "no" | "yes"
-export type InstallPlatform = "opencode" | "codex" | "both" | "senpi"
+export type InstallPlatform = "opencode"
 
 export interface InstallArgs {
   tui: boolean
@@ -17,7 +17,6 @@ export interface InstallArgs {
   minimaxCnCodingPlan?: BooleanArg
   minimaxCodingPlan?: BooleanArg
   vercelAiGateway?: BooleanArg
-  codexAutonomous?: boolean
   skipAuth?: boolean
 }
 
@@ -29,8 +28,6 @@ export interface InstallConfig {
   hasOpenAI: boolean
   hasGemini: boolean
   hasCopilot: boolean
-  hasCodex: boolean
-  hasSenpi: boolean
   hasOpencodeZen: boolean
   hasZaiCodingPlan: boolean
   hasKimiForCoding: boolean
@@ -39,7 +36,6 @@ export interface InstallConfig {
   hasMinimaxCnCodingPlan: boolean
   hasMinimaxCodingPlan: boolean
   hasVercelAiGateway: boolean
-  codexAutonomous: boolean
 }
 
 export interface ConfigMergeResult {
@@ -56,7 +52,6 @@ export interface DetectedConfig {
   hasOpenAI: boolean
   hasGemini: boolean
   hasCopilot: boolean
-  hasCodex: boolean
   hasOpencodeZen: boolean
   hasZaiCodingPlan: boolean
   hasKimiForCoding: boolean

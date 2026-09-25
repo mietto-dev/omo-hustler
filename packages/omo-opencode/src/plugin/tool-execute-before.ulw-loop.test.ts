@@ -2,7 +2,7 @@ import { describe, expect, spyOn, test } from "bun:test"
 import { mkdirSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import * as sessionState from "../features/claude-code-session-state"
+import * as sessionState from "../features/opencode-session-state"
 import { createToolExecuteBeforeHandler } from "./tool-execute-before"
 import { unsafeTestValue } from "../../../../test-support/unsafe-test-value"
 

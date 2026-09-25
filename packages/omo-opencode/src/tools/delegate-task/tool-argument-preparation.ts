@@ -1,7 +1,7 @@
 import type { DelegateTaskArgs, ToolContextWithMetadata } from "./types"
 import { log } from "../../shared/logger"
 import { getAgentDisplayName } from "../../shared/agent-display-names"
-import { parseWorkflowContract } from "../../features/claude-tasks/workflow-contracts"
+import { parseWorkflowContract } from "../../features/opencode-tasks/workflow-contracts"
 
 const CATEGORY_AGENT = getAgentDisplayName("developer")
 

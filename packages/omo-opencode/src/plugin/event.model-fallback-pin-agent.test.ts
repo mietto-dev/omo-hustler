@@ -2,7 +2,7 @@ declare const require: (name: string) => any
 const { afterEach, describe, expect, spyOn, test } = require("bun:test")
 
 import { createEventHandler } from "./event"
-import { _resetForTesting, setMainSession } from "../features/claude-code-session-state"
+import { _resetForTesting, setMainSession } from "../features/opencode-session-state"
 import { createModelFallbackHook, clearPendingModelFallback } from "../hooks/model-fallback/hook"
 import * as connectedProvidersCache from "../shared/connected-providers-cache"
 import { unsafeTestValue } from "../../../../test-support/unsafe-test-value"

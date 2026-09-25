@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test"
 import type { HookDeps, RuntimeFallbackPluginInput } from "./types"
 import type { AutoRetryHelpers } from "./auto-retry"
-import { subagentSessions } from "../../features/claude-code-session-state"
+import { subagentSessions } from "../../features/opencode-session-state"
 
 type MessageUpdateHandlerModule = typeof import("./message-update-handler")
 

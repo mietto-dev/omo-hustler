@@ -4,7 +4,7 @@ import type { AvailableSkill } from "../../agents/dynamic-agent-prompt-builder"
 import {
   _resetForTesting,
   updateSessionAgent,
-} from "../../features/claude-code-session-state"
+} from "../../features/opencode-session-state"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 import { createCategorySkillReminderHook } from "./index"
 

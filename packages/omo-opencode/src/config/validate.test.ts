@@ -105,7 +105,6 @@ describe("validatePluginConfig", () => {
         "[opencode]": {
           agents: { orchestrator: { model: "user/model", prompt: "user prompt" } },
           categories: { deep: { model: "user/deep", temperature: 0.2 } },
-          claude_code: { mcp: true },
           disabled_agents: ["user-agent"],
           tui: { sidebar: { enabled: false } },
         },
@@ -114,7 +113,6 @@ describe("validatePluginConfig", () => {
         "[opencode]": {
           agents: { orchestrator: { model: "project/model", temperature: 0.7 } },
           categories: { deep: { prompt_append: "project appendix" } },
-          claude_code: { commands: true },
           disabled_agents: ["project-agent"],
         },
       })
@@ -123,7 +121,6 @@ describe("validatePluginConfig", () => {
 
       expect(result.config.agents?.orchestrator).toMatchObject({ model: "project/model", prompt: "user prompt", temperature: 0.7 })
       expect(result.config.categories?.deep).toMatchObject({ model: "user/deep", temperature: 0.2, prompt_append: "project appendix" })
-      expect(result.config.claude_code).toMatchObject({ mcp: true, commands: true })
       expect(result.config.disabled_agents).toEqual(["user-agent", "project-agent"])
       expect(result.config.tui?.sidebar.enabled).toBe(false)
     })

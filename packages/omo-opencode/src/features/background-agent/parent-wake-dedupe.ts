@@ -1,4 +1,4 @@
-import { resolveRegisteredAgentName } from "../claude-code-session-state"
+import { resolveRegisteredAgentName } from "../opencode-session-state"
 
 export type ParentWakePromptContext = {
   agent?: string

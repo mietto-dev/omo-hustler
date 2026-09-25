@@ -1,9 +1,4 @@
-import {
-  discoverInstalledPlugins,
-  loadPluginCommands,
-  loadPluginSkillsAsCommands,
-} from "@oh-my-opencode/claude-code-compat-core/claude-code-plugin-loader"
-import type { CommandDefinition } from "../features/claude-code-command-loader/types"
+import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
 
 export interface PluginCommandDiscoveryOptions {
   pluginsEnabled?: boolean
@@ -13,16 +8,6 @@ export interface PluginCommandDiscoveryOptions {
 export function discoverPluginCommandDefinitions(
   options?: PluginCommandDiscoveryOptions,
 ): Record<string, CommandDefinition> {
-  if (options?.pluginsEnabled === false) {
-    return {}
-  }
-
-  const { plugins } = discoverInstalledPlugins({
-    enabledPluginsOverride: options?.enabledPluginsOverride,
-  })
-
-  return {
-    ...loadPluginCommands(plugins),
-    ...loadPluginSkillsAsCommands(plugins),
-  }
+  void options
+  return {}
 }

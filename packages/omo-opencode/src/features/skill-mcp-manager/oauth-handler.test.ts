@@ -1,5 +1,5 @@
 import { describe, expect, it, mock } from "bun:test"
-import type { ClaudeCodeMcpServer } from "../claude-code-mcp-loader/types"
+import type { ClaudeCodeMcpServer } from "@oh-my-opencode/mcp-client-core/skill-mcp-manager/mcp-types"
 import type { OAuthTokenData } from "../mcp-oauth/storage"
 import type { OAuthProviderFactory, OAuthProviderLike } from "./types"
 

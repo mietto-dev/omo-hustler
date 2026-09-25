@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "bun:test"
 
-import { _resetForTesting, getSessionAgent, updateSessionAgent } from "../features/claude-code-session-state"
+import { _resetForTesting, getSessionAgent, updateSessionAgent } from "../features/opencode-session-state"
 import { clearSessionModel, getSessionModel, setSessionModel } from "../shared/session-model-state"
 import { clearSessionPromptParams } from "../shared/session-prompt-params-state"
 import { createEventHandler } from "./event"
@@ -24,7 +24,6 @@ function createMinimalEventHandler() {
     } as never,
     hooks: {
       autoUpdateChecker: { event: async () => {} },
-      claudeCodeHooks: { event: async () => {} },
       backgroundNotificationHook: { event: async () => {} },
       sessionNotification: async () => {},
       todoContinuationEnforcer: { handler: async () => {} },

@@ -24,12 +24,12 @@
     "packages/boulder-state",
     "packages/memory-core",
     "packages/telemetry-core",
-    "packages/claude-code-compat-core",
     "packages/skills-loader-core",
     "packages/agents-md-core",
     "packages/shared-skills",
     "packages/lsp-tools-mcp",
-    "packages/omo-opencode"
+    "packages/omo-opencode",
+    "packages/hustler"
   ],
   "bin": {
     "hustler-opencode": "bin/hustler-opencode.js"
@@ -43,9 +43,7 @@
     "packages/hustler/package.json",
     "packages/hustler/dist",
     "packages/lsp-tools-mcp/package.json",
-    "packages/lsp-tools-mcp/dist",
-    "packages/lsp-daemon/package.json",
-    "packages/lsp-daemon/dist"
+    "packages/lsp-tools-mcp/dist"
   ],
   "exports": {
     ".": {
@@ -61,7 +59,6 @@
     "build:cli-node": "bun run script/build-cli-node.ts",
     "build:shared-skills-assets": "bun run script/copy-shared-skills-assets.ts",
     "build:lsp-tools-mcp": "npm --prefix packages/lsp-tools-mcp ci && npm --prefix packages/lsp-tools-mcp run build",
-    "build:lsp-daemon": "npm --prefix packages/lsp-daemon ci && npm --prefix packages/lsp-daemon run build",
     "build:node-require-shim": "bun run script/patch-node-require-shim.ts",
     "build:all": "bun run build",
     "build:schema": "bun run script/build-schema.ts",
@@ -101,10 +98,10 @@
   "devDependencies": {
     "@oh-my-opencode/agents-md-core": "workspace:*",
     "@oh-my-opencode/boulder-state": "workspace:*",
-    "@oh-my-opencode/claude-code-compat-core": "workspace:*",
     "@oh-my-opencode/comment-checker-core": "workspace:*",
     "@oh-my-opencode/delegate-core": "workspace:*",
     "@oh-my-opencode/hashline-core": "workspace:*",
+    "@oh-my-opencode/hustler": "workspace:*",
     "@oh-my-opencode/lsp-core": "workspace:*",
     "@oh-my-opencode/mcp-client-core": "workspace:*",
     "@oh-my-opencode/mcp-stdio-core": "workspace:*",

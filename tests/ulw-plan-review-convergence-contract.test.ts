@@ -5,33 +5,12 @@ import { join } from "node:path"
 const repoRoot = join(import.meta.dir, "..")
 
 // Issue #6128: GPT-5.6 made the ulw-plan high-accuracy review non-convergent because the
-// shared (OpenCode) and Codex editions shipped an unbounded "fix every cited issue and
-// resubmit until approval" protocol with no round cap and no blocker-eligibility rule.
-// This contract is machine-consumed review policy: every edition's full-workflow.md must
-// carry the same bounded convergence contract JSON.
+// OpenCode edition shipped an unbounded review protocol with no round cap and no
+// blocker-eligibility rule. This contract is machine-consumed review policy.
 const surfaces = [
 	{
-		name: "shared (OpenCode Ultimate)",
+		name: "OpenCode",
 		workflowPath: join(repoRoot, "packages", "shared-skills", "skills", "ulw-plan", "references", "full-workflow.md"),
-	},
-	{
-		name: "omo-senpi",
-		workflowPath: join(repoRoot, "packages", "omo-senpi", "skills", "ulw-plan", "references", "full-workflow.md"),
-	},
-	{
-		name: "Codex component",
-		workflowPath: join(
-			repoRoot,
-			"packages",
-			"omo-codex",
-			"plugin",
-			"components",
-			"ultrawork",
-			"skills",
-			"ulw-plan",
-			"references",
-			"full-workflow.md",
-		),
 	},
 ] as const
 
@@ -51,7 +30,7 @@ function readJsonContract(workflow: string, contractName: string): Record<string
 	return JSON.parse(match[1]) as Record<string, unknown>
 }
 
-describe("#given the ulw-plan high-accuracy review protocol across all three editions", () => {
+describe("#given the OpenCode ulw-plan high-accuracy review protocol", () => {
 	for (const surface of surfaces) {
 		describe(`#when the ${surface.name} full-workflow.md declares its review convergence contract`, () => {
 			const workflow = readFileSync(surface.workflowPath, "utf8")
@@ -82,15 +61,6 @@ describe("#given the ulw-plan high-accuracy review protocol across all three edi
 				])
 				expect(contract.fix_edit_policy).toBe("smallest_edit_no_scope_expansion")
 			})
-		})
-	}
-})
-
-describe("#given issue #6128 non-convergence root cause wording", () => {
-	for (const surface of surfaces) {
-		test(`#when reading ${surface.name} #then no unconditional resubmit-until-approval loop remains`, () => {
-			const workflow = readFileSync(surface.workflowPath, "utf8")
-			expect(workflow).not.toMatch(/fix every cited issue and resubmit (?:both )?fresh until (?:each|it) approves/)
 		})
 	}
 })

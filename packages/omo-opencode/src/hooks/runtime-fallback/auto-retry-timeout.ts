@@ -4,7 +4,7 @@ import { log } from "../../shared/logger"
 import { getFallbackModelsForSession } from "./fallback-models"
 import { prepareFallback } from "./fallback-state"
 import { restoreFallbackState, snapshotFallbackState } from "./fallback-state-snapshot"
-import { subagentSessions } from "../../features/claude-code-session-state"
+import { subagentSessions } from "../../features/opencode-session-state"
 
 declare function setTimeout(callback: () => void | Promise<void>, delay?: number): RuntimeFallbackTimeout
 declare function clearTimeout(timeout: RuntimeFallbackTimeout): void

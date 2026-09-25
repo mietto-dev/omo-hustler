@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 
-import { classifyTask } from "../claude-tasks/orchestrator-classification"
+import { classifyTask } from "../opencode-tasks/orchestrator-classification"
 import { createHustlerLifecycleAdapter } from "../hustler/lifecycle-state"
 import { computeView, viewKey } from "./compute-view"
 import { deriveHustlerWorkflow } from "./derivers"
@@ -92,7 +92,7 @@ describe("Wave 3 TUI mirror and HUSTLER rendering boundaries", () => {
     // given
     const storagePath = makeTempDir("workflow-storage")
     const projectDir = makeTempDir("project")
-    const config = { sisyphus: { tasks: { storage_path: storagePath, claude_code_compat: false } } }
+  const config = { sisyphus: { tasks: { storage_path: storagePath } } }
     const adapter = createHustlerLifecycleAdapter(config)
     const created = adapter.create({
       sessionId: "ses-private",

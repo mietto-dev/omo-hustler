@@ -1,4 +1,4 @@
-import { handedBackSyncSessions, setSessionAgent, subagentSessions, syncSubagentSessions } from "../../features/claude-code-session-state"
+import { handedBackSyncSessions, setSessionAgent, subagentSessions, syncSubagentSessions } from "../../features/opencode-session-state"
 import {
   clearDelegatedChildSessionBootstrap,
   registerDelegatedChildSessionBootstrap,

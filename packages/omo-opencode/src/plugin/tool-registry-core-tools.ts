@@ -6,7 +6,7 @@ import type { SkillContext } from "./skill-context"
 import type { PluginContext, ToolsRecord } from "./types"
 import type { ToolRegistryFactories } from "./tool-registry-factories"
 
-import { getMainSessionID } from "../features/claude-code-session-state"
+import { getMainSessionID } from "../features/opencode-session-state"
 import { loadPluginConfig } from "../plugin-config"
 import { createGoalController, type GoalController } from "../hooks/goal/controller"
 import { createGoalTools } from "../hooks/goal/tools"
@@ -109,10 +109,7 @@ export function createCoreTools(args: {
     getLoadedSkills,
     getSessionID: getSessionIDForMcp,
   })
-  const commands = factories.discoverCommandsSync(ctx.directory, {
-    pluginsEnabled: pluginConfig.claude_code?.plugins ?? true,
-    enabledPluginsOverride: pluginConfig.claude_code?.plugins_override,
-  })
+  const commands = factories.discoverCommandsSync(ctx.directory)
   const skillTool = factories.createSkillTool({
     directory: ctx.directory,
     commands,
@@ -125,8 +122,6 @@ export function createCoreTools(args: {
     disabledSkills: skillContext.disabledSkills,
     teamModeEnabled: pluginConfig.team_mode?.enabled ?? false,
     nativeSkills,
-    pluginsEnabled: pluginConfig.claude_code?.plugins ?? true,
-    enabledPluginsOverride: pluginConfig.claude_code?.plugins_override,
     includeSkillsInDescription: true,
   })
 

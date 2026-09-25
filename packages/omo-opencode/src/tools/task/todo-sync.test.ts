@@ -1,5 +1,5 @@
 /// <reference types="bun-types/test-globals" />
-import type { Task } from "../../features/claude-tasks/types";
+import type { Task } from "../../features/opencode-tasks/types";
 import type { PluginInput } from "@opencode-ai/plugin";
 import {
   syncTaskToTodo,

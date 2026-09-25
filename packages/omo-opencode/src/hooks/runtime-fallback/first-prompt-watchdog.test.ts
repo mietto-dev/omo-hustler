@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test"
 import type { HookDeps, RuntimeFallbackPluginInput } from "./types"
 import type { AutoRetryHelpers } from "./auto-retry"
-import { subagentSessions } from "../../features/claude-code-session-state"
+import { subagentSessions } from "../../features/opencode-session-state"
 import { createFirstPromptWatchdog, observeEventForWatchdog, type FirstPromptWatchdog } from "./first-prompt-watchdog"
 
 const WATCHDOG_MS = 100

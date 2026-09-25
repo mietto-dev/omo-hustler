@@ -17,7 +17,6 @@ const forbiddenPayloadPrefixes = [
   "packages/pi-webfetch/",
   "packages/ast-grep-mcp/",
   "packages/git-bash-mcp/",
-  "packages/lsp-daemon/src/",
   "packages/omo-opencode/src/",
   "packages/utils/src/",
 ]
@@ -167,8 +166,6 @@ describe("Hustler package boundary", () => {
       "packages/hustler/dist",
       "packages/lsp-tools-mcp/package.json",
       "packages/lsp-tools-mcp/dist",
-      "packages/lsp-daemon/package.json",
-      "packages/lsp-daemon/dist",
     ])
   })
 
@@ -177,7 +174,6 @@ describe("Hustler package boundary", () => {
     expect(paths.length).toBeLessThan(3000)
     expect(paths).toContain("LICENSE.md")
     expect(paths).toContain("THIRD-PARTY-NOTICES.md")
-    expect(paths).toContain("packages/lsp-daemon/dist/cli.js")
     expect(paths).toContain("packages/hustler/package.json")
     expect(paths).toContain("packages/hustler/dist/index.js")
     expect(paths.filter((path) => forbiddenPayloadPrefixes.some((prefix) => path.startsWith(prefix)))).toEqual([])

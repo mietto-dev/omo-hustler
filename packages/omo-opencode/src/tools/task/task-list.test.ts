@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test"
 import { createTaskList } from "./task-list"
-import { writeJsonAtomic } from "../../features/claude-tasks/storage"
+import { writeJsonAtomic } from "../../features/opencode-tasks/storage"
 import type { TaskObject } from "./types"
 import { join } from "path"
 import { existsSync, rmSync } from "fs"
@@ -29,7 +29,6 @@ describe("createTaskList", () => {
       sisyphus: {
         tasks: {
           storage_path: join(testProjectDir, ".omo/tasks"),
-          claude_code_compat: false,
         },
       },
     }
@@ -71,7 +70,6 @@ describe("createTaskList", () => {
       sisyphus: {
         tasks: {
           storage_path: join(testProjectDir, ".omo/tasks"),
-          claude_code_compat: false,
         },
       },
     }
@@ -114,7 +112,6 @@ describe("createTaskList", () => {
        sisyphus: {
          tasks: {
            storage_path: join(testProjectDir, ".omo/tasks"),
-           claude_code_compat: false,
          },
        },
      }
@@ -148,7 +145,6 @@ describe("createTaskList", () => {
        sisyphus: {
          tasks: {
            storage_path: join(testProjectDir, ".omo/tasks"),
-           claude_code_compat: false,
          },
        },
      }
@@ -212,7 +208,6 @@ describe("createTaskList", () => {
        sisyphus: {
          tasks: {
            storage_path: join(testProjectDir, ".omo/tasks"),
-           claude_code_compat: false,
          },
        },
      }
@@ -255,7 +250,6 @@ describe("createTaskList", () => {
        sisyphus: {
          tasks: {
            storage_path: join(testProjectDir, ".omo/tasks"),
-           claude_code_compat: false,
          },
        },
      }
@@ -287,7 +281,6 @@ describe("createTaskList", () => {
        sisyphus: {
          tasks: {
            storage_path: join(testProjectDir, ".omo/tasks"),
-           claude_code_compat: false,
          },
        },
      }
@@ -319,7 +312,6 @@ describe("createTaskList", () => {
        sisyphus: {
          tasks: {
            storage_path: join(testProjectDir, ".omo/tasks"),
-           claude_code_compat: false,
          },
        },
      }

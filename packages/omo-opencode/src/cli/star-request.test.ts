@@ -27,23 +27,6 @@ describe("star-request", () => {
     expect(results).toEqual([{ repository: "code-yeongyu/oh-my-openagent", ok: true }])
   })
 
-  test("stars both repositories for codex platform (lazycodex is built on oh-my-openagent)", async () => {
-    // given
-    const starred: string[] = []
-
-    // when
-    const results = await starGitHubRepositories("codex", async (repository) => {
-      starred.push(repository)
-    })
-
-    // then
-    expect(starred).toEqual(["code-yeongyu/oh-my-openagent", "code-yeongyu/lazycodex"])
-    expect(results).toEqual([
-      { repository: "code-yeongyu/oh-my-openagent", ok: true },
-      { repository: "code-yeongyu/lazycodex", ok: true },
-    ])
-  })
-
   test("stars both repositories in STAR_REPOSITORIES order for both platform", async () => {
     // given
     const starred: string[] = []
@@ -58,31 +41,4 @@ describe("star-request", () => {
     expect(results).toEqual(STAR_REPOSITORIES.map((repository) => ({ repository, ok: true })))
   })
 
-  test("stars the default repositories for senpi platform without adding a new repo", async () => {
-    // given
-    const starred: string[] = []
-
-    // when
-    const results = await starGitHubRepositories("senpi", async (repository) => {
-      starred.push(repository)
-    })
-
-    // then
-    expect(starred).toEqual([...STAR_REPOSITORIES])
-    expect(results).toEqual(STAR_REPOSITORIES.map((repository) => ({ repository, ok: true })))
-  })
-
-  test("keeps going when one repository cannot be starred", async () => {
-    // given
-    // when
-    const results = await starGitHubRepositories("both", async (repository) => {
-      if (repository === "code-yeongyu/lazycodex") throw new Error("gh auth missing")
-    })
-
-    // then
-    expect(results).toEqual([
-      { repository: "code-yeongyu/oh-my-openagent", ok: true },
-      { repository: "code-yeongyu/lazycodex", ok: false, error: "gh auth missing" },
-    ])
-  })
 })

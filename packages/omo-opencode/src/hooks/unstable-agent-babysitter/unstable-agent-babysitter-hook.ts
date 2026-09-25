@@ -1,5 +1,5 @@
 import type { BackgroundManager } from "../../features/background-agent"
-import { getMainSessionID, getSessionAgent } from "../../features/claude-code-session-state"
+import { getMainSessionID, getSessionAgent } from "../../features/opencode-session-state"
 import { log } from "../../shared/logger"
 import { createInternalAgentTextPart, isAmbiguousPostDispatchPromptFailure, resolveInheritedPromptTools } from "../../shared"
 import { resolveMessageEventSessionID, resolveSessionEventID } from "../../shared/event-session-id"

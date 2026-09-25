@@ -1,14 +1,7 @@
 import { normalizeAgentForPromptKey } from "./agent-display-names"
+import { DEFAULT_AGENT_ORDER } from "./agent-ordering"
 
-export const CANONICAL_CORE_AGENT_ORDER = [
-  "orchestrator",
-  "planner",
-  "developer",
-  "tester",
-  "approver",
-  "librarian",
-  "architect",
-] as const
+export const CANONICAL_CORE_AGENT_ORDER = DEFAULT_AGENT_ORDER
 
 const CANONICAL_AGENT_KEYS = new Set<string>(CANONICAL_CORE_AGENT_ORDER)
 

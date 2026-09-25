@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test"
 
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 import type { BackgroundManager } from "../../features/background-agent"
-import { setMainSession, _resetForTesting } from "../../features/claude-code-session-state"
+import { setMainSession, _resetForTesting } from "../../features/opencode-session-state"
 import { releaseAllPromptAsyncReservationsForTesting } from "../shared/prompt-async-gate"
 import { createTodoContinuationEnforcer } from "."
 

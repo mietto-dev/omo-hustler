@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it, mock } from "bun:test"
 
-import { _resetForTesting } from "../features/claude-code-session-state"
+import { _resetForTesting } from "../features/opencode-session-state"
 import { getSessionPromptParams, setSessionPromptParams } from "../shared/session-prompt-params-state"
 import { createEventHandler } from "./event"
 

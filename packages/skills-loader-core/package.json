@@ -13,6 +13,10 @@
       "types": "./src/features/opencode-skill-loader/index.ts",
       "import": "./src/features/opencode-skill-loader/index.ts"
     },
+    "./command-types": {
+      "types": "./src/command-types.ts",
+      "import": "./src/command-types.ts"
+    },
     "./opencode-skill-loader/*": {
       "types": "./src/features/opencode-skill-loader/*.ts",
       "import": "./src/features/opencode-skill-loader/*.ts"
@@ -64,7 +68,7 @@
     "test": "bun test src/*.test.ts src/**/*.test.ts"
   },
   "dependencies": {
-    "@oh-my-opencode/claude-code-compat-core": "workspace:*",
+    "@oh-my-opencode/mcp-client-core": "workspace:*",
     "@oh-my-opencode/model-core": "workspace:*",
     "@oh-my-opencode/shared-skills": "workspace:*",
     "@oh-my-opencode/utils": "workspace:*",

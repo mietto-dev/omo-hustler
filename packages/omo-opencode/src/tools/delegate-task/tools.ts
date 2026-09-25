@@ -24,7 +24,7 @@ import { getAgentConfigKey } from "../../shared/agent-display-names"
 import {
   isHustlerRole,
   validateWorkflowContractForDelegation,
-} from "../../features/claude-tasks/workflow-contracts"
+} from "../../features/opencode-tasks/workflow-contracts"
 
 const LEGACY_ONLY_ROLE_KEYS = new Set([
   "plan",

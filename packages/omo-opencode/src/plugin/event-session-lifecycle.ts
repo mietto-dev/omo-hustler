@@ -6,7 +6,7 @@ import {
   subagentSessions,
   syncSubagentSessions,
   updateSessionAgent,
-} from "../features/claude-code-session-state";
+} from "../features/opencode-session-state";
 import {
   clearBackgroundOutputConsumptionsForParentSession,
   clearBackgroundOutputConsumptionsForTaskSession,

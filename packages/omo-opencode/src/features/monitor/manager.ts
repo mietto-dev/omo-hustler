@@ -1,4 +1,4 @@
-import { subagentSessions } from "../claude-code-session-state"
+import { subagentSessions } from "../opencode-session-state"
 import { registerManagerForCleanup, unregisterManagerForCleanup } from "../background-agent/process-cleanup"
 import { log } from "../../shared"
 import type { SchedulerDeps, TimerHandle } from "./batcher"

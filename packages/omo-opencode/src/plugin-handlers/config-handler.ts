@@ -1,12 +1,11 @@
 import type { OhMyOpenCodeConfig } from "../config";
 import { applyRuntimeSkillSourceConfig } from "../features/opencode-runtime-skills"
-import { setAdditionalAllowedMcpEnvVars } from "../features/claude-code-mcp-loader";
+import { setAdditionalAllowedMcpEnvVars } from "../features/opencode-mcp-loader";
 import { applyOpenGatewayProviderConfig } from "../features/opengateway-provider";
 import type { ModelCacheState } from "../plugin-state";
 import { log } from "../shared";
 import { applyAgentConfig } from "./agent-config-handler";
 import { applyCommandConfig } from "./command-config-handler";
-import { applyHookConfig } from "./hook-config-handler";
 import { applyMcpConfig } from "./mcp-config-handler";
 import { applyProviderConfig } from "./provider-config-handler";
 import { loadPluginComponents } from "./plugin-components-loader";
@@ -15,7 +14,7 @@ import { clearFormatterCache } from "../tools/hashline-edit/formatter-trigger"
 import {
   clearRegisteredAgentNames,
   registerAgentName,
-} from "../features/claude-code-session-state";
+} from "../features/opencode-session-state";
 import { setDefaultAgentForSort } from "../shared/agent-sort-shim";
 import { getConfiguredDefaultAgent } from "./agent-config-assembly";
 
@@ -107,7 +106,6 @@ export function createConfigHandler(deps: ConfigHandlerDeps) {
     const pluginComponents = await loadPluginComponents({ pluginConfig });
     const pluginComponentsLoadFailed = pluginComponents.retryableLoadFailure === true;
 
-    applyHookConfig({ pluginComponents });
 
     const agentCacheKey = createAgentConfigCacheKey(config);
     let agentResult: Record<string, unknown>;

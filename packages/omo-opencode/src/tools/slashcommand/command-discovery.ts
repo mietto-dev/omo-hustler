@@ -8,9 +8,8 @@ import {
   discoverPluginCommandDefinitions,
   EXCLUDED_DIRS,
 } from "./command-discovery-deps"
-import type { CommandFrontmatter } from "../../features/claude-code-command-loader/types"
+import type { CommandFrontmatter } from "../../features/opencode-command-loader/types"
 import { isMarkdownFile } from "../../shared/file-utils"
-import { getClaudeConfigDir } from "../../shared/claude-config-dir"
 import { log } from "../../shared/logger"
 import { loadBuiltinCommands } from "../../features/builtin-commands/commands"
 import type { CommandInfo, CommandMetadata, CommandScope } from "./types"
@@ -126,16 +125,12 @@ export function discoverCommandsSync(
   directory?: string,
   options?: CommandDiscoveryOptions,
 ): CommandInfo[] {
-  const userCommandsDir = join(getClaudeConfigDir(), "commands")
-  const projectCommandsDir = join(directory ?? process.cwd(), ".claude", "commands")
   const opencodeGlobalDirs = getOpenCodeCommandDirs({ binary: "opencode" })
   const opencodeProjectDirs = findProjectOpencodeCommandDirs(directory ?? process.cwd())
 
-  const userCommands = discoverCommandsFromDir(userCommandsDir, "user")
   const opencodeGlobalCommands = opencodeGlobalDirs.flatMap((commandsDir) =>
     discoverCommandsFromDir(commandsDir, "opencode")
   )
-  const projectCommands = discoverCommandsFromDir(projectCommandsDir, "project")
   const opencodeProjectCommands = opencodeProjectDirs.flatMap((commandsDir) =>
     discoverCommandsFromDir(commandsDir, "opencode-project"),
   )
@@ -157,8 +152,6 @@ export function discoverCommandsSync(
   }))
 
   return deduplicateCommandInfosByName([
-    ...projectCommands,
-    ...userCommands,
     ...opencodeProjectCommands,
     ...opencodeGlobalCommands,
     ...builtinCommands,

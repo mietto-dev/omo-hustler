@@ -1,7 +1,7 @@
 const { describe, expect, test, beforeEach, afterEach, spyOn } = require("bun:test")
 
 const { createSessionNotification } = require("./session-notification")
-const { setMainSession, subagentSessions, _resetForTesting } = require("../features/claude-code-session-state")
+const { setMainSession, subagentSessions, _resetForTesting } = require("../features/opencode-session-state")
 const utils = require("./session-notification-utils")
 const sender = require("./session-notification-sender")
 

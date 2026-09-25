@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test"
-import { _resetForTesting } from "../../features/claude-code-session-state"
+import { _resetForTesting } from "../../features/opencode-session-state"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 import { createKeywordDetectorHook } from "./hook"
 

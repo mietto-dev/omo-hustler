@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, afterAll, mock, spyOn } fr
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js"
 import * as connectionModule from "./connection"
 import type { SkillMcpClientInfo, SkillMcpServerContext } from "./types"
-import type { ClaudeCodeMcpServer } from "../claude-code-mcp-loader/types"
+import type { ClaudeCodeMcpServer } from "@oh-my-opencode/mcp-client-core/skill-mcp-manager/mcp-types"
 import type { OAuthTokenData } from "../mcp-oauth/storage"
 import { setHttpClientDependenciesForTesting } from "./http-client"
 import { setStdioClientDependenciesForTesting } from "./stdio-client"

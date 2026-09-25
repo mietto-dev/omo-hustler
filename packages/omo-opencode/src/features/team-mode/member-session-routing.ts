@@ -1,5 +1,5 @@
 import { stripAgentListSortPrefix } from "../../shared/agent-display-names"
-import { resolveRegisteredAgentName } from "../claude-code-session-state"
+import { resolveRegisteredAgentName } from "../opencode-session-state"
 import { applySessionPromptParams } from "../../shared/session-prompt-params-helpers"
 import { SessionCategoryRegistry } from "../../shared/session-category-registry"
 import type { RuntimeStateMember } from "./types"

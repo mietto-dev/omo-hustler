@@ -8,9 +8,8 @@ describe("createToolExecuteAfterHandler", () => {
     clearPendingStore()
   })
 
-  it("#given truncator changes output #when tool.execute.after runs #then claudeCodeHooks receives truncated output", async () => {
+  it("#given truncator changes output #when tool.execute.after runs #then output remains truncated", async () => {
     const callOrder: string[] = []
-    let claudeSawOutput = ""
 
     const handler = createToolExecuteAfterHandler({
       ctx: { directory: "/repo" } as never,
@@ -21,12 +20,6 @@ describe("createToolExecuteAfterHandler", () => {
             output.output = "truncated output"
           },
         },
-        claudeCodeHooks: {
-          "tool.execute.after": async (_input, output) => {
-            callOrder.push("claude")
-            claudeSawOutput = output.output
-          },
-        },
       } as never,
     })
 
@@ -35,8 +28,7 @@ describe("createToolExecuteAfterHandler", () => {
       { title: "result", output: "original output", metadata: {} }
     )
 
-    expect(callOrder).toEqual(["truncator", "claude"])
-    expect(claudeSawOutput).toBe("truncated output")
+    expect(callOrder).toEqual(["truncator"])
   })
 
   it("#given stored metadata with legacy call id casing #when tool.execute.after runs #then it restores the stored metadata", async () => {

@@ -1,5 +1,5 @@
 import { TASK_CLEANUP_DELAY_MS } from "../../features/background-agent/constants"
-import { handedBackSyncSessions } from "../../features/claude-code-session-state"
+import { handedBackSyncSessions } from "../../features/opencode-session-state"
 import { log } from "../../shared/logger"
 import type { OpencodeClient } from "./types"
 

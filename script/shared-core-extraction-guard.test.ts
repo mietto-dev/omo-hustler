@@ -21,7 +21,6 @@ const corePackages = [
   "packages/boulder-state",
   "packages/memory-core",
   "packages/telemetry-core",
-  "packages/claude-code-compat-core",
   "packages/skills-loader-core",
 ] as const
 
@@ -40,7 +39,6 @@ const forbiddenSourcePatterns: readonly ForbiddenSourcePattern[] = [
   { pattern: /plugin\/components/ },
   {
     pattern: /\b(?:SessionStart|UserPromptSubmit|PreToolUse|PostToolUse|PostCompact|Stop|SubagentStop)\b/,
-    allowPackagePaths: ["packages/claude-code-compat-core"],
   },
   { pattern: /\bsession\.prompt(?:Async)?\s*\(/ },
 ] as const

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:te
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { clearCommandLoaderCache } from "../../features/claude-code-command-loader"
+import { clearCommandLoaderCache } from "../../features/opencode-command-loader"
 import type { LoadedSkill } from "../../features/opencode-skill-loader/types"
 // Import real shared module to avoid mock leaking to other test files
 import * as shared from "../../shared"
@@ -67,7 +67,7 @@ describe("createAutoSlashCommandHook", () => {
     it("should resolve project commands from provided directory even when cwd differs", async () => {
       // given
       const projectDir = join(tempDir, "project")
-      const commandDir = join(projectDir, ".claude", "commands")
+      const commandDir = join(projectDir, ".opencode", "commands")
       mkdirSync(commandDir, { recursive: true })
       writeFileSync(
         join(commandDir, "project-only-command.md"),
@@ -85,7 +85,7 @@ describe("createAutoSlashCommandHook", () => {
       // then
       expect(output.parts[0].text).toContain("<auto-slash-command>")
       expect(output.parts[0].text).toContain("Execute from project directory.")
-      expect(output.parts[0].text).toContain("**Scope**: project")
+      expect(output.parts[0].text).toContain("**Scope**: opencode-project")
     })
 
     it("should not modify message when command not found", async () => {

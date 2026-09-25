@@ -9,7 +9,7 @@ import {
 import {
   isAgentRegistered,
   resolveRegisteredAgentName,
-} from "../../features/claude-code-session-state"
+} from "../../features/opencode-session-state"
 import { createInternalAgentContinuationTextPart } from "../../shared"
 import { log } from "../../shared/logger"
 import { isAmbiguousPostDispatchPromptFailure } from "../../shared/prompt-failure-classifier"

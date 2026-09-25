@@ -14,18 +14,13 @@ describe("root package.json bin map", () => {
     expect(hasOmoEntry).toBe(false);
   });
 
-  test("#given the renamed bin map #when inspecting entries #then omo-agent-toolkit points at the shared entry", () => {
+  test("#given the OpenCode-only bin map #when inspecting entries #then hustler-opencode points at its launcher", () => {
     // then
-    expect(packageJson.bin["omo-agent-toolkit"]).toBe("bin/oh-my-opencode.js");
+    expect(packageJson.bin["hustler-opencode"]).toBe("bin/hustler-opencode.js");
   });
 
-  test("#given the renamed bin map #when inspecting entries #then the four surviving aliases keep the shared entry", () => {
-    // given
-    const survivingAliases = ["oh-my-opencode", "oh-my-openagent", "lazycodex", "lazycodex-ai"];
-
+  test("#given the OpenCode-only bin map #when inspecting entries #then no deleted harness aliases remain", () => {
     // then
-    for (const alias of survivingAliases) {
-      expect(packageJson.bin[alias]).toBe("bin/oh-my-opencode.js");
-    }
+    expect(Object.keys(packageJson.bin)).toEqual(["hustler-opencode"]);
   });
 });

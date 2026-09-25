@@ -1,4 +1,4 @@
-import type { CommandDefinition } from "../claude-code-command-loader"
+import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
 
 export type BuiltinCommandName = "goal" | "refactor" | "ulw-execute" | "stop-continuation" | "handoff" | "remove-ai-slops" | "hyperplan"
 

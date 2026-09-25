@@ -8476,43 +8476,6 @@
             "additionalProperties": false
           }
         },
-        "claude_code": {
-          "type": "object",
-          "properties": {
-            "mcp": {
-              "type": "boolean"
-            },
-            "commands": {
-              "type": "boolean"
-            },
-            "skills": {
-              "type": "boolean"
-            },
-            "agents": {
-              "type": "boolean"
-            },
-            "hooks": {
-              "type": "boolean"
-            },
-            "plugins": {
-              "type": "boolean"
-            },
-            "plugins_override": {
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {
-                "type": "boolean"
-              }
-            },
-            "anthropic_provider": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "additionalProperties": false
-        },
         "sisyphus_agent": {
           "type": "object",
           "properties": {
@@ -9566,15 +9529,8 @@
                 },
                 "task_list_id": {
                   "type": "string"
-                },
-                "claude_code_compat": {
-                  "default": false,
-                  "type": "boolean"
                 }
               },
-              "required": [
-                "claude_code_compat"
-              ],
               "additionalProperties": false
             }
           },
@@ -21188,43 +21144,6 @@
                   "additionalProperties": false
                 }
               },
-              "claude_code": {
-                "type": "object",
-                "properties": {
-                  "mcp": {
-                    "type": "boolean"
-                  },
-                  "commands": {
-                    "type": "boolean"
-                  },
-                  "skills": {
-                    "type": "boolean"
-                  },
-                  "agents": {
-                    "type": "boolean"
-                  },
-                  "hooks": {
-                    "type": "boolean"
-                  },
-                  "plugins": {
-                    "type": "boolean"
-                  },
-                  "plugins_override": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string"
-                    },
-                    "additionalProperties": {
-                      "type": "boolean"
-                    }
-                  },
-                  "anthropic_provider": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                },
-                "additionalProperties": false
-              },
               "sisyphus_agent": {
                 "type": "object",
                 "properties": {
@@ -22278,15 +22197,8 @@
                       },
                       "task_list_id": {
                         "type": "string"
-                      },
-                      "claude_code_compat": {
-                        "default": false,
-                        "type": "boolean"
                       }
                     },
-                    "required": [
-                      "claude_code_compat"
-                    ],
                     "additionalProperties": false
                   }
                 },

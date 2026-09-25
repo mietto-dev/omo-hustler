@@ -553,7 +553,6 @@ describe("external-plugin-detector", () => {
       // then
       expect(warning).toContain("opencode-skills")
       expect(warning).toContain("Duplicate tool names detected")
-      expect(warning).toContain("claude_code")
       expect(warning).toContain("skills")
     })
   })

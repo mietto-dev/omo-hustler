@@ -1,5 +1,5 @@
-import type { CommandDefinition } from "../claude-code-command-loader"
-import { isAgentRegistered } from "../claude-code-session-state"
+import type { CommandDefinition } from "@oh-my-opencode/skills-loader-core/command-types"
+import { isAgentRegistered } from "../opencode-session-state"
 import type { BuiltinCommandName, BuiltinCommands } from "./types"
 import { GOAL_TEMPLATE } from "./templates/goal"
 import { STOP_CONTINUATION_TEMPLATE } from "./templates/stop-continuation"

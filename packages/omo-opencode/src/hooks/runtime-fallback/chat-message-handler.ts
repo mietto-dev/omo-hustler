@@ -6,7 +6,7 @@ import { log } from "../../shared/logger"
 import { createFallbackState, isModelInCooldown, stringifyRuntimeModelWithVariant } from "./fallback-state"
 import { buildRetryModelPayload } from "./retry-model-payload"
 import { resolveRuntimeModelSettings } from "./runtime-model-settings"
-import { getSessionAgent } from "../../features/claude-code-session-state"
+import { getSessionAgent } from "../../features/opencode-session-state"
 
 declare function clearTimeout(timeout: RuntimeFallbackTimeout): void
 

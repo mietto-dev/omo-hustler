@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { createBoulderState, readBoulderState, writeBoulderState } from "../../features/boulder-state"
-import { _resetForTesting, registerAgentName } from "../../features/claude-code-session-state"
+import { _resetForTesting, registerAgentName } from "../../features/opencode-session-state"
 import {
   releaseAllPromptAsyncReservationsForTesting,
   releasePromptAsyncReservation,

@@ -1,7 +1,7 @@
 import {
   clearRegisteredAgentNames,
   registerAgentName,
-} from "../features/claude-code-session-state";
+} from "../features/opencode-session-state";
 import { log } from "../shared";
 import { setDefaultAgentForSort } from "../shared/agent-sort-shim";
 import { remapAgentKeysToDisplayNames } from "./agent-key-remapper";

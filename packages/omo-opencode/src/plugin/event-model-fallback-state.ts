@@ -1,5 +1,5 @@
 import type { OhMyOpenCodeConfig } from "../config";
-import { resolveRegisteredAgentName } from "../features/claude-code-session-state";
+import { resolveRegisteredAgentName } from "../features/opencode-session-state";
 import type { ModelFallbackHook } from "../hooks/model-fallback/hook";
 import { setSessionFallbackChain } from "../hooks/model-fallback/hook";
 import { getRawFallbackModels } from "../hooks/runtime-fallback/fallback-models";

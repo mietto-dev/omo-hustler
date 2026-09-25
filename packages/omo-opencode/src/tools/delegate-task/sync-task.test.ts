@@ -50,7 +50,7 @@ describe("executeSyncTask - cleanup on error paths", () => {
       removeTaskCalls.push(id)
     })
 
-    const { subagentSessions } = require("../../features/claude-code-session-state")
+    const { subagentSessions } = require("../../features/opencode-session-state")
     spyOn(subagentSessions, "add").mockImplementation((id: string) => {
       addCalls.push(id)
     })

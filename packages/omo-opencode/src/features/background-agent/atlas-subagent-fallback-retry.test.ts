@@ -8,7 +8,7 @@ import {
   getSessionAgent,
   _resetForTesting as resetClaudeCodeSessionState,
   subagentSessions,
-} from "../claude-code-session-state"
+} from "../opencode-session-state"
 import { BackgroundManager } from "./manager"
 import { clearBackgroundTaskRegistryForTesting } from "./task-registry"
 

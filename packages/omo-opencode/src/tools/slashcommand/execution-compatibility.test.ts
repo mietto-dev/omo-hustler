@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test"
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { clearCommandLoaderCache } from "../../features/claude-code-command-loader"
+import { clearCommandLoaderCache } from "../../features/opencode-command-loader"
 
 function requireFresh<T>(modulePath: string): T {
   const resolvedPath = require.resolve(modulePath)
@@ -80,7 +80,7 @@ describe("slashcommand discovery and execution compatibility", () => {
   it("executes project commands using the provided directory even when cwd differs", async () => {
     // given
     const projectDir = join(tempDir, "project")
-    const commandDir = join(projectDir, ".claude", "commands")
+    const commandDir = join(projectDir, ".opencode", "commands")
     const commandName = "project-only-command"
 
     mkdirSync(commandDir, { recursive: true })

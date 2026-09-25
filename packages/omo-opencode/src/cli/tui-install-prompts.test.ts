@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:
 import * as p from "@clack/prompts"
 import { ULTIMATE_FALLBACK } from "./model-fallback"
 import * as prompts from "./tui-install-prompts"
-import type { DetectedConfig, InstallConfig, InstallPlatform } from "./types"
+import type { DetectedConfig } from "./types"
 
 function createDetectedConfig(): DetectedConfig {
   return {
@@ -41,18 +41,11 @@ function withTty(): () => void {
 describe("promptInstallPlatform", () => {
   let restoreTty: () => void
 
-  beforeEach(() => {
-    restoreTty = withTty()
-  })
+  beforeEach(() => { restoreTty = withTty() })
+  afterEach(() => { restoreTty(); mock.restore() })
 
-  afterEach(() => {
-    restoreTty()
-    mock.restore()
-  })
-
-  test("offers OpenCode, Codex, and Both choices while the senpi platform flag is disabled", async () => {
+  test("offers only the retained OpenCode choice", async () => {
     // given
-    delete process.env.OMO_ENABLE_SENPI_PLATFORM
     const selectSpy = spyOn(p, "select").mockResolvedValue("opencode")
 
     // when
@@ -63,125 +56,28 @@ describe("promptInstallPlatform", () => {
     expect(selectSpy).toHaveBeenCalledTimes(1)
     expect(selectSpy.mock.calls[0]?.[0]).toMatchObject({
       initialValue: "opencode",
-      options: [
-        { value: "opencode" },
-        { value: "codex" },
-        { value: "both" },
-      ],
-    })
-  })
-
-  test("offers the Senpi choice when the senpi platform flag is enabled", async () => {
-    // given
-    process.env.OMO_ENABLE_SENPI_PLATFORM = "1"
-    const selectSpy = spyOn(p, "select").mockResolvedValue("senpi")
-
-    try {
-      // when
-      const value = await prompts.promptInstallPlatform("opencode")
-
-      // then
-      expect(value).toBe("senpi")
-      expect(selectSpy).toHaveBeenCalledTimes(1)
-      expect(selectSpy.mock.calls[0]?.[0]).toMatchObject({
-        initialValue: "opencode",
-        options: [
-          { value: "opencode" },
-          { value: "codex" },
-          { value: "both" },
-          { value: "senpi" },
-        ],
-      })
-    } finally {
-      delete process.env.OMO_ENABLE_SENPI_PLATFORM
-    }
-  })
-
-  test("preserves Codex as the initial platform", async () => {
-    // given
-    delete process.env.OMO_ENABLE_SENPI_PLATFORM
-    const selectSpy = spyOn(p, "select").mockResolvedValue("codex")
-
-    // when
-    const value = await prompts.promptInstallPlatform("codex")
-
-    // then
-    expect(value).toBe("codex")
-    expect(selectSpy).toHaveBeenCalledTimes(1)
-    expect(selectSpy.mock.calls[0]?.[0]).toMatchObject({
-      initialValue: "codex",
-      options: [
-        { value: "opencode" },
-        { value: "codex" },
-        { value: "both" },
-      ],
+      options: [{ value: "opencode" }],
     })
   })
 })
 
-describe("promptInstallConfig platform branching", () => {
+describe("promptInstallConfig", () => {
   let restoreTty: () => void
 
-  beforeEach(() => {
-    restoreTty = withTty()
-  })
+  beforeEach(() => { restoreTty = withTty() })
+  afterEach(() => { restoreTty(); mock.restore() })
 
-  afterEach(() => {
-    restoreTty()
-    mock.restore()
-  })
-
-  test("skips OpenCode questions when the user selects codex", async () => {
+  test("asks all retained OpenCode questions", async () => {
     // given
     const selectSpy = spyOn(p, "select").mockResolvedValue("no")
 
     // when
-    const config = await prompts.promptInstallConfig(createDetectedConfig(), "codex")
+    const config = await prompts.promptInstallConfig(createDetectedConfig(), "opencode")
 
     // then
-    expect(config).toMatchObject({
-      platform: "codex",
-      hasOpenCode: false,
-      hasCodex: true,
-      codexAutonomous: true,
-    } satisfies Partial<InstallConfig>)
-    expect(selectSpy).not.toHaveBeenCalled()
+    expect(config).toMatchObject({ platform: "opencode", hasOpenCode: true })
+    expect(selectSpy).toHaveBeenCalledTimes(12)
   })
-
-  test("skips OpenCode questions when the user selects senpi", async () => {
-    // given
-    const selectSpy = spyOn(p, "select").mockResolvedValue("no")
-
-    // when
-    const config = await prompts.promptInstallConfig(createDetectedConfig(), "senpi")
-
-    // then
-    expect(config).toMatchObject({
-      platform: "senpi",
-      hasOpenCode: false,
-      hasCodex: false,
-      hasSenpi: true,
-    } satisfies Partial<InstallConfig>)
-    expect(selectSpy).not.toHaveBeenCalled()
-  })
-
-  test.each([
-    ["opencode", false],
-    ["both", true],
-  ] satisfies readonly [InstallPlatform, boolean][])(
-    "asks OpenCode questions when the user selects %s",
-    async (platform, hasCodex) => {
-      // given
-      const selectSpy = spyOn(p, "select").mockResolvedValue("no")
-
-      // when
-      const config = await prompts.promptInstallConfig(createDetectedConfig(), platform)
-
-      // then
-      expect(config).toMatchObject({ platform, hasOpenCode: true, hasCodex } satisfies Partial<InstallConfig>)
-      expect(selectSpy).toHaveBeenCalledTimes(12)
-    },
-  )
 
   test("Claude subscription No option hint uses ultimate fallback", async () => {
     // given
@@ -194,36 +90,8 @@ describe("promptInstallConfig platform branching", () => {
     const firstCall = selectSpy.mock.calls[0]?.[0]
     expect(firstCall?.message).toBe("Do you have a Claude Pro/Max subscription?")
     const options = firstCall?.options as Array<{ value: string; hint?: string }>
-    const noOption = options?.find((o) => o.value === "no")
+    const noOption = options?.find((option) => option.value === "no")
     expect(noOption?.hint).toContain(ULTIMATE_FALLBACK)
     expect(noOption?.hint).not.toContain("big-pickle")
-  })
-
-  test("uses explicit Codex autonomous override without asking", async () => {
-    // given
-    const selectSpy = spyOn(p, "select").mockResolvedValue("no")
-
-    // when
-    const config = await prompts.promptInstallConfig(createDetectedConfig(), "codex", false)
-
-    // then
-    expect(config).toMatchObject({
-      platform: "codex",
-      hasCodex: true,
-      codexAutonomous: false,
-    } satisfies Partial<InstallConfig>)
-    expect(selectSpy).not.toHaveBeenCalled()
-  })
-
-  test("does not ask the old Codex adapter question", async () => {
-    // given
-    const selectSpy = spyOn(p, "select").mockResolvedValue("no")
-
-    // when
-    await prompts.promptInstallConfig(createDetectedConfig(), "both")
-
-    // then
-    const messages = selectSpy.mock.calls.map((call) => call[0].message)
-    expect(messages).not.toContain("Install Codex harness adapter into ~/.codex?")
   })
 })

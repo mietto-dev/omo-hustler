@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test"
 import type { OhMyOpenCodeConfig } from "../config"
 import type { DefaultModeConfig } from "../config/schema/default-mode"
-import { _resetForTesting, setMainSession } from "../features/claude-code-session-state"
+import { _resetForTesting, setMainSession } from "../features/opencode-session-state"
 import { createKeywordDetectorHook } from "../hooks/keyword-detector"
 import { unsafeTestValue } from "../../../../test-support/unsafe-test-value"
 import { createChatMessageHandler, type ChatMessageHandlerOutput } from "./chat-message"

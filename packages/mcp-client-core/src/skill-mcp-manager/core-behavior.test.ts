@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import type { ClaudeCodeMcpServer } from "@oh-my-opencode/claude-code-compat-core/claude-code-mcp-loader/types"
+import type { ClaudeCodeMcpServer } from "./mcp-types"
 import { getConnectionType } from "./connection-type"
 import { createCleanMcpEnvironment } from "./env-cleaner"
 import { redactSensitiveData } from "./error-redaction"

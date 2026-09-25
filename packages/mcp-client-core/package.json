@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@oh-my-opencode/claude-code-compat-core": "workspace:*",
     "@oh-my-opencode/utils": "workspace:*",
     "zod": "^4.4.3"
   },

@@ -6,7 +6,7 @@ import {
   type ApproverInput,
   type TesterReview,
   type WorkflowContract,
-} from "../claude-tasks/workflow-contracts"
+} from "../opencode-tasks/workflow-contracts"
 import { createHustlerLifecycleAdapter, createHustlerWorkflowIdentity, type HustlerLifecycleAdapter } from "./lifecycle-state"
 import type { HustlerLifecycleRecord } from "./lifecycle-state-schema"
 import { resolveSessionEventID } from "../../shared/event-session-id"

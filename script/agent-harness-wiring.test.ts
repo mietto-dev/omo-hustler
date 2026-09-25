@@ -19,42 +19,6 @@ function parsesAsJson(raw: string): boolean {
 }
 
 describe("cross-harness env wiring", () => {
-  test("#given Cursor cloud agents #when reading .cursor/environment.json #then install delegates to the shared setup script", () => {
-    // given
-    const path = join(REPO_ROOT, ".cursor", "environment.json")
-
-    // when / then
-    expect(existsSync(path), ".cursor/environment.json must exist").toBe(true)
-    const raw = read(path)
-    expect(parsesAsJson(raw), ".cursor/environment.json must be valid JSON").toBe(true)
-    expect(raw).toContain("script/agent/setup.sh")
-  })
-
-  test("#given Claude Code #when reading .claude/settings.json #then SessionStart runs setup and SessionEnd launches cleanup", () => {
-    // given
-    const path = join(REPO_ROOT, ".claude", "settings.json")
-
-    // when / then
-    expect(existsSync(path), ".claude/settings.json must exist").toBe(true)
-    const raw = read(path)
-    expect(parsesAsJson(raw), ".claude/settings.json must be valid JSON").toBe(true)
-    expect(raw).toContain("SessionStart")
-    expect(raw).toContain("SessionEnd")
-    expect(raw).toContain("script/agent/setup.sh")
-    expect(raw).toContain("script/agent/cleanup-hook.sh")
-  })
-
-  test("#given Codex App local environments #when reading .codex/setup.sh #then it delegates to the shared setup script", () => {
-    // given
-    const path = join(REPO_ROOT, ".codex", "setup.sh")
-
-    // when / then
-    expect(existsSync(path), ".codex/setup.sh must exist (committable Codex App setup)").toBe(true)
-    const raw = read(path)
-    expect(raw.startsWith("#!/usr/bin/env bash")).toBe(true)
-    expect(raw).toContain("script/agent/setup.sh")
-  })
-
   test("#given Codespaces + Dev Containers #when reading .devcontainer/devcontainer.json #then it builds the Dockerfile and runs setup on create", () => {
     // given
     const path = join(REPO_ROOT, ".devcontainer", "devcontainer.json")
@@ -91,7 +55,7 @@ describe("cross-harness env wiring", () => {
     expect(raw).toContain(".devcontainer/Dockerfile")
   })
 
-  test("#given a containerized harness #when reading .devcontainer/devcontainer.json #then host provider creds pass through via remoteEnv", () => {
+  test("#given a containerized OpenCode harness #when reading .devcontainer/devcontainer.json #then host provider creds pass through via remoteEnv", () => {
     // given
     const path = join(REPO_ROOT, ".devcontainer", "devcontainer.json")
 
@@ -111,17 +75,7 @@ describe("cross-harness env wiring", () => {
     expect(existsSync(path), ".devcontainer/README.md must exist").toBe(true)
     const raw = read(path)
     expect(raw).toContain("ANTHROPIC_API_KEY")
-    expect(raw).toContain(".codex")
-    expect(raw).toContain(".claude")
     expect(raw).toContain(".config/opencode")
-  })
-
-  test("#given the Claude wiring #when reading .gitignore #then .claude/settings.json is force-tracked", () => {
-    // given
-    const raw = read(join(REPO_ROOT, ".gitignore"))
-
-    // then
-    expect(raw).toContain("!.claude/settings.json")
   })
 })
 
@@ -166,15 +120,12 @@ describe("Docker QA harness", () => {
     expect(raw).toContain("--tui")
   })
 
-  test("#given both QA skills #when looking for the docker-qa reference #then each documents the Docker path", () => {
+  test("#given the OpenCode QA skill #when looking for the docker-qa reference #then it documents the Docker path", () => {
     // given
     const oc = join(REPO_ROOT, ".agents", "skills", "opencode-qa", "references", "docker-qa.md")
-    const cx = join(REPO_ROOT, ".claude", "skills", "codex-qa", "references", "docker-qa.md")
 
     // then
     expect(existsSync(oc), "opencode-qa needs references/docker-qa.md").toBe(true)
-    expect(existsSync(cx), "codex-qa needs references/docker-qa.md").toBe(true)
     expect(read(oc)).toContain("qa-docker.sh")
-    expect(read(cx)).toContain("qa-docker.sh")
   })
 })

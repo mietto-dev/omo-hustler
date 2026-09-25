@@ -3,8 +3,8 @@ import {
   OrchestratorTaskSignalsSchema,
   WorkflowTierSchema,
   type WorkflowClassification,
-} from "../claude-tasks/orchestrator-classification"
-import { WorkflowStateSchema } from "../claude-tasks/orchestrator-state"
+} from "../opencode-tasks/orchestrator-classification"
+import { WorkflowStateSchema } from "../opencode-tasks/orchestrator-state"
 
 export const HUSTLER_LIFECYCLE_RECORD_VERSION = 1 as const
 

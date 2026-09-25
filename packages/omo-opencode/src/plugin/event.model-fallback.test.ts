@@ -3,7 +3,7 @@ import { afterEach, describe, expect, spyOn, test } from "bun:test"
 
 import { createEventHandler } from "./event"
 import { createChatMessageHandler } from "./chat-message"
-import { _resetForTesting, setMainSession } from "../features/claude-code-session-state"
+import { _resetForTesting, setMainSession } from "../features/opencode-session-state"
 import { createModelFallbackHook, clearPendingModelFallback } from "../hooks/model-fallback/hook"
 import * as connectedProvidersCache from "../shared/connected-providers-cache"
 import {
@@ -112,7 +112,6 @@ describe("createEventHandler - model fallback", () => {
         modelFallback,
         stopContinuationGuard: null,
         keywordDetector: null,
-        claudeCodeHooks: null,
         autoSlashCommand: null,
         ulwExecute: null,
         ralphLoop: null,
@@ -580,7 +579,6 @@ describe("createEventHandler - model fallback", () => {
         modelFallback,
         stopContinuationGuard: null,
         keywordDetector: null,
-        claudeCodeHooks: null,
         autoSlashCommand: null,
         ulwExecute: null,
         ralphLoop: null,
@@ -775,7 +773,6 @@ describe("createEventHandler - model fallback", () => {
         modelFallback,
         stopContinuationGuard: null,
         keywordDetector: null,
-        claudeCodeHooks: null,
         autoSlashCommand: null,
         ulwExecute: null,
         ralphLoop: null,
@@ -885,7 +882,6 @@ describe("createEventHandler - model fallback", () => {
         modelFallback,
         stopContinuationGuard: null,
         keywordDetector: null,
-        claudeCodeHooks: null,
         autoSlashCommand: null,
         ulwExecute: null,
         ralphLoop: null,
@@ -1048,7 +1044,6 @@ describe("createEventHandler - model fallback", () => {
         modelFallback,
         stopContinuationGuard: null,
         keywordDetector: null,
-        claudeCodeHooks: null,
         autoSlashCommand: null,
         ulwExecute: null,
         ralphLoop: null,
@@ -1177,7 +1172,6 @@ describe("createEventHandler - model fallback", () => {
         modelFallback,
         stopContinuationGuard: null,
         keywordDetector: null,
-        claudeCodeHooks: null,
         autoSlashCommand: null,
         ulwExecute: null,
         ralphLoop: null,

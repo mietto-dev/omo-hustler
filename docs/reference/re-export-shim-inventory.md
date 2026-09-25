@@ -10,7 +10,7 @@ Generated command:
 git ls-files packages/omo-opencode/src packages/omo-codex/src | grep '\.ts$' | sort | xargs awk 'FNR==1 && /^export (\*|\{).*from ["'"'"']@oh-my-opencode\// { print FILENAME }'
 ```
 
-Snapshot date: 2026-08-31. Total shim exports found: 256.
+Snapshot date: 2026-09-25. Total shim exports found: 194.
 
 ## Aggregate By Target Package
 
@@ -18,7 +18,6 @@ Snapshot date: 2026-08-31. Total shim exports found: 256.
 |---|---:|
 | `@oh-my-opencode/agents-md-core` | 2 |
 | `@oh-my-opencode/boulder-state` | 1 |
-| `@oh-my-opencode/claude-code-compat-core` | 36 |
 | `@oh-my-opencode/delegate-core` | 1 |
 | `@oh-my-opencode/hashline-core` | 6 |
 | `@oh-my-opencode/mcp-client-core` | 21 |
@@ -84,23 +83,6 @@ Snapshot date: 2026-08-31. Total shim exports found: 256.
 | `packages/omo-opencode/src/config/schema/team-mode.ts` | `@oh-my-opencode/team-core` |
 | `packages/omo-opencode/src/features/boulder-state/format-duration.ts` | `@oh-my-opencode/utils` |
 | `packages/omo-opencode/src/features/boulder-state/top-level-task.ts` | `@oh-my-opencode/boulder-state` |
-| `packages/omo-opencode/src/features/claude-code-agent-loader/agent-definitions-loader.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-agent-loader/claude-model-mapper.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-agent-loader/index.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-agent-loader/json-agent-loader.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-agent-loader/loader.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-agent-loader/opencode-config-agents-reader.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-agent-loader/types.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-command-loader/index.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-command-loader/loader-cache.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-command-loader/loader.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-command-loader/types.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-mcp-loader/configure-allowed-env-vars.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-mcp-loader/index.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-mcp-loader/loader.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-mcp-loader/scope-filter.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-mcp-loader/transformer.ts` | `@oh-my-opencode/claude-code-compat-core` |
-| `packages/omo-opencode/src/features/claude-code-mcp-loader/types.ts` | `@oh-my-opencode/claude-code-compat-core` |
 | `packages/omo-opencode/src/features/mcp-oauth/callback-server.ts` | `@oh-my-opencode/mcp-client-core` |
 | `packages/omo-opencode/src/features/mcp-oauth/dcr.ts` | `@oh-my-opencode/mcp-client-core` |
 | `packages/omo-opencode/src/features/mcp-oauth/discovery.ts` | `@oh-my-opencode/mcp-client-core` |

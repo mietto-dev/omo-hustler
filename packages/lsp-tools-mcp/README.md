@@ -11,7 +11,7 @@ This package is the upstream source of truth for downstream plugins. In `oh-my-o
 | Project | Path | Role |
 |---------|------|------|
 | **[codex-lsp](https://github.com/code-yeongyu/codex-lsp)** | `packages/lsp-tools-mcp/` | Codex plugin that ships these LSP MCP tools plus a Codex-specific PostToolUse diagnostics hook. |
-| **[oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)** (a.k.a. `oh-my-opencode`) | `packages/lsp-tools-mcp/` | OpenCode plugin that registers this server as a built-in Tier-1 stdio MCP and starts the shared OMO daemon through the `@code-yeongyu/lsp-daemon` proxy. Exposes `lsp_diagnostics`, `lsp_goto_definition`, `lsp_find_references`, `lsp_symbols`, `lsp_prepare_rename`, `lsp_rename`, `lsp_status`, and `lsp_install_decision` to all agents. |
+| **[oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)** (a.k.a. `oh-my-opencode`) | `packages/lsp-tools-mcp/` | OpenCode plugin that registers this server as a built-in Tier-1 stdio MCP. Exposes `lsp_diagnostics`, `lsp_goto_definition`, `lsp_find_references`, `lsp_symbols`, `lsp_prepare_rename`, `lsp_rename`, `lsp_status`, and `lsp_install_decision` to all agents. |
 
 If you fix or extend the LSP runtime here, downstreams should sync the vendored package source rather than carrying divergent forks.
 
@@ -65,7 +65,7 @@ When an MCP host omits the variables, the standalone default remains the Codex-c
 - User config: `<opencode config dir>/lsp.json`
 - Install decisions: `<opencode config dir>/lsp-install-decisions.json`
 
-The shared daemon runtime itself is configured only through `OMO_LSP_DAEMON_DIR`, or the paired `OMO_LSP_DAEMON_CLI` plus `OMO_LSP_DAEMON_VERSION` override. OpenCode source mode uses the paired override to run `packages/lsp-daemon/src/cli.ts` with Bun; dist mode resolves the daemon package `./cli` export.
+OpenCode provides the MCP request context directly through the `LSP_TOOLS_MCP_*` variables above; no separate daemon package is required.
 
 Examples:
 
@@ -93,7 +93,6 @@ Example config file:
 - `src/tools.ts` MCP tool definitions and handlers
 - `src/mcp.ts` stdio MCP server entry and registration
 - `src/cli.ts` standalone CLI entry (`mcp` subcommand only)
-- `../lsp-daemon` shared authenticated OMO daemon/proxy layer used by Codex, OpenCode, and Senpi adapters
 
 ## Local Development
 

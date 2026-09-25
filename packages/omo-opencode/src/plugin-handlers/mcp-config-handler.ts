@@ -1,5 +1,5 @@
 import type { OhMyOpenCodeConfig } from "../config";
-import { loadMcpConfigs } from "../features/claude-code-mcp-loader";
+import { loadMcpConfigs } from "../features/opencode-mcp-loader";
 import { createBuiltinMcps } from "../mcp";
 import type { PluginComponents } from "./plugin-components-loader";
 import { log } from "../shared";
@@ -35,14 +35,12 @@ export async function applyMcpConfig(params: {
   const userMcp = params.config.mcp as Record<string, unknown> | undefined;
   const userDisabledMcps = captureUserDisabledMcps(userMcp);
 
-  const mcpResult = params.pluginConfig.claude_code?.mcp ?? true
-    ? await loadMcpConfigs(disabledMcps)
-    : { servers: {} };
+  const mcpResult = await loadMcpConfigs(disabledMcps, { cwd: params.ctx.directory });
 
   if (userMcp) {
     for (const name of Object.keys(userMcp)) {
       if (name in mcpResult.servers) {
-        log(`warning: MCP server "${name}" from user config overrides Claude Code .mcp.json`);
+        log(`warning: MCP server "${name}" from OpenCode .mcp.json`);
       }
     }
   }

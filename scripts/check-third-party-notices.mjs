@@ -24,7 +24,6 @@ const CODEX_AGGREGATE_COMPONENTS = [
   "@code-yeongyu/codex-telemetry",
   "@code-yeongyu/codex-ultrawork",
   "@code-yeongyu/codex-ulw-loop",
-  "@code-yeongyu/lsp-daemon",
   "@code-yeongyu/lsp-tools-mcp",
   "@oh-my-opencode/boulder-state",
   "@oh-my-opencode/comment-checker-core",

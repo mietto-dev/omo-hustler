@@ -20,3 +20,6 @@ jobs:
       - run: bun run --cwd packages/hustler test
       - run: bun test packages/hustler script/package-layout.test.ts script/package-layout-exclusion.test.ts packages/hustler/src/identity/identity-manifest.test.ts packages/omo-opencode/src/mcp/lsp.test.ts
       - run: bun pm pack --dry-run --ignore-scripts
+      - name: Write job summary
+        if: always()
+        run: echo "## Hustler package release dry run" >> "$GITHUB_STEP_SUMMARY"

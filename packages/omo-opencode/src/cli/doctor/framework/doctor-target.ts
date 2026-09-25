@@ -1,7 +1,5 @@
-export type DoctorTarget = "opencode" | "codex"
+export type DoctorTarget = "opencode"
 
-export function resolveDoctorTarget(invocationName: string | undefined, platform?: DoctorTarget): DoctorTarget {
-  if (platform !== undefined) return platform
-  if (process.env.OMO_EDITION === "codex") return "codex"
-  return invocationName === "lazycodex" || invocationName === "lazycodex-ai" ? "codex" : "opencode"
+export function resolveDoctorTarget(): DoctorTarget {
+  return "opencode"
 }

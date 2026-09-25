@@ -1,11 +1,9 @@
 import {
   loadAgentDefinitions,
-  loadOpencodeGlobalAgents,
-  loadOpencodeProjectAgents,
-  loadProjectAgents,
-  loadUserAgents,
-  readOpencodeConfigAgents,
-} from "../features/claude-code-agent-loader";
+  loadOpenCodeGlobalAgents,
+  loadOpenCodeProjectAgents,
+  readOpenCodeConfigAgents,
+} from "../features/opencode-agent-loader";
 import { log, migrateAgentConfig } from "../shared";
 import type {
   AgentConfigRecord,
@@ -52,23 +50,18 @@ function summarizeCustomAgents(
 }
 
 export function loadAgentSources(params: ApplyAgentConfigParams): AgentSources {
-  const includeClaudeAgents = params.pluginConfig.claude_code?.agents ?? true;
-  const anthropicProvider = params.pluginConfig.claude_code?.anthropic_provider;
-  const userAgents = includeClaudeAgents ? loadUserAgents(anthropicProvider) : {};
-  const projectAgents = includeClaudeAgents
-    ? loadProjectAgents(params.ctx.directory, anthropicProvider)
-    : {};
-  const opencodeGlobalAgents = loadOpencodeGlobalAgents();
-  const opencodeProjectAgents = loadOpencodeProjectAgents(params.ctx.directory);
-  const pluginAgents = migratePluginAgents(params.pluginComponents.agents);
+  const userAgents: AgentSourceMap = {};
+  const projectAgents: AgentSourceMap = {};
+  const opencodeGlobalAgents = loadOpenCodeGlobalAgents();
+  const opencodeProjectAgents = loadOpenCodeProjectAgents(params.ctx.directory);
+  const pluginAgents: AgentSourceMap = {};
   const agentDefinitionAgents = params.pluginConfig.agent_definitions
     ? loadAgentDefinitions(
         params.pluginConfig.agent_definitions,
         "definition-file",
-        anthropicProvider,
       )
     : {};
-  const opencodeConfigAgents = readOpencodeConfigAgents(params.ctx.directory);
+  const opencodeConfigAgents = readOpenCodeConfigAgents(params.ctx.directory);
   const configAgent = params.config.agent as AgentConfigRecord | undefined;
   const sourceCounts = {
     user: Object.keys(userAgents).length,

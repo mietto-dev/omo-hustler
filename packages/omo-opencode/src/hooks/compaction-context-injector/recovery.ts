@@ -1,7 +1,7 @@
 import {
   resolveRegisteredAgentName,
   updateSessionAgent,
-} from "../../features/claude-code-session-state"
+} from "../../features/opencode-session-state"
 import {
   getCompactionAgentConfigCheckpoint,
 } from "../../shared/compaction-agent-config-checkpoint"

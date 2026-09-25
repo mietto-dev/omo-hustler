@@ -12,7 +12,7 @@ import {
   getSessionAgent,
   registerAgentName,
   updateSessionAgent,
-} from "./features/claude-code-session-state"
+} from "./features/opencode-session-state"
 
 
 describe("createPluginInterface - command.execute.before", () => {

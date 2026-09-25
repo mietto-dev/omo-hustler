@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "strict": true,
     "allowArbitraryExtensions": true,
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

@@ -6,7 +6,7 @@ import { join } from "node:path"
 import { randomUUID } from "node:crypto"
 
 import { clearBoulderState, readBoulderState, writeBoulderState } from "../../features/boulder-state"
-import { _resetForTesting, registerAgentName, setSessionAgent } from "../../features/claude-code-session-state"
+import { _resetForTesting, registerAgentName, setSessionAgent } from "../../features/opencode-session-state"
 import type { BoulderState } from "../../features/boulder-state"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 

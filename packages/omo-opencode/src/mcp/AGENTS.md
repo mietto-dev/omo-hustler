@@ -24,14 +24,13 @@ Tier 1 of the three-tier MCP system. Built-ins are created by `createBuiltinMcps
 - `lsp` is registered whenever it is not listed in `disabled_mcps`, even if its CLI artifact has not been built yet. Source checkouts fall back to the Bun source CLI; packaged builds prefer the Node dist CLI.
 - OpenCode supplies exactly three ordered project config paths to the standalone MCP translator: `<cwd>/.opencode/lsp.json`, `<cwd>/.omo/lsp.json`, and `<cwd>/.omo/lsp-client.json`.
 - The user-level inputs are OpenCode config paths: `$XDG_CONFIG_HOME/opencode/lsp.json` for server config and `$XDG_CONFIG_HOME/opencode/lsp-install-decisions.json` for install decisions. The MCP context advertises `installDecisionTool: true`.
-- The shared daemon runtime is configured only through `OMO_LSP_DAEMON_DIR`, or the paired `OMO_LSP_DAEMON_CLI` plus `OMO_LSP_DAEMON_VERSION` override. Source mode runs `packages/lsp-daemon/src/cli.ts` with Bun and sets the paired override; dist mode resolves the public `@code-yeongyu/lsp-daemon/cli` export rather than deep-running generated daemon files.
+- The local MCP runs the standalone `packages/lsp-tools-mcp` CLI directly. Packaged builds use its Node dist entrypoint; source checkouts use its Bun source entrypoint.
 
 ## THREE-TIER SYSTEM
 
 | Tier | Source | Mechanism |
 |------|--------|-----------|
 | 1. Built-in | `src/mcp/` | 3 remote HTTP MCPs + 1 local stdio MCP (`lsp`) via `createBuiltinMcps()` |
-| 2. Claude Code | `.mcp.json` | `${VAR}` expansion via `claude-code-mcp-loader` |
 | 3. Skill-embedded | SKILL.md YAML | Managed by `SkillMcpManager` (stdio + HTTP) |
 
 ## FILES

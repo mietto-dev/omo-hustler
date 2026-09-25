@@ -1,7 +1,7 @@
 import type { FallbackEntry } from "../../shared/model-requirements"
 import type { DelegatedModelConfig } from "../../shared/model-resolution-types"
 import type { SessionPermissionRule } from "../../shared/question-denied-session-permission"
-import type { WorkflowContract } from "../claude-tasks/workflow-contracts"
+import type { WorkflowContract } from "../opencode-tasks/workflow-contracts"
 
 export type BackgroundTaskStatus =
   | "pending"

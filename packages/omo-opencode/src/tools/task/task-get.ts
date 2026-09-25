@@ -2,7 +2,7 @@ import { tool, type ToolDefinition } from "@opencode-ai/plugin/tool"
 import { join } from "path"
 import type { OhMyOpenCodeConfig } from "../../config/schema"
 import { TaskGetInputSchema, TaskObjectSchema } from "./types"
-import { getTaskDir, readJsonSafe } from "../../features/claude-tasks/storage"
+import { getTaskDir, readJsonSafe } from "../../features/opencode-tasks/storage"
 
 const TASK_ID_PATTERN = /^T-[A-Za-z0-9-]+$/
 

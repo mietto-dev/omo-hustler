@@ -1,10 +1,6 @@
 import { isGpt5_5Model, isGpt5_6Model, isGpt6Model } from "../../agents/types"
 import type { BuiltinCategoryDefinition } from "./builtin-category-definition"
 
-// GPT-6 Astra variants, byte-identical to packages/senpi-task/src/category/openai-categories.ts, where
-// the rationale lives: each append is a delta over the model's own core preset and carries only why
-// the orchestrator chose the category, what a finished result looks like, and the harness facts a
-// child cannot derive.
 export const ULTRABRAIN_CATEGORY_PROMPT_APPEND_GPT_6_ASTRA = `<Category_Context name="ultrabrain">
 The orchestrator routed this task here because it is the one genuinely hard, logic-heavy problem in its plan, and it sent a goal rather than steps: choose the approach yourself, and let correctness outrank speed, brevity, and token cost.
 

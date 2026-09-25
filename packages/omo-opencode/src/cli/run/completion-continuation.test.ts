@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
 import type { RunContext } from "./types"
-import { _resetForTesting, setSessionAgent } from "../../features/claude-code-session-state"
+import { _resetForTesting, setSessionAgent } from "../../features/opencode-session-state"
 import { writeState as writeRalphLoopState } from "../../hooks/ralph-loop/storage"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 

@@ -9,7 +9,7 @@ import type {
   AvailableSkill,
 } from "../../agents/dynamic-agent-prompt-builder"
 import type { DelegationLineage, DelegationPolicy } from "../../features/background-agent/delegation-policy"
-import type { WorkflowContract } from "../../features/claude-tasks/workflow-contracts"
+import type { WorkflowContract } from "../../features/opencode-tasks/workflow-contracts"
 
 type SessionPathInput = { readonly path: { readonly id: string } }
 type SessionMessagesQuery = { readonly directory?: string; readonly limit?: number }

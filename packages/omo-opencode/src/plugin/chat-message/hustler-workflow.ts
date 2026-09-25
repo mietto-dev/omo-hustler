@@ -2,7 +2,7 @@ import { OrchestratorWorkflowConfigSchema } from "../../config/schema/workflow"
 import {
   classifyTask,
   type OrchestratorTaskSignals,
-} from "../../features/claude-tasks/orchestrator-classification"
+} from "../../features/opencode-tasks/orchestrator-classification"
 import {
   createHustlerLifecycleAdapter,
   type HustlerLifecycleAdapter,

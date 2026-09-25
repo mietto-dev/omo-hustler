@@ -4,7 +4,7 @@ import { buildSessionReminderMessage } from "./constants";
 import type { InteractiveBashSessionState } from "./types";
 import { parseTmuxCommand } from "./tmux-command-parser";
 import { getOrCreateState, isOmoSession, killAllTrackedSessions } from "./state-manager";
-import { subagentSessions } from "../../features/claude-code-session-state";
+import { subagentSessions } from "../../features/opencode-session-state";
 import { resolveSessionEventID } from "../../shared/event-session-id";
 
 interface ToolExecuteInput {

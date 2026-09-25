@@ -20,45 +20,19 @@ const workflowExpectations = [
       "block-master-pr",
       "test",
       "typecheck",
-      "codex-compatibility",
-      "senpi-compatibility",
-      "lazycodex-published-smoke",
-      "build",
-      "omo-ai-payload-check",
-      "auto-commit-schema",
-      "draft-release",
-    ],
-  },
-  { path: ".github/workflows/cla.yml", jobs: ["cla"] },
-  { path: ".github/workflows/compiled-worker.yml", jobs: ["relocated-worker"] },
-  { path: ".github/workflows/bot-merge.yml", jobs: ["merge"] },
-  { path: ".github/workflows/lint-workflows.yml", jobs: ["actionlint"] },
-  { path: ".github/workflows/npm-dist-tag-rollback.yml", jobs: ["retag"] },
-  { path: ".github/workflows/package-labels.yml", jobs: ["ensure-labels", "label-pull-request", "label-issue"] },
-  { path: ".github/workflows/publish-platform.yml", jobs: ["build", "publish", "smoke-linux-arm64"] },
-  {
-    path: ".github/workflows/publish.yml",
-    jobs: [
-      "gate-reuse",
-      "preflight-trust",
-      "release-metadata",
-      "prepare-release-state",
-      "dispatch-provenance-safe-publish",
-      "publish-main",
-      "release",
-      "post-publish-verify",
-    ],
-  },
-  {
+       "build",
+       "auto-commit-schema",
+     ],
+   },
+   { path: ".github/workflows/lint-workflows.yml", jobs: ["actionlint"] },
+   {
     path: ".github/workflows/review-claims.yml",
     jobs: ["gate", "claim", "release-claim", "stale-sweep"],
   },
-  { path: ".github/workflows/refresh-model-capabilities.yml", jobs: ["refresh"] },
-  { path: ".github/workflows/sisyphus-agent.yml", jobs: ["agent"] },
-  { path: ".github/workflows/stats.yml", jobs: ["stats"] },
-  { path: ".github/workflows/web-ci.yml", jobs: ["format-lint-typecheck-build"] },
-  { path: ".github/workflows/web-deploy.yml", jobs: ["deploy"] },
-  { path: ".github/workflows/windows-flake-soak.yml", jobs: ["soak"] },
+    { path: ".github/workflows/refresh-model-capabilities.yml", jobs: ["refresh"] },
+    { path: ".github/workflows/windows-flake-soak.yml", jobs: ["soak"] },
+    { path: ".github/workflows/hustler-package.yml", jobs: ["package"] },
+    { path: ".github/workflows/publish-hustler.yml", jobs: ["release-dry-run"] },
 ] as const satisfies readonly WorkflowExpectation[]
 
 function discoverWorkflowPaths(): readonly string[] {
@@ -162,15 +136,6 @@ describe("GitHub workflow job summaries", () => {
         expect(hasSummaryWriter(jobSection), `${expectation.path} ${job} must write a job summary`).toBe(true)
       }
     }
-  })
-
-  test("#given a privileged publish summary #when it renders dispatch inputs #then raw inputs are passed through env", () => {
-    const workflow = readFileSync(".github/workflows/publish-platform.yml", "utf8")
-    const summaryStep = sliceWorkflowSectionToEnd(workflow, "      - name: Write job summary")
-
-    expect(summaryStep).toContain("JOB_SUMMARY_DIST_TAG: ${{ inputs.dist_tag || 'latest' }}")
-    expect(summaryStep).toContain("\\`$JOB_SUMMARY_DIST_TAG\\`")
-    expect(summaryStep).not.toContain("`${{ inputs.dist_tag || 'latest' }}`")
   })
 
   test("#given summary inputs #when the shared writer runs #then it emits the Markdown contract GitHub renders", () => {

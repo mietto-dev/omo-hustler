@@ -1,6 +1,6 @@
 import { buildAgentPromptTools, createInternalAgentTextPart } from "../../../shared"
 import type { LaunchInput } from "../types"
-import type { WorkflowContract } from "../../claude-tasks/workflow-contracts"
+import type { WorkflowContract } from "../../opencode-tasks/workflow-contracts"
 
 type PromptModel = LaunchInput["model"]
 

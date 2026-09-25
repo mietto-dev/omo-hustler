@@ -5,7 +5,7 @@ import {
   getMainSessionID,
   getSessionAgent,
   subagentSessions,
-} from "../../features/claude-code-session-state"
+} from "../../features/opencode-session-state"
 import type { ContextCollector } from "../../features/context-injector"
 import {
   isRealUserTextPart,

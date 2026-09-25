@@ -2,7 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test"
 
-import { _resetForTesting } from "../../features/claude-code-session-state"
+import { _resetForTesting } from "../../features/opencode-session-state"
 import { handleSessionIdle } from "../../hooks/todo-continuation-enforcer/idle-event"
 import { createSessionStateStore } from "../../hooks/todo-continuation-enforcer/session-state"
 import { executeSyncTask } from "./sync-task"

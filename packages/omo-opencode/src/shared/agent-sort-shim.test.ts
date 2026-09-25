@@ -25,9 +25,9 @@ describe("agent-sort-shim", () => {
     setAgentSortOrder(undefined)
   })
 
-  describe("#given an array of all 4 core agent objects in random order", () => {
+  describe("#given canonical agent objects in random order", () => {
     describe("#when toSorted with alphabetical compareFn", () => {
-      test("#then returns canonical sisyphus->hephaestus->prometheus->approver order", () => {
+      test("#then returns canonical Hustler order", () => {
         // given
         setAgentSortOrder(undefined)
         const orchestrator = { name: "Orchestrator" }
@@ -40,7 +40,7 @@ describe("agent-sort-shim", () => {
         const result = input.toSorted((a, b) => a.name.localeCompare(b.name))
 
         // then
-        expect(result).toEqual([orchestrator, developer, planner, approver])
+        expect(result).toEqual([orchestrator, planner, developer, approver])
       })
 
       test("#then follows configured core agent order", () => {
@@ -77,7 +77,7 @@ describe("agent-sort-shim", () => {
         const result = input.toSorted((a, b) => a.name.localeCompare(b.name))
 
         // then
-        expect(result).toEqual([orchestrator, developer, planner, approver, build, plan])
+        expect(result).toEqual([orchestrator, planner, developer, approver, build, plan])
       })
     })
   })
@@ -103,7 +103,7 @@ describe("agent-sort-shim", () => {
         })
 
         // then
-        expect(result).toEqual([orchestrator, developer, planner, approver, librarian, architect])
+        expect(result).toEqual([orchestrator, planner, developer, approver, librarian, architect])
       })
     })
   })
@@ -183,7 +183,7 @@ describe("agent-sort-shim", () => {
     })
   })
 
-  describe("#given agent objects with all 4 core display names in random order", () => {
+  describe("#given canonical agent objects in random order", () => {
     describe("#when sort with alphabetical compareFn (in-place)", () => {
       test("#then mutates the original array to canonical order", () => {
         // given
@@ -198,7 +198,7 @@ describe("agent-sort-shim", () => {
 
         // then
         expect(result).toBe(input)
-        expect(input).toEqual([orchestrator, developer, planner, approver])
+        expect(input).toEqual([orchestrator, planner, developer, approver])
       })
     })
   })
@@ -219,7 +219,7 @@ describe("agent-sort-shim", () => {
         const result = input.toSorted((a, b) => a.name.localeCompare(b.name))
 
         // then
-        expect(result).toEqual([orchestrator, developer, planner, approver])
+        expect(result).toEqual([orchestrator, planner, developer, approver])
       })
     })
   })
@@ -241,7 +241,7 @@ describe("agent-sort-shim", () => {
         const result = input.toSorted((a, b) => a.name.localeCompare(b.name))
 
         // then
-        expect(result).toEqual([orchestrator, developer, planner, approver, crystal])
+        expect(result).toEqual([orchestrator, planner, developer, approver, crystal])
       })
     })
 

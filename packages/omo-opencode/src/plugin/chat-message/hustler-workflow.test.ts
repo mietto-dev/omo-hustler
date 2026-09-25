@@ -4,7 +4,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { unsafeTestValue } from "../../../../../test-support/unsafe-test-value"
 import type { OhMyOpenCodeConfig } from "../../config"
-import { _resetForTesting, getSessionAgent } from "../../features/claude-code-session-state"
+import { _resetForTesting, getSessionAgent } from "../../features/opencode-session-state"
 import { createHustlerChatWorkflowAdapter } from "./hustler-workflow"
 import { createChatMessageHandler } from "../chat-message"
 import type { PluginContext } from "../types"
@@ -15,7 +15,7 @@ function createFixture() {
   const storagePath = mkdtempSync(join(tmpdir(), "hustler-chat-"))
   fixtures.add(storagePath)
   const pluginConfig = unsafeTestValue<OhMyOpenCodeConfig>({
-    sisyphus: { tasks: { storage_path: storagePath, claude_code_compat: false } },
+    sisyphus: { tasks: { storage_path: storagePath } },
   })
   const args = {
     ctx: unsafeTestValue<PluginContext>({ client: { tui: { showToast: async () => {} } } }),
@@ -29,7 +29,6 @@ function createFixture() {
       backgroundNotificationHook: null,
       runtimeFallback: null,
       keywordDetector: null,
-      claudeCodeHooks: null,
       autoSlashCommand: null,
       noSisyphusGpt: null,
       noHephaestusNonGpt: null,

@@ -1,5 +1,5 @@
 import type { OhMyOpenCodeConfig } from "../../config"
-import { subagentSessions, getMainSessionID } from "../../features/claude-code-session-state"
+import { subagentSessions, getMainSessionID } from "../../features/opencode-session-state"
 import { getAgentConfigKey } from "../../shared/agent-display-names"
 import { getSessionModel, setSessionModel } from "../../shared/session-model-state"
 import type { ChatMessageHandlerOutput, ChatMessageInput, SessionModelOverride } from "./types"
