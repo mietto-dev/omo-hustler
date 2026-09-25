@@ -1,0 +1,107 @@
+Wave 2 validation receipt: tasks 5, 6, and 7
+Date: 2026-09-23
+Verdict: BLOCKED
+
+Scope and plan
+---------------
+Read the Wave 2 plan, task-5 implementation note, root/package/src/test AGENTS guidance, and commits:
+282e9e7a5, dcfa532bd, c30eb5e67, fb478461b, fa7e9b1d1, e2141b013.
+Plan written before edits: .omo/plans/20260923-wave-2-validation.md.
+No files under packages/omo-codex, packages/omo-senpi, packages/senpi-task, or Team Mode were changed.
+
+Consolidated validation coverage
+--------------------------------
+Added packages/omo-opencode/src/features/hustler/wave-2-validation.test.ts.
+It proves machine-consumed behavior for:
+- canonical planner/developer/tester/approver contracts;
+- malformed, role-mismatched, and legacy-only contract rejection;
+- Tier 2 planner-evidence gating;
+- background prompt metadata and synchronous child-session metadata propagation;
+- Tier 0 workflow event progression, provider error terminality, and repeated idle/error suppression;
+- tester rejection, developer retry, tester acceptance, approver acceptance, and exactly-once completion;
+- cancellation terminality and repeated cancellation idempotency.
+
+Existing delegate tests were updated only where the new active HUSTLER roster/contracts intentionally changed old fixtures:
+- legacy `explore` fixture changed to canonical `architect`;
+- legacy `plan` expectation now asserts legacy-only rejection;
+- contract-required developer fixtures now carry a valid machine contract.
+Production fix: tools.ts now requires workflow contracts only for contract-bearing roles (planner, developer, tester, approver); canonical librarian/architect delegation remains valid without a workflow contract. This is required by the actual WorkflowContract union and removes an over-broad rejection of canonical advisory roles.
+
+Focused tests
+-------------
+Command:
+  bun test --timeout 20000 packages/omo-opencode/src/features/hustler/wave-2-validation.test.ts packages/omo-opencode/src/features/hustler packages/omo-opencode/src/features/claude-tasks packages/omo-opencode/src/plugin/chat-message/hustler-workflow.test.ts packages/omo-opencode/src/tools/delegate-task packages/omo-opencode/src/shared/prompt-async-route-audit.test.ts packages/omo-opencode/src/hooks/shared/prompt-async-gate.test.ts packages/omo-opencode/src/hooks/shared/prompt-async-gate-semantic-dedupe.test.ts
+Observed: PASS, 648 tests, 0 failures, 1599 expectations, 12.36s.
+
+Broader Wave 2 run:
+  bun test --timeout 20000 packages/omo-opencode/src/features/hustler packages/omo-opencode/src/features/claude-tasks packages/omo-opencode/src/plugin/chat-message/hustler-workflow.test.ts packages/omo-opencode/src/tools/delegate-task packages/omo-opencode/src/features/background-agent/manager.test.ts packages/omo-opencode/src/features/background-agent/spawner.test.ts packages/omo-opencode/src/shared/prompt-async-route-audit.test.ts packages/omo-opencode/src/hooks/shared/prompt-async-gate.test.ts packages/omo-opencode/src/hooks/shared/prompt-async-gate-semantic-dedupe.test.ts
+Observed: PASS, 863 tests, 0 failures, 2300 expectations, 22.45s.
+
+Prompt-async gate
+-----------------
+The source audit and semantic-dedupe tests passed in both focused runs. No new raw session.prompt/session.promptAsync route was introduced by the Wave 2 changes. The task-prompt-body change from fa7e9b1d1 was inspected: it adds semantic workflowContract metadata to launch/resume bodies; it is not a prompt-body screenshot or cosmetic no-op.
+
+Typecheck and build
+-------------------
+Commands:
+  bun run typecheck:packages
+  bun run typecheck
+  bun run build
+Observed: BLOCKED by pre-existing Codex/Senpi installer boundary failures outside this wave. Errors include missing `@oh-my-opencode/omo-codex/install/*` modules/exports, missing `@oh-my-opencode/omo-senpi/install`, and missing Codex installer exports in packages/omo-opencode/src/cli. The first failing files are packages/omo-opencode/src/cli/cleanup.ts, cli-installer.ts, codex-ulw-loop.ts, doctor/checks/codex.ts, and cli/install-codex/*.ts. No Wave 2 source file is named in the first failure set. Build produced intermediate dist output but declaration generation failed; this is not counted as a pass.
+
+Diagnostics
+-----------
+Ran lsp_diagnostics on every changed TypeScript file:
+- packages/omo-opencode/src/features/hustler/wave-2-validation.test.ts
+- packages/omo-opencode/src/tools/delegate-task/tools.ts
+- packages/omo-opencode/src/tools/delegate-task/tools.test.ts
+- packages/omo-opencode/src/tools/delegate-task/native-skill-prompt-filter.test.ts
+Observed: BLOCKED/ENVIRONMENT LIMITATION. The configured LSP daemon was unreachable at `/home/gotardo/.omo/lsp-daemon/v0.1.0/daemon.sock`; one large-file request timed out. No diagnostic result was available. This is recorded as blocked, never as clean.
+
+OpenCode QA
+-----------
+Common dependency self-check:
+  bash .agents/skills/opencode-qa/scripts/lib/common.sh --self-check
+Observed: PASS. Dependencies opencode 1.18.32, sqlite3, curl, jq, and tmux were present; isolated XDG/HOME cleanup self-check passed.
+
+Canonical TUI smoke:
+  bash .agents/skills/opencode-qa/scripts/tui-smoke.sh --self-test
+Observed: PASS. TUI rendered under tmux, input sentinel reached the composer, tmux session was removed, and host DB session count stayed 626 before/after.
+
+Direct isolated API/SSE probe (helper scripts server-smoke and sse-hook-probe were not used as a pass because their curl wait loop hung until the outer timeout):
+  isolated XDG_DATA_HOME/XDG_CONFIG_HOME/XDG_STATE_HOME/XDG_CACHE_HOME/HOME; opencode serve --port 49176 --hostname 127.0.0.1; authenticated health/doc/SSE requests; kill server; remove sandbox.
+Observed: PASS for base OpenCode surface. Host session count 626 before and 626 after; health `{"healthy":true,"version":"1.18.32"}`; OpenAPI path count 162; SSE emitted `server.connected`; sandbox `/tmp/wave2-runtime.NLNWeh` was absent after cleanup.
+
+Plugin-specific live probe:
+  Fix applied: packages/hustler/src/orchestrator.ts now re-exports from the explicit `../../omo-opencode/src/features/hustler/index.ts` entrypoint instead of the unsupported directory import.
+  First retry: `node script/qa-hustler-topology.mjs` no longer reports `ERR_UNSUPPORTED_DIR_IMPORT`, but Node then fails on the feature index's pre-existing extensionless internal import (`ERR_MODULE_NOT_FOUND` for `.../features/hustler/orchestrator`). This script is a Bun entrypoint (`#!/usr/bin/env bun`) and the package's supported source runtime is Bun; no additional source-wide extension rewrite was made.
+  Supported retry: `bun script/qa-hustler-topology.mjs`
+  Observed: PASS. Package identity was `@oh-my-opencode/hustler`; Tier 0 workflow reached `implementation`; Tier 2 workflow reached `planning`; isolated OpenCode plugin `dist/index.js` served healthy; SSE emitted `server.connected`; the probe's temporary sandbox was cleaned up by the script. The exact JSON result was:
+    {"package":"@oh-my-opencode/hustler","workflow":{"tier0":"implementation","tier2":"planning"},"opencode":{"plugin":"/home/gotardo/Development/omo-hustler-live-opencode-e2e/dist/index.js","server":"healthy","sse":"server.connected"}}
+  The probe does not expose a roster endpoint; roster/workflow coverage is represented by the source workflow import, package identity, and Tier 0/Tier 2 observations above.
+
+Diff and scope audit
+--------------------
+  GIT_MASTER=1 git diff --check
+Observed: PASS, no whitespace errors.
+  GIT_MASTER=1 git status --short
+Observed: only the four intended TypeScript test/production files are modified/untracked plus this evidence/plan artifact.
+Inspected the six requested commits and confirmed task-prompt-body metadata propagation is semantic. No unrelated production cleanup, Codex/Senpi/Team Mode path, second persistence store, or prompt-only enforcement was added.
+
+Redactions and cleanup
+----------------------
+- No API keys, auth headers, environment dumps, model credentials, or raw private logs were written here.
+- The authenticated password used by the isolated probe is omitted.
+- The manual OpenCode server was terminated; all temporary XDG sandboxes were removed.
+- Host OpenCode DB/session count receipt: 626 -> 626.
+- Tmux smoke session teardown receipt: `has-session false`.
+
+Actionable blockers
+-------------------
+1. Repair or restore the missing Codex/Senpi installer module exports so `bun run typecheck`, `bun run typecheck:packages`, and declaration build can complete.
+2. Restore a reachable configured LSP daemon or run diagnostics with an available TypeScript LSP.
+3. Remaining unrelated blockers are the missing Codex/Senpi installer exports and unreachable LSP daemon above; the HUSTLER package-boundary import blocker is fixed and the supported plugin-specific topology probe now passes.
+
+Why this is not PASS
+--------------------
+The Wave 2 focused behavioral suite is green and the base OpenCode isolation/TUI/API/SSE surfaces are proven. The supported plugin-specific topology probe now passes. Wave 2 remains BLOCKED only because the unrelated Codex/Senpi typecheck/build failures and unavailable LSP diagnostics remain unresolved.

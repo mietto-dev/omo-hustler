@@ -3,9 +3,10 @@ import { normalizeSDKResponse } from "../../shared/normalize-sdk-response"
 import { MIRROR_SCHEMA_VERSION } from "./constants"
 import { readActiveLoop } from "./loop-reader"
 import { canonicalProjectDir } from "./mirror-path"
-import type { TuiRuntimeSnapshot } from "./snapshot-schema"
+import type { TuiHustlerWorkflow, TuiRuntimeSnapshot } from "./snapshot-schema"
 import type { AgentStatus, JobRow } from "./state-types"
 import type { BackgroundTaskSnapshot } from "../background-agent/types"
+import type { HustlerLifecycleRecord } from "../hustler/lifecycle-state-schema"
 
 export type TuiMirrorClient = {
   readonly session: {
@@ -26,12 +27,17 @@ export type TuiBackgroundSnapshotProvider = {
 
 export type SessionAgentResolver = (sessionID: string, client: TuiMirrorClient) => Promise<string | null>
 
+export type TuiHustlerWorkflowProvider = (
+  statuses: SessionStatusMap,
+) => HustlerLifecycleRecord | null
+
 export type BuildTuiRuntimeSnapshotInput = {
   readonly client: TuiMirrorClient
   readonly projectDir: string
   readonly backgroundManager: TuiBackgroundSnapshotProvider
   readonly getStatuses?: () => Promise<SessionStatusMap>
   readonly sessionAgentResolver?: SessionAgentResolver
+  readonly getHustlerWorkflow?: TuiHustlerWorkflowProvider
 }
 
 type ActiveAgentStatus = Extract<AgentStatus, "busy" | "retry" | "running">
@@ -41,6 +47,7 @@ export async function buildTuiRuntimeSnapshot(
 ): Promise<TuiRuntimeSnapshot> {
   const statuses = await readStatuses(input)
   const loop = readActiveLoop(input.projectDir)
+  const workflow = input.getHustlerWorkflow?.(statuses) ?? null
 
   return {
     version: MIRROR_SCHEMA_VERSION,
@@ -49,6 +56,7 @@ export async function buildTuiRuntimeSnapshot(
     activeAgents: await activeAgentsFromStatuses(statuses, input.client, input.sessionAgentResolver ?? getLastAgentFromSession),
     jobBoard: input.backgroundManager.getTasksSnapshot().map(toJobRow),
     loop: loop.kind === "live" ? redactLoopText(loop) : null,
+    hustlerWorkflow: workflow === null ? null : projectHustlerWorkflow(workflow),
   }
 }
 
@@ -103,4 +111,29 @@ function redactLoopText(loop: TuiRuntimeSnapshot["loop"]): TuiRuntimeSnapshot["l
     return null
   }
   return { ...loop, activeGoal: null }
+}
+
+function projectHustlerWorkflow(record: HustlerLifecycleRecord): TuiHustlerWorkflow {
+  const activeWorker = record.state.workers.find(worker => worker.status === "running")
+    ?? record.state.workers.find(worker => worker.status === "pending")
+  const workItem = activeWorker ?? record.state.workers.at(-1) ?? null
+  const plannerGate = record.classification.tier < 2
+    ? "not-required"
+    : record.state.plan === undefined
+      ? "required"
+      : "satisfied"
+  const reviewState = record.state.acceptance?.status
+    ?? record.state.review?.status
+    ?? "not-started"
+
+  return {
+    activeRole: activeWorker?.role ?? null,
+    phase: record.state.phase,
+    plannerGate,
+    workItem: workItem === null
+      ? null
+      : { id: workItem.workItemId ?? workItem.id, role: workItem.role, status: workItem.status },
+    reviewState,
+    terminalStatus: record.status,
+  }
 }

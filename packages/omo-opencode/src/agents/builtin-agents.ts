@@ -1,13 +1,13 @@
 import type { AgentConfig } from "@opencode-ai/sdk"
 import type { BuiltinAgentName, AgentOverrides, AgentFactory, AgentPromptMetadata } from "./types"
-import type { CategoriesConfig, GitMasterConfig } from "../config/schema"
+import type { CategoriesConfig, CategoryConfig, GitMasterConfig } from "../config/schema"
 import type { LoadedSkill } from "../features/opencode-skill-loader/types"
 import type { BrowserAutomationProvider } from "../config/schema"
 import { createSisyphusAgent } from "./sisyphus"
-import { createOracleAgent, ARCHITECT_PROMPT_METADATA } from "./oracle"
-import { createLibrarianAgent, LIBRARIAN_PROMPT_METADATA } from "./librarian"
+import { createOracleAgent } from "./oracle"
+import { createLibrarianAgent } from "./librarian"
 import { createAtlasAgent, atlasPromptMetadata } from "./atlas"
-import { createMomusAgent, momusPromptMetadata } from "./momus"
+import { createMomusAgent } from "./momus"
 import { createHephaestusAgent } from "./hephaestus"
 import type { AvailableCategory } from "./dynamic-agent-prompt-builder"
 import {
@@ -22,6 +22,8 @@ import { collectPendingBuiltinAgents } from "./builtin-agents/general-agents"
 import { maybeCreateSisyphusConfig } from "./builtin-agents/sisyphus-agent"
 import { maybeCreateHephaestusConfig } from "./builtin-agents/hephaestus-agent"
 import { maybeCreateAtlasConfig } from "./builtin-agents/atlas-agent"
+import { HUSTLER_ROLE_FACTORIES, sanitizeHustlerPrompt } from "../features/hustler/roles"
+import { HUSTLER_ROLES, type HustlerRole } from "../features/hustler/role-constants"
 
 type AgentSource = AgentFactory | AgentConfig
 
@@ -42,9 +44,18 @@ const agentSources: Partial<Record<BuiltinAgentName, AgentSource>> = {
  * (Delegation Table, Tool Selection, Key Triggers, etc.)
  */
 const agentMetadata: Partial<Record<BuiltinAgentName, AgentPromptMetadata>> = {
-  architect: ARCHITECT_PROMPT_METADATA,
-  librarian: LIBRARIAN_PROMPT_METADATA,
-  tester: momusPromptMetadata,
+  ...Object.fromEntries(
+    HUSTLER_ROLES.map((role) => [role, HUSTLER_ROLE_FACTORIES[role]("hustler/metadata").metadata.promptMetadata]),
+  ),
+}
+
+function applyHustlerRoleIdentity(
+  config: AgentConfig,
+): AgentConfig {
+  return {
+    ...config,
+    prompt: sanitizeHustlerPrompt(config.prompt),
+  }
 }
 
 export async function createBuiltinAgents(
@@ -63,6 +74,8 @@ export async function createBuiltinAgents(
   disableOmoEnv = false,
   teamModeEnabled = false,
 ): Promise<Record<string, AgentConfig>> {
+
+  const normalizedDisabledAgents = disabledAgents.map((agent) => agent.toLowerCase())
 
   const connectedProviders = readConnectedProvidersCache()
   const providerModelsConnected = connectedProviders
@@ -93,7 +106,7 @@ export async function createBuiltinAgents(
   const { pendingAgentConfigs, availableAgents } = collectPendingBuiltinAgents({
     agentSources,
     agentMetadata,
-    disabledAgents,
+    disabledAgents: normalizedDisabledAgents,
     agentOverrides,
     directory,
     systemDefaultModel,
@@ -109,7 +122,7 @@ export async function createBuiltinAgents(
   })
 
   const sisyphusConfig = maybeCreateSisyphusConfig({
-    disabledAgents,
+    disabledAgents: normalizedDisabledAgents,
     agentOverrides,
     uiSelectedModel,
     availableModels,
@@ -129,7 +142,7 @@ export async function createBuiltinAgents(
   }
 
   const hephaestusConfig = maybeCreateHephaestusConfig({
-    disabledAgents,
+    disabledAgents: normalizedDisabledAgents,
     agentOverrides,
     availableModels,
     systemDefaultModel,
@@ -151,7 +164,7 @@ export async function createBuiltinAgents(
   }
 
   const atlasConfig = maybeCreateAtlasConfig({
-    disabledAgents,
+    disabledAgents: normalizedDisabledAgents,
     agentOverrides,
     uiSelectedModel,
     availableModels,
@@ -166,5 +179,13 @@ export async function createBuiltinAgents(
     result["approver"] = atlasConfig
   }
 
-  return result
+  return Object.fromEntries(
+    Object.entries(result).map(([role, config]) => {
+      if (!HUSTLER_ROLES.includes(role as HustlerRole)) return [role, config]
+      return [
+        role,
+        applyHustlerRoleIdentity(config),
+      ]
+    }),
+  )
 }

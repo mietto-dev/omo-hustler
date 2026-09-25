@@ -20,6 +20,29 @@ import { mergeNativeSkillInfos, type NativeSkillEntry } from "../skill/native-sk
 import type { SkillInfo } from "../skill/types"
 import { authorizeDelegation } from "../../features/background-agent/delegation-authorizer"
 import { createDelegationPolicy, DelegationPolicyError } from "../../features/background-agent/delegation-policy"
+import { getAgentConfigKey } from "../../shared/agent-display-names"
+import {
+  isHustlerRole,
+  validateWorkflowContractForDelegation,
+} from "../../features/claude-tasks/workflow-contracts"
+
+const LEGACY_ONLY_ROLE_KEYS = new Set([
+  "plan",
+  "sisyphus",
+  "hephaestus",
+  "prometheus",
+  "atlas",
+  "oracle",
+  "sisyphus-junior",
+  "explore",
+])
+
+const CONTRACT_REQUIRED_ROLE_KEYS = new Set([
+  "planner",
+  "developer",
+  "tester",
+  "approver",
+])
 
 function policyErrorResult(error: unknown): string | undefined {
   if (!(error instanceof DelegationPolicyError)) return undefined
@@ -83,7 +106,7 @@ const delegateTaskArgsSchema = {
     .optional()
     .describe("Continuation session id (`ses_...`) from task metadata; not a background task id (`bg_...`)."),
   command: tool.schema.string().optional().describe("The command that triggered this task"),
-  workflow_contract: tool.schema.unknown().optional().describe("Validated Planner or Developer execution contract"),
+  workflow_contract: tool.schema.unknown().optional().describe("Validated HUSTLER workflow contract"),
 }
 
 export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefinition {
@@ -96,6 +119,13 @@ export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefini
     async execute(args, toolContext) {
       const ctx = toolContext as ToolContextWithMetadata
       const delegateTaskArgs = await prepareDelegateTaskArgs(args, ctx)
+
+      const requestedRoleKey = delegateTaskArgs.subagent_type
+        ? getAgentConfigKey(delegateTaskArgs.subagent_type)
+        : undefined
+      if (delegateTaskArgs.category === undefined && requestedRoleKey && LEGACY_ONLY_ROLE_KEYS.has(requestedRoleKey)) {
+        return `Invalid arguments: legacy-only role "${delegateTaskArgs.subagent_type}" is not an active HUSTLER role.`
+      }
 
       const runInBackground = delegateTaskArgs.run_in_background === true
 
@@ -206,13 +236,33 @@ export function createDelegateTask(options: DelegateTaskToolOptions): ToolDefini
         })
 
       } else {
-        const resolution = await resolveSubagentExecution(delegateTaskArgs, modelOptions, parentContext.agent, categoryExamples)
+        const resolution = await resolveSubagentExecution(
+          delegateTaskArgs,
+          modelOptions,
+          parentContext.agent,
+          categoryExamples,
+          { allowPrimaryAgentDelegation: delegateTaskArgs.workflow_contract !== undefined },
+        )
         if (resolution.error) {
           return resolution.error
         }
         agentToUse = resolution.agentToUse
         categoryModel = resolution.categoryModel
         fallbackChain = resolution.fallbackChain
+      }
+
+      const targetRole = getAgentConfigKey(agentToUse)
+      if (delegateTaskArgs.workflow_contract !== undefined && !isHustlerRole(targetRole)) {
+        return `Invalid workflow contract: target role "${targetRole}" is not a canonical HUSTLER role.`
+      }
+      if (delegateTaskArgs.workflow_contract !== undefined) {
+        try {
+          delegateTaskArgs.workflow_contract = validateWorkflowContractForDelegation(delegateTaskArgs.workflow_contract, targetRole)
+        } catch (error) {
+          return `Invalid workflow contract: ${error instanceof Error ? error.message : String(error)}`
+        }
+      } else if (CONTRACT_REQUIRED_ROLE_KEYS.has(targetRole) && !delegateTaskArgs.category) {
+        return `Invalid arguments: HUSTLER role "${targetRole}" requires a workflow contract.`
       }
 
       let delegationLineage

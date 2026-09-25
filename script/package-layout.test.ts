@@ -9,6 +9,14 @@ function readRootManifest(): Record<string, unknown> {
   return JSON.parse(readFileSync(join(repositoryRoot, "package.json"), "utf8")) as Record<string, unknown>
 }
 
+function readBuildScript(): string {
+  return readFileSync(join(repositoryRoot, "script/build.ts"), "utf8")
+}
+
+function readTsConfig(relativePath: string): Record<string, unknown> {
+  return JSON.parse(readFileSync(join(repositoryRoot, relativePath), "utf8")) as Record<string, unknown>
+}
+
 describe("published package layout", () => {
   test("#given the root package manifest #when inspecting files #then legal files and built OpenCode runtimes are explicit", () => {
     const manifest = readRootManifest()
@@ -35,5 +43,20 @@ describe("published package layout", () => {
     expect(workspaces).not.toContain("packages/omo-codex")
     expect(workspaces).not.toContain("packages/omo-senpi")
     expect(workspaces).not.toContain("packages/web")
+  })
+
+  test("#given the root build graph #when selecting the plugin entry #then it uses the OpenCode adapter directly", () => {
+    const buildScript = readBuildScript()
+
+    expect(buildScript).toContain('"packages/omo-opencode/src/index.ts"')
+    expect(buildScript).not.toContain('"packages/hustler/src/index.ts"')
+  })
+
+  test("#given the OpenCode project configs #when inspecting exclusions #then legacy CLI sources stay outside each build boundary", () => {
+    const rootConfig = readTsConfig("tsconfig.json")
+    const packageConfig = readTsConfig("packages/omo-opencode/tsconfig.json")
+
+    expect(rootConfig.exclude).toContain("packages/omo-opencode/src/cli/**")
+    expect(packageConfig.exclude).toContain("src/cli/**")
   })
 })

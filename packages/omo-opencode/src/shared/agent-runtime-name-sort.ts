@@ -2,10 +2,10 @@ import { normalizeAgentForPromptKey } from "./agent-display-names"
 
 export const CANONICAL_CORE_AGENT_ORDER = [
   "orchestrator",
-  "developer",
   "planner",
-  "approver",
+  "developer",
   "tester",
+  "approver",
   "librarian",
   "architect",
 ] as const

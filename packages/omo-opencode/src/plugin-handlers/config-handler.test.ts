@@ -1062,7 +1062,7 @@ describe("Prometheus direct override priority over category", () => {
 
   test("planner prompt_append is appended to base prompt", async () => {
     // #given - planner override with prompt_append
-    const customInstructions = "## Custom Project Rules\nUse max 2 commits."
+    const customInstructions = "PLANNER_PROMPT_APPEND_ONCE"
     const pluginConfig = createPluginConfig({
       sisyphus_agent: {
         planner_enabled: true,
@@ -1092,11 +1092,11 @@ describe("Prometheus direct override priority over category", () => {
     // #then - prompt_append is appended to base prompt, not overwriting it
     const agents = config.agent as Record<string, { prompt?: string }>
     const pKey = getAgentListDisplayName("planner")
-    const prometheusPrompt = agents[pKey]?.prompt
+    const plannerPrompt = agents[pKey]?.prompt
     expect(agents[pKey]).toBeDefined()
-    expect(prometheusPrompt).toContain("Prometheus")
-    expect(prometheusPrompt).toContain(customInstructions)
-    expect(prometheusPrompt?.endsWith(customInstructions)).toBe(true)
+    expect(plannerPrompt).toContain(customInstructions)
+    expect((plannerPrompt?.match(/PLANNER_PROMPT_APPEND_ONCE/g) ?? []).length).toBe(1)
+    expect(plannerPrompt?.endsWith(customInstructions)).toBe(true)
   })
 })
 

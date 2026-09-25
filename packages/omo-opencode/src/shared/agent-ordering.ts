@@ -6,6 +6,8 @@ export const DEFAULT_AGENT_ORDER = [
   "developer",
   "tester",
   "approver",
+  "librarian",
+  "architect",
 ] as const
 
 export type AgentOrderValidation = {

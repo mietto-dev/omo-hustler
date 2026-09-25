@@ -1,6 +1,8 @@
 import type { OpencodeClient } from "./types"
 import type { DelegatedModelConfig } from "../../shared/model-resolution-types"
 import { QUESTION_DENIED_SESSION_PERMISSION } from "../../shared/question-denied-session-permission"
+import type { WorkflowContract } from "../../features/claude-tasks/workflow-contracts"
+import { validateWorkflowContractForDelegation } from "../../features/claude-tasks/workflow-contracts"
 
 export async function createSyncSession(
   client: OpencodeClient,
@@ -10,8 +12,12 @@ export async function createSyncSession(
     description: string
     defaultDirectory: string
     categoryModel?: DelegatedModelConfig
+    workflowContract?: WorkflowContract
   }
 ): Promise<{ ok: true; sessionID: string; parentDirectory: string } | { ok: false; error: string }> {
+  const workflowContract = input.workflowContract === undefined
+    ? undefined
+    : validateWorkflowContractForDelegation(input.workflowContract, input.agentToUse)
   const parentSession = await client.session.get({ path: { id: input.parentSessionID } }).catch(() => null)
   const parentDirectory = parentSession?.data?.directory ?? input.defaultDirectory
 
@@ -29,6 +35,7 @@ export async function createSyncSession(
             },
           }
         : {}),
+      ...(workflowContract ? { metadata: { workflowContract } } : {}),
     } as Record<string, unknown>,
     query: {
       directory: parentDirectory,

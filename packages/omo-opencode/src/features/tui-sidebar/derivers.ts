@@ -3,6 +3,7 @@ import type { TuiRuntimeSnapshot } from "./snapshot-schema"
 import type {
   AgentsState,
   ConfigState,
+  HustlerWorkflowState,
   JobBoardState,
   JobRow,
   LoopState,
@@ -66,6 +67,11 @@ export function deriveJobBoard(snap: TuiRuntimeSnapshot | null): JobBoardState {
 
 export function deriveLoop(snap: TuiRuntimeSnapshot | null): LoopState {
   return snap?.loop ?? { kind: "none" }
+}
+
+export function deriveHustlerWorkflow(snap: TuiRuntimeSnapshot | null): HustlerWorkflowState {
+  const workflow = snap?.hustlerWorkflow ?? null
+  return workflow === null ? { kind: "none" } : { kind: "workflow", workflow }
 }
 
 function compareRosterRows(left: RosterRow, right: RosterRow): number {

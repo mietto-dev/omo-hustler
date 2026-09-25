@@ -38,6 +38,54 @@ afterEach(() => {
 })
 
 describe("createBuiltinAgents with model overrides", () => {
+  test("sanitizes legacy identifiers reintroduced by a role prompt override", async () => {
+    // #given
+    const fetchSpy = spyOn(shared, "fetchAvailableModels").mockResolvedValue(new Set())
+    const overrides: AgentOverrides = {
+      developer: {
+        prompt: "You are Hephaestus. Preserve Atlas guidance.",
+        prompt_append: "Prometheus and Sisyphus legacy instructions",
+        model: "openai/gpt-5.6-sol",
+        permission: { write: "deny" },
+      },
+    }
+
+    try {
+      // #when
+      const agents = await createBuiltinAgents([], overrides, undefined, TEST_DEFAULT_MODEL)
+      const developer = agents.developer
+
+      // #then
+      expect(developer.model).toBe("openai/gpt-5.6-sol")
+      expect((developer.permission as Record<string, string> | undefined)?.write).toBe("deny")
+      expect(developer.prompt).toContain("legacy instructions")
+      expect(developer.prompt).not.toMatch(/Sisyphus|Hephaestus|Prometheus|Atlas/i)
+    } finally {
+      fetchSpy.mockRestore()
+    }
+  })
+
+  test("applies a general role prompt override once", async () => {
+    // #given
+    const fetchSpy = spyOn(shared, "fetchAvailableModels").mockResolvedValue(new Set())
+    const overrides: AgentOverrides = {
+      architect: {
+        prompt_append: "PROMPT_APPEND_ONCE",
+        model: "openai/gpt-5.6-sol",
+      },
+    }
+
+    try {
+      // #when
+      const agents = await createBuiltinAgents([], overrides, undefined, TEST_DEFAULT_MODEL)
+
+      // #then
+      expect((agents.architect.prompt?.match(/PROMPT_APPEND_ONCE/g) ?? []).length).toBe(1)
+    } finally {
+      fetchSpy.mockRestore()
+    }
+  })
+
   test("user config models take priority when team_mode is enabled", async () => {
     // #given
     const providerModelsSpy = spyOn(connectedProvidersCache, "readProviderModelsCache").mockReturnValue(null)

@@ -118,7 +118,7 @@ const AVAILABLE_CATEGORIES: AvailableCategory[] = [
 	},
 ];
 
-const HEPHAESTUS_DIRECT_AGENTS = new Set(["librarian"]);
+const HEPHAESTUS_DIRECT_AGENTS = new Set(["librarian", "architect"]);
 
 /**
  * Delegation rows are the machine-rendered `→ `agent`` tokens emitted by

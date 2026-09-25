@@ -185,6 +185,7 @@ export async function runSyncTaskLoop(input: SyncTaskRunnerInput): Promise<strin
         description: args.description,
         defaultDirectory: directory,
         categoryModel: nextFallbackModel,
+        workflowContract: args.workflow_contract,
       })
       if (!retrySessionResult.ok) {
         return retrySessionResult.error

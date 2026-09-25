@@ -83,6 +83,7 @@ import { ParentWakeNotifier, type ParentWakePromptContext } from "./parent-wake-
 import type { PendingParentWake } from "./parent-wake-dedupe"
 import { registerManagerForCleanup, unregisterManagerForCleanup } from "./process-cleanup"
 import { createDelegationPolicy, DelegationPolicyError, type DelegationPolicy } from "./delegation-policy"
+import { validateWorkflowContractForDelegation } from "../claude-tasks/workflow-contracts"
 import { removeTaskToastTracking } from "./remove-task-toast-tracking"
 import {
   MIN_SESSION_GONE_POLLS,
@@ -605,6 +606,13 @@ export class BackgroundManager {
       throw new Error("Agent parameter is required after sanitization")
     }
 
+    if (input.workflowContract !== undefined) {
+      input = {
+        ...input,
+        workflowContract: validateWorkflowContractForDelegation(input.workflowContract, input.agent),
+      }
+    }
+
     const spawnReservation = await this.reserveSubagentSpawn(input.parentSessionId)
 
     try {
@@ -805,6 +813,7 @@ export class BackgroundManager {
               },
             }
           : {}),
+        ...(input.workflowContract ? { metadata: { workflowContract: input.workflowContract } } : {}),
       } as Record<string, unknown>,
       query: {
         directory: parentDirectory,
@@ -974,6 +983,7 @@ The fallback retry session is now created and can be inspected directly.
       ...(launchVariant ? { variant: launchVariant } : {}),
       system: input.skillContent,
       tools: launchTools,
+      ...(input.workflowContract ? { metadata: { workflowContract: input.workflowContract } } : {}),
       parts: [createInternalAgentTextPart(input.prompt)],
     }
 
@@ -1356,6 +1366,10 @@ The fallback retry session is now created and can be inspected directly.
       })
     }
 
+    const workflowContract = input.workflowContract === undefined
+      ? existingTask.workflowContract
+      : validateWorkflowContractForDelegation(input.workflowContract, existingTask.agent)
+
     if (existingTask.status === "running") {
       throw new Error(
         `Task ${existingTask.id} is currently running and cannot accept a continuation prompt. ` +
@@ -1389,6 +1403,7 @@ The fallback retry session is now created and can be inspected directly.
     if (input.parentTools) {
       existingTask.parentTools = input.parentTools
     }
+    existingTask.workflowContract = workflowContract
     // Reset startedAt on resume to prevent immediate completion
     // The MIN_IDLE_TIME_MS check uses startedAt, so resumed tasks need fresh timing
     existingTask.startedAt = new Date()
@@ -1469,6 +1484,7 @@ The fallback retry session is now created and can be inspected directly.
             setSessionTools(existingTask.sessionId!, tools)
             return tools
           })(),
+          ...(workflowContract ? { metadata: { workflowContract } } : {}),
           parts: [createInternalAgentTextPart(input.prompt)],
         },
         query: { directory: this.directory },

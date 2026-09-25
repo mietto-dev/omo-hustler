@@ -17,6 +17,7 @@ import {
 } from "../features/claude-code-session-state"
 import { applyAgentConfig } from "./agent-config-handler"
 import type { PluginComponents } from "./plugin-components-loader"
+import { HUSTLER_ROLES } from "../features/hustler/role-constants"
 
 const BUILTIN_SISYPHUS_DISPLAY_NAME = getAgentListDisplayName("orchestrator")
 const BUILTIN_SISYPHUS_JUNIOR_DISPLAY_NAME = getAgentListDisplayName("developer")
@@ -193,7 +194,7 @@ describe("applyAgentConfig builtin override protection", () => {
     // when applyAgentConfig runs
     const result = await applyAgentConfig({
       config: createBaseConfig(),
-      pluginConfig: createPluginConfig(),
+      pluginConfig: { ...createPluginConfig(), sisyphus_agent: { planner_enabled: true } },
       ctx: { directory: "/tmp" },
       pluginComponents: createPluginComponents(),
     })
@@ -214,7 +215,7 @@ describe("applyAgentConfig builtin override protection", () => {
     // when
     await applyAgentConfig({
       config,
-      pluginConfig: createPluginConfig(),
+      pluginConfig: { ...createPluginConfig(), sisyphus_agent: { planner_enabled: true } },
       ctx: { directory: "/tmp" },
       pluginComponents: createPluginComponents(),
     })
@@ -254,6 +255,99 @@ describe("applyAgentConfig builtin override protection", () => {
 
     // then
     expect(config.default_agent).toBe(getAgentDisplayName("orchestrator"))
+  })
+
+  test("emits exactly the canonical HUSTLER roster in default order", async () => {
+    // given every canonical role is available from the builtin registry
+    createBuiltinAgentsSpy.mockResolvedValue(
+      Object.fromEntries(
+        HUSTLER_ROLES.map((role) => [role, { mode: "subagent", model: `provider/${role}` }]),
+      ),
+    )
+
+    // when the config pipeline assembles the agent registry
+    const config = createBaseConfig()
+    const result = await applyAgentConfig({
+      config,
+      pluginConfig: { ...createPluginConfig(), sisyphus_agent: { planner_enabled: true } },
+      ctx: { directory: "/tmp" },
+      pluginComponents: createPluginComponents(),
+    })
+
+    // then only the seven canonical roles are active and orchestrator is the default
+    expect(Object.keys(result).filter((name) => name !== "build" && name !== "plan")).toEqual([
+      "Orchestrator",
+      "Planner",
+      "Developer",
+      "Tester",
+      "Approver",
+      "Librarian",
+      "Architect",
+    ])
+    expect(config.default_agent).toBe("Orchestrator")
+    expect(Object.keys(result).some((name) => /Sisyphus|Hephaestus|Prometheus|Atlas/.test(name))).toBe(false)
+  })
+
+  test("honors configured order and disabled canonical roles", async () => {
+    // given the canonical roster and a configured order with one disabled role
+    createBuiltinAgentsSpy.mockResolvedValue(
+      Object.fromEntries(
+        HUSTLER_ROLES.map((role) => [role, { mode: "subagent", model: `provider/${role}` }]),
+      ),
+    )
+    const pluginConfig = {
+      ...createPluginConfig(),
+      sisyphus_agent: { planner_enabled: true },
+      agent_order: ["architect", "librarian", "approver", "tester", "developer", "planner", "orchestrator"],
+      disabled_agents: ["tester"],
+    }
+
+    // when the config pipeline assembles the registry
+    const result = await applyAgentConfig({
+      config: createBaseConfig(),
+      pluginConfig,
+      ctx: { directory: "/tmp" },
+      pluginComponents: createPluginComponents(),
+    })
+
+    // then configured order wins and the disabled role is absent
+    expect(Object.keys(result).filter((name) => name !== "build" && name !== "plan")).toEqual([
+      "Architect",
+      "Librarian",
+      "Approver",
+      "Developer",
+      "Planner",
+      "Orchestrator",
+    ])
+    expect(Object.keys(result)).not.toContain("Tester")
+  })
+
+  test("sanitizes legacy identifiers reintroduced by Planner overrides", async () => {
+    // given Planner overrides that replace and append legacy role identifiers
+    const pluginConfig = {
+      ...createPluginConfig(),
+      sisyphus_agent: { planner_enabled: true },
+      agents: {
+        planner: {
+          prompt: "You are Prometheus. Follow Atlas guidance.",
+          prompt_append: "PLANNER_PROMPT_APPEND_ONCE Hephaestus and Sisyphus legacy instructions",
+        },
+      },
+    }
+
+    // when the real Planner assembly path is exercised
+    const result = await applyAgentConfig({
+      config: createBaseConfig(),
+      pluginConfig,
+      ctx: { directory: "/tmp" },
+      pluginComponents: createPluginComponents(),
+    })
+
+    // then custom content remains while active Planner identity is sanitized
+    const planner = result.Planner as AgentConfig
+    expect(planner.prompt).toContain("legacy instructions")
+    expect((planner.prompt?.match(/PLANNER_PROMPT_APPEND_ONCE/g) ?? []).length).toBe(1)
+    expect(planner.prompt).not.toMatch(/Sisyphus|Hephaestus|Prometheus|Atlas/i)
   })
 
   test("resolved default_agent contains no zero-width invisible characters", async () => {

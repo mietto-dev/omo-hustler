@@ -286,9 +286,9 @@ describe("applyToolConfig", () => {
       const agent = params.agentResult[atlasKey] as {
         permission: Record<string, unknown>
       }
-      expect(agent.permission.task).toBe("allow")
+       expect(agent.permission.task).toBe("deny")
       expect(agent.permission["task_*"]).toBe("allow")
-      expect(agent.permission.teammate).toBe("allow")
+       expect(agent.permission.teammate).toBe("deny")
     })
 
     it("#then should allow teammate for hephaestus", () => {
@@ -340,7 +340,7 @@ describe("applyToolConfig", () => {
           permission: Record<string, unknown>;
         };
         expect(junior.permission["task_*"]).toBe("allow");
-        expect(junior.permission.teammate).toBe("allow");
+         expect(junior.permission.teammate).toBe("deny");
       });
     });
   });

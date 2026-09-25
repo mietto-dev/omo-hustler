@@ -17,6 +17,7 @@ import { getTaskID } from "./task-id"
 import { resolveMetadataModel } from "./resolve-metadata-model"
 import { log } from "../../shared/logger"
 import { cancelSyncSessionDeletion, scheduleSyncSessionDeletion } from "./sync-session-cleanup"
+import { validateWorkflowContractForDelegation } from "../../features/claude-tasks/workflow-contracts"
 
 type ResumeModel = { providerID: string; modelID: string }
 
@@ -139,6 +140,9 @@ export async function executeSyncContinuation(
     const resumeModelForMetadata = resumeModel && resumeVariant !== undefined
       ? { ...resumeModel, variant: resumeVariant }
       : resumeModel
+    const workflowContract = args.workflow_contract === undefined
+      ? undefined
+      : validateWorkflowContractForDelegation(args.workflow_contract, resumeAgent ?? "")
 
     const syncContMeta = {
       title: args.description,
@@ -155,6 +159,7 @@ export async function executeSyncContinuation(
         sync: true,
         command: args.command,
         model: resolveMetadataModel(resumeModelForMetadata, parentContext.model),
+        ...(workflowContract ? { workflowContract } : {}),
       },
     }
     await publishToolMetadata(ctx, syncContMeta)
@@ -178,6 +183,7 @@ export async function executeSyncContinuation(
         ...(resumeVariant !== undefined ? { variant: resumeVariant } : {}),
         system: systemContent,
         tools,
+        ...(workflowContract ? { metadata: { workflowContract } } : {}),
         parts: [{ type: "text", text: effectivePrompt }],
       },
     }, {
