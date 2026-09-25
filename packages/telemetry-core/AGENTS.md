@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Harness-neutral PostHog telemetry: env-gated opt-out, SHA256-hashed machine id, once-per-UTC-day capture dedup, and JSONL diagnostics. No product-specific strings live here — each consumer passes a `TelemetryProductConfig` (event name, cache dir, machine-id prefix, env prefix). Package: `@oh-my-opencode/telemetry-core`.
+Harness-neutral PostHog telemetry: env-gated opt-out, SHA256-hashed machine id, once-per-UTC-day capture dedup, and JSONL diagnostics. No product-specific strings live here — each consumer passes a `TelemetryProductConfig` (event name, cache dir, machine-id prefix, env prefix). Package: `@omo-hustler/telemetry-core`.
 
 ## PUBLIC API (`src/index.ts` barrel)
 
@@ -22,8 +22,8 @@ Harness-neutral PostHog telemetry: env-gated opt-out, SHA256-hashed machine id, 
 
 ## DEPENDENCIES & CONSUMERS
 
-- **Depends on:** `@oh-my-opencode/utils` (`writeFileAtomically`, `resolveXdgDataDir`) + `posthog-node` (^5).
-- **Consumed by BOTH editions:** `omo-opencode/src/shared/posthog*.ts`; `omo-codex/src/telemetry/*` and `omo-codex/plugin/components/telemetry/*`.
+- **Depends on:** `@omo-hustler/utils` (`writeFileAtomically`, `resolveXdgDataDir`) + `posthog-node` (^5).
+- **Consumed by:** `omo-opencode/src/shared/posthog*.ts`.
 
 ## NOTES
 

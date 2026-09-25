@@ -2,15 +2,12 @@
 
 OMO Hustler is an OpenCode plugin for handing off substantial engineering work to a coordinated group of agents. The retained product is OpenCode-only. It provides a competency-based workflow, bounded delegation, background execution, review gates, skills, MCP integration, configuration, and lifecycle hooks.
 
-## Install
+## Use and develop
 
-Use the supported OpenCode installer from this repository:
-
-```bash
-bunx oh-my-openagent install
-```
-
-The installer registers the plugin and guides provider setup. For local development, see the [installation guide](docs/guide/installation.md) and [contributing guide](CONTRIBUTING.md).
+This repository is a private, OpenCode-only development tree. It does not provide
+a published package, binary download, marketplace listing, or external installer.
+Follow the [installation guide](docs/guide/installation.md) to run the retained
+`hustler-opencode` entrypoint from a local checkout.
 
 ## How Hustler Works
 

@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Package: `@oh-my-opencode/openclaw-core`. Harness-neutral Core for OpenClaw bidirectional integration. Outbound dispatch fires HTTP webhooks or shell commands on session events; inbound reply-listener daemon polls Discord/Telegram and injects replies into tracked tmux panes. Consumed by the OpenCode adapter at [`packages/omo-opencode/src/openclaw/`](../omo-opencode/src/openclaw/AGENTS.md) via re-export shims.
+Package: `@omo-hustler/openclaw-core`. Harness-neutral core for OpenClaw bidirectional integration. Outbound dispatch fires HTTP webhooks or shell commands on session events; inbound reply-listener daemon polls Discord/Telegram and injects replies into tracked tmux panes. Consumed by the OpenCode adapter at [`packages/omo-opencode/src/openclaw/`](../omo-opencode/src/openclaw/AGENTS.md) via re-export shims.
 
 ## KEY FILES
 

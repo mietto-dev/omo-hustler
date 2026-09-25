@@ -8,7 +8,7 @@ Checked-in JSON artifacts consumed by editors, CLIs, installers, and published p
 
 ```
 assets/
-├── oh-my-opencode.schema.json   # OpenCode edition config schema
+├── omo-hustler.schema.json      # OMO Hustler OpenCode plugin config schema
 ├── omo.schema.json              # Harness-neutral omo.json schema
 └── help/                        # Machine-readable CLI help schemas
     ├── acp.schema.json
@@ -21,7 +21,7 @@ assets/
 
 | Artifact | Generator / source |
 |----------|--------------------|
-| `oh-my-opencode.schema.json` | `script/build-schema.ts` + OpenCode Zod schemas under `packages/omo-opencode/src/config/schema/` |
+| `omo-hustler.schema.json` | `script/build-schema.ts` + OpenCode Zod schemas under `packages/omo-opencode/src/config/schema/` |
 | `omo.schema.json` | `script/build-omo-schema.ts` + `packages/omo-config-core/` |
 | `help/*.schema.json` | `script/build-help-schemas.ts` + CLI help definitions |
 

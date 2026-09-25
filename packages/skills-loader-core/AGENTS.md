@@ -5,7 +5,7 @@
 ## OVERVIEW
 
 Harness-neutral skill loading, builtin skill, runtime skill, and skill matching primitives.
-Package `@oh-my-opencode/skills-loader-core`.
+Package `@omo-hustler/skills-loader-core`.
 Confirmed by grep: consumed by `omo-opencode` skill features in ~70 files across `src/features/builtin-skills`, `src/features/opencode-skill-loader`, `src/features/opencode-runtime-skills`, `src/tools/skill`, and `src/hooks/auto-slash-command`.
 
 ## SUBSYSTEMS

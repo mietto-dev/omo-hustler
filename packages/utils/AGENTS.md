@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Harness-neutral pure-TypeScript core package (`@oh-my-opencode/utils`). Consumed by both adapters (`packages/omo-opencode`, `packages/omo-codex`) and the other Core packages. Barrel-exports runtime shims, config tooling, file utilities, prompt gating, git parsing, and migration maps.
+Harness-neutral pure-TypeScript core package (`@omo-hustler/utils`). Consumed by the OpenCode adapter and the other core packages. Barrel-exports runtime shims, config tooling, file utilities, prompt gating, git parsing, and migration maps.
 
 ## CATEGORY MAP
 

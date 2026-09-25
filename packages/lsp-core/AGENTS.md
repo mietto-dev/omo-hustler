@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Harness-neutral LSP engine (`@oh-my-opencode/lsp-core`). Manages language server lifecycle, JSON-RPC transport, configuration merging, and tool definitions. Consumed by the MCP-layer package [`lsp-tools-mcp`](../lsp-tools-mcp). See parent [packages/AGENTS.md](../AGENTS.md).
+Harness-neutral LSP engine (`@omo-hustler/lsp-core`). Manages language server lifecycle, JSON-RPC transport, configuration merging, and tool definitions. Consumed by the MCP-layer package [`lsp-tools-mcp`](../lsp-tools-mcp). See parent [packages/AGENTS.md](../AGENTS.md).
 
 ## KEY FILES
 

@@ -13,7 +13,6 @@ The documentation describes the OpenCode-only OMO Hustler product. Keep guides a
 | Configuration | [reference/configuration.md](reference/configuration.md) |
 | Features | [reference/features.md](reference/features.md) |
 | CLI | [reference/cli.md](reference/cli.md) |
-| Release process | [reference/release-process.md](reference/release-process.md) |
 | GitHub attachment evidence | [reference/github-attachment-upload.md](reference/github-attachment-upload.md) |
 | Legal notices | [legal/](legal/) |
 

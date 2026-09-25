@@ -1,6 +1,7 @@
-# What Is Oh My OpenAgent?
+# What Is OMO Hustler?
 
-Oh My OpenAgent is a multi-model agent orchestration harness. The OpenCode plugin edition (this guide) is the primary focus; Codex (LazyCodex) and Senpi editions ship separately. It transforms a single AI agent into a coordinated development team that actually ships code.
+OMO Hustler is a private, OpenCode-only orchestration plugin. It transforms a
+single AI agent into a coordinated development team that actually ships code.
 
 Not locked to Claude. Not locked to OpenAI. Not locked to anyone.
 
@@ -12,14 +13,9 @@ Just better results, cheaper models, real orchestration.
 
 ### Installation
 
-Paste this into your LLM agent session:
-
-```
-Install and configure oh-my-openagent by following the instructions here:
-https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/refs/heads/dev/docs/guide/installation.md
-```
-
-Or read the full [Installation Guide](./installation.md) for manual setup, provider authentication, and troubleshooting.
+This repository has no published installer or marketplace distribution. Follow
+the [Installation Guide](./installation.md) to build and run the local
+`hustler-opencode` entrypoint.
 
 ### Your First Task
 
@@ -37,9 +33,8 @@ Want more control? Open the agent selector (Tab) and choose [Prometheus](./orche
 
 ## The Philosophy: Breaking Free
 
-We used to call this "Claude Code on steroids." That was wrong.
-
-This isn't about making Claude Code better. It's about breaking free from the idea that one model, one provider, one way of working is enough. Anthropic wants you locked in. OpenAI wants you locked in. Everyone wants you locked in.
+This is not tied to one model or provider. Configure the providers available to
+your OpenCode runtime and let the workflow route work by task type.
 
 Oh My OpenAgent doesn't play that game. It orchestrates across models, picking the right brain for the right job. Opus 5 for orchestration. Visual work uses `claude-fable-5-1` max, then `claude-opus-5` max, then `kimi-k3` max. GPT-6 Astra for deep reasoning, with GPT-5.6 Sol behind it. Kimi high-speed for quick tasks. All working together, automatically.
 
@@ -89,20 +84,27 @@ Sisyphus is your main orchestrator. He plans, delegates to specialists, and driv
 - **GLM 5.2** — Solid option, especially via OpenCode Go. Sisyphus uses a GLM-5.2-calibrated prompt and the automatic chain includes `glm-5.2` explicitly, but current evidence is still lighter than Claude/Kimi maintainer validation.
 - **GPT-6 Astra** — OpenAI's most capable model and the recommended GPT flagship. It's the default for the `ultrabrain` (max), `deep` (high), and `unspecified-high` (high) categories, and a strong manual override for Hephaestus and Oracle. Hephaestus still defaults to GPT-5.6 Sol.
 
-Sisyphus works best on Claude Opus 5, Kimi K3/K2.7, and GLM 5.2. GPT-5.4 has its own prompt, while GPT-5.5 and GPT-5.6 Sol share a model-aware GPT-native prompt family. Hephaestus remains the recommended GPT-5.6 agent because [issue #6074](https://github.com/code-yeongyu/oh-my-openagent/issues/6074) tracks Sisyphus over-orchestration on bounded work.
+Sisyphus works well with Claude Opus 5, Kimi K3/K2.7, and GLM 5.2. GPT-5.4
+has its own prompt, while GPT-5.5 and GPT-5.6 Sol share a model-aware
+GPT-native prompt family.
 
 ### Hephaestus: The Legitimate Craftsman
 
 Named with intentional irony. Anthropic blocked OpenCode from using their API because of this project. So the team built an autonomous GPT-native agent instead.
 
-Hephaestus uses GPT-5.6 Sol at medium effort, trying providers in order: OpenAI, OpenAI Codex, GitHub Copilot, OpenCode. Pin `openai/gpt-6-astra` if you want him on OpenAI's most capable model. Give him a goal, not a recipe. He explores the codebase, researches patterns, and executes end-to-end without hand-holding.
+Hephaestus uses GPT-5.6 Sol at medium effort through configured OpenCode
+providers. Pin `openai/gpt-6-astra` when that model is available. Give him a
+goal, not a recipe. He explores the codebase, researches patterns, and executes
+end-to-end without hand-holding.
 
 Use Hephaestus when you need deep architectural reasoning, complex debugging across many files, or cross-domain knowledge synthesis. Switch to him explicitly when the work benefits from a GPT-native autonomous agent.
 
-**Why this beats vanilla Codex CLI:**
+**Why this workflow helps:**
 
-- **Multi-model orchestration.** Pure Codex is single-model. OmO routes different tasks to different models automatically. Opus 5 for orchestration. Fable 5.1, then Opus 5, then Kimi K3 for visual work. GPT-6 Astra for deep reasoning. Kimi high-speed for quick tasks. The right brain for the right job.
-- **Background agents.** Fire 5+ agents in parallel. Something Codex simply cannot do. While one agent writes code, another researches patterns, another checks documentation. Like a real dev team.
+- **Multi-model orchestration.** OMO routes different tasks to different configured models automatically. Opus 5 for orchestration, GPT-6 Astra for deep reasoning, and fast models for quick tasks.
+- **Background agents.** Fire 5+ agents in parallel. While one agent writes code,
+  another researches patterns, and another checks documentation. Like a real
+  dev team.
 - **Category system.** Tasks are routed by intent, not model name. `visual-engineering` covers visual design, UI/UX, frontend, styling, animation, and design systems. `ultrabrain` prefers GPT-6 Astra max, while `deep` handles 3D graphics, computer use, browser use, backend, logic, algorithms, CAPTCHA solving, multimodal work, and complex research. No manual juggling.
 - **Accumulated wisdom.** Subagents learn from previous results. Conventions discovered in task 1 are passed to task 5. Mistakes made early aren't repeated. The system gets smarter as it works.
 
@@ -170,7 +172,7 @@ You can override specific agents or categories in your config:
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
+"$schema": "../../assets/omo.schema.json",
 
   "agents": {
     // Main orchestrator: Claude Opus or Kimi K3 work best
@@ -245,19 +247,22 @@ See the [Agent-Model Matching Guide](./agent-model-matching.md) for complete det
 
 ---
 
-## Why It's Better Than Pure Claude Code
-
-Claude Code is good. But it's a single agent running a single model doing everything alone.
+## Why the workflow helps
 
 Oh My OpenAgent turns that into a coordinated team:
 
-**Parallel execution.** Claude Code processes one thing at a time. OmO fires background agents in parallel — research, implementation, and verification happening simultaneously. Like having 5 engineers instead of 1.
+**Parallel execution.** OMO fires background agents in parallel — research,
+implementation, and verification can happen simultaneously.
 
-**Hash-anchored edits.** Claude Code's edit tool fails when the model can't reproduce lines exactly. Hash-anchored `LINE#ID` edits are opt-in (`hashline_edit: true`). When enabled, OmO's `LINE#ID` hashing validates every edit before applying.
+**Hash-anchored edits.** Hash-anchored `LINE#ID` edits are opt-in
+(`hashline_edit: true`) and validate every edit before applying.
 
-**IntentGate.** Claude Code takes your prompt and runs. OmO uses regex detectors for explicit mode keywords: `ultrawork`/`ulw`, the Team Mode spellings, `hyperplan`, and the adjacent hyperplan-ultrawork combo. Matching text injects the corresponding mode prompt.
+**IntentGate.** OMO uses regex detectors for explicit mode keywords:
+`ultrawork`/`ulw`, Team Mode spellings, `hyperplan`, and the adjacent
+hyperplan-ultrawork combo. Matching text injects the corresponding mode prompt.
 
-**LSP + AST tools.** Workspace-level rename, go-to-definition, find-references, pre-build diagnostics, AST-aware code rewrites. IDE precision that vanilla Claude Code doesn't have.
+**LSP + AST tools.** Workspace-level rename, go-to-definition,
+find-references, pre-build diagnostics, and AST-aware code rewrites.
 
 **Skills with embedded MCPs.** Each skill brings its own MCP servers, scoped to the task. Context window stays clean instead of bloating with every tool.
 

@@ -159,10 +159,10 @@ jobs:
         run: test -f dist/index.js && test -f dist/index.d.ts
       - name: Verify generated schema artifacts are committed
         if: needs.ci-mode.outputs.run_heavy == 'true'
-        run: bun run build:schema && bun run build:omo-schema && git diff --exit-code -- assets/oh-my-opencode.schema.json assets/omo.schema.json
+        run: bun run build:schema && bun run build:omo-schema && git diff --exit-code -- assets/omo-hustler.schema.json assets/omo.schema.json
       - name: Verify generated schemas
         if: needs.ci-mode.outputs.run_heavy == 'true'
-        run: git diff --exit-code -- assets/oh-my-opencode.schema.json assets/omo.schema.json
+        run: git diff --exit-code -- assets/omo-hustler.schema.json assets/omo.schema.json
       - name: Write job summary
         if: always()
         run: echo "## Root build" >> "$GITHUB_STEP_SUMMARY"
@@ -182,10 +182,10 @@ jobs:
       - run: bun run build
       - name: Auto-commit schema changes
         run: |
-          if git diff --quiet assets/oh-my-opencode.schema.json assets/omo.schema.json; then exit 0; fi
+          if git diff --quiet assets/omo-hustler.schema.json assets/omo.schema.json; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add assets/oh-my-opencode.schema.json assets/omo.schema.json
+          git add assets/omo-hustler.schema.json assets/omo.schema.json
           git commit -m "chore: auto-update schema.json"
           git push
       - name: Write job summary

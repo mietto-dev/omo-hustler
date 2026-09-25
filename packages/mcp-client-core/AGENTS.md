@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Harness-neutral MCP client lifecycle and OAuth primitives. Consumed by `omo-opencode` via `features/skill-mcp-manager` and `features/mcp-oauth` / `cli/mcp-oauth`. Private package `@oh-my-opencode/mcp-client-core`; 30 source files under `src/`.
+Harness-neutral MCP client lifecycle and OAuth primitives. Consumed by `omo-opencode` via `features/skill-mcp-manager` and `features/mcp-oauth` / `cli/mcp-oauth`. Private package `@omo-hustler/mcp-client-core`; 30 source files under `src/`.
 
 ## KEY FILES
 
@@ -31,7 +31,7 @@ Harness-neutral MCP client lifecycle and OAuth primitives. Consumed by `omo-open
 | `mcp-oauth/storage-index.ts` | `index.json` server-URL → token-file index; atomic rename + chmod writes |
 | `mcp-oauth/callback-server.ts` | `findAvailablePort()`, `startCallbackServer()` for local OAuth callback |
 | `mcp-oauth/storage.ts` | `loadToken()` / `saveToken()` — keyed by server URL |
-| `config-dir.ts` / `plugin-identity.ts` / `logger.ts` | realpath-normalized config path resolution; `PLUGIN_NAME` ("oh-my-openagent"); shared logger |
+| `config-dir.ts` / `plugin-identity.ts` / `logger.ts` | realpath-normalized config path resolution; plugin identity and shared logger |
 | `index.ts` | Barrel: re-exports `mcp-oauth/*` and `skill-mcp-manager/*` |
 
 ## NOTES

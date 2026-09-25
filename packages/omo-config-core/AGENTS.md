@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Harness-neutral primitives for the `omo.json` config surface: a Zod v4 schema tree, a walked multi-layer loader with VSCode-style view resolution (shared base -> `[harness]` block -> `profiles.<P>` -> `profiles.<P>.[harness]`), a shared model catalog resolver, a comment-preserving atomic writer, and a lock+journal legacy-config migration engine. Pure logic with all IO injected through filesystem ports. No OpenCode, Codex, Senpi, Pi, or adapter imports (guarded by `script/shared-core-extraction-guard.test.ts`). Package: `@oh-my-opencode/omo-config-core` (private, `sideEffects: false`). This is THE config surface for every omo harness: `packages/omo-opencode` resolves its plugin config through it, `packages/omo-senpi` loads task/config-watch settings plus startup migration through it, and `packages/omo-codex`'s config loader reads through it.
+Harness-neutral primitives for the `omo.json` config surface: a Zod v4 schema tree, a walked multi-layer loader with OpenCode view resolution, a shared model catalog resolver, a comment-preserving atomic writer, and a lock+journal legacy-config migration engine. Pure logic with all IO injected through filesystem ports. Package: `@omo-hustler/omo-config-core` (private, `sideEffects: false`). The OpenCode adapter resolves its plugin configuration through this package.
 
 ## ANATOMY
 
@@ -60,8 +60,8 @@ Recursively deep-merges plain objects; scalars and arrays replace. `__proto__`, 
 
 ## DEPENDENCIES & CONSUMERS
 
-- **Depends on:** `@oh-my-opencode/utils` (`parseJsoncSafe`, `isPlainObject`, `isUnsafeObjectKey`), `jsonc-parser`, `zod`.
-- **Consumed by:** `packages/senpi-task` (schema types re-used by the task/team config surface), `packages/omo-senpi` (`components/config-resolution` wraps `loadOmoConfig` + `resolveModelReferences`; `components/config-startup` runs the migration engine at startup; `components/task` consumes the resolved config), `packages/omo-opencode` (`plugin-config/omo-config-chain.ts` builds the per-layer OpenCode views and the user-only protected view; `startup-migration.ts` drives the engine; `config-migration/` supplies OpenCode-side discovery + transform), and `packages/omo-codex` (`plugin/shared/src/config-loader.ts` + `config-migration.ts` for the `config.jsonc` group).
+- **Depends on:** `@omo-hustler/utils` (`parseJsoncSafe`, `isPlainObject`, `isUnsafeObjectKey`), `jsonc-parser`, `zod`.
+- **Consumed by:** `packages/omo-opencode` (`plugin-config/omo-config-chain.ts` builds the per-layer OpenCode views and the user-only protected view; `startup-migration.ts` drives the migration engine; `config-migration/` supplies OpenCode-side discovery + transform).
 
 ## QA
 
@@ -74,4 +74,4 @@ Co-located `*.test.ts` cover the schema (`src/schema/config-schema.test.ts`), th
 
 ## GENERATED SCHEMA
 
-The checked-in generated JSON artifact at `assets/omo.schema.json` is produced by `bun run build:omo-schema` via [`script/build-omo-schema.ts`](../../script/build-omo-schema.ts). Its `$id` and editor URL are `https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json`. This package owns the schema source; the generated JSON artifact remains an ownership-boundary surface outside this package. Category-schema field parity with `packages/omo-opencode/src/config/schema/categories.ts` is pinned by the repo-root guard `tests/omo-config-category-drift.test.ts` (compares the inner `OmoCategoryConfigObjectSchema` shape, since the canonical export wraps a legacy-key preprocessor); schema changes must update both sides or that test fails.
+The checked-in generated JSON artifact at `assets/omo.schema.json` is produced by `bun run build:omo-schema` via [`script/build-omo-schema.ts`](../../script/build-omo-schema.ts). Its `$id` and editor URL are `urn:omo-hustler:schema:omo`. This package owns the schema source; the generated JSON artifact remains an ownership-boundary surface outside this package. Category-schema field parity with `packages/omo-opencode/src/config/schema/categories.ts` is pinned by the repo-root guard `tests/omo-config-category-drift.test.ts` (compares the inner `OmoCategoryConfigObjectSchema` shape, since the canonical export wraps a legacy-key preprocessor); schema changes must update both sides or that test fails.

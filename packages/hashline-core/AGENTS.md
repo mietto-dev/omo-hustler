@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-The engine behind the Hashline edit tool (inspired by [oh-my-pi](https://github.com/can1357/oh-my-pi)). Tags every line with a `LINE#HASH|` content hash, validates edit refs against current content (rejecting stale lines), then applies structured `replace`/`append`/`prepend` edits with autocorrection, deduplication, and unified-diff generation. Package: `@oh-my-opencode/hashline-core`.
+The engine behind the Hashline edit tool. Tags every line with a `LINE#HASH|` content hash, validates edit refs against current content (rejecting stale lines), then applies structured `replace`/`append`/`prepend` edits with autocorrection, deduplication, and unified-diff generation. Package: `@omo-hustler/hashline-core`.
 
 ## PUBLIC API (`src/index.ts`, ~26 fns + 7 types) — by area
 

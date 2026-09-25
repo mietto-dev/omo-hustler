@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-The lowest-level core package: JSON-RPC 2.0 transport over stdio (line-mode and Content-Length framed), an event-loop server with idle timeout, response builders, and an `isPlainRecord` guard. Zero runtime/peer dependencies; imports nothing from the workspace, consumed by every MCP-layer package. Package: `@oh-my-opencode/mcp-stdio-core`.
+The lowest-level core package: JSON-RPC 2.0 transport over stdio (line-mode and Content-Length framed), an event-loop server with idle timeout, response builders, and an `isPlainRecord` guard. Zero runtime/peer dependencies; imports nothing from the workspace, consumed by every MCP-layer package. Package: `@omo-hustler/mcp-stdio-core`.
 
 ## KEY FILES (5 source, all flat in `src/`)
 

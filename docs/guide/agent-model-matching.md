@@ -137,10 +137,10 @@ The interactive picker prioritizes providers in this order:
 
 You can also skip the picker: `opencode auth login --provider opencode-go`.
 
-### Verify what oh-my-openagent will actually use
+### Verify effective model routing
 
 ```bash
-bunx oh-my-openagent doctor --verbose
+./bin/hustler-opencode.js doctor --verbose
 ```
 
 This shows the **effective model resolution** for every agent and category based on your current auth state. If an agent says "system-default" instead of a real fallback, that's a signal you're missing providers from its chain.
@@ -168,7 +168,8 @@ You don't need every provider. You need the right two.
 
 ### What if you already have a Claude subscription?
 
-Add `--claude=max20` (or `yes`) on install. The Claude chain default (Opus 5) activates for Sisyphus/Metis and you still get the OpenCode Go fallbacks for free. Pin `claude-opus-5` or `claude-fable-5-1` to run the current top Claude with Sisyphus/Atlas tuned prompts, or pin `opencode-go/kimi-k3` to run the top Kimi; Prometheus uses Fable 5.1 before its Kimi K3 fallback. Best-in-class orchestration + budget safety net.
+Configure the desired provider and model in `~/.omo/omo.jsonc` or the project
+`.omo/omo.jsonc`. The OpenCode Go fallbacks remain available when configured.
 
 ### What if you have zero subscriptions?
 
@@ -213,7 +214,9 @@ Use a different slot only when the model family and workflow justify it:
 
 ## Step 3 — Model Family Alternatives (Priority Order)
 
-When the "native" model isn't available, oh-my-openagent walks each agent's fallback chain until something connects. The chains are hardcoded in [`packages/omo-opencode/src/shared/model-requirements.ts`](../../packages/omo-opencode/src/shared/model-requirements.ts). There is no single global priority list. Every agent and category has its own chain.
+When the preferred model is unavailable, the OpenCode adapter walks each agent's
+fallback chain until a configured model connects. The chains are defined in
+[`packages/omo-opencode/src/shared/model-requirements.ts`](../../packages/omo-opencode/src/shared/model-requirements.ts).
 
 There are two separate systems:
 
@@ -411,7 +414,7 @@ No built-in agent or category chain lists `vercel` (or `quotio-openai`) on any r
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+"$schema": "../../assets/omo.schema.json",
 
   "agents": {
     // Sisyphus: Kimi K3 is the top alternative to Claude for orchestration
@@ -546,7 +549,7 @@ If you have OpenRouter and want DeepSeek in the chain when GPT is unavailable:
 - **Sisyphus → MiniMax / Qwen**: **Strongly discouraged to the point of "almost forbidden."** Neither holds up under the orchestration prompt. Never use them as the orchestrator.
 - **Sisyphus → MiMo / DeepSeek**: No working configuration found. Untested and unsupported as the orchestrator.
 - **Sisyphus → older GPT models**: Still a bad fit. GPT-5.4 has its own prompt; GPT-5.5 and GPT-5.6 Sol share the supported model-aware GPT-native prompt family.
-- **Hephaestus → Claude**: Built for Codex's autonomous style. Claude can't replicate this.
+- **Hephaestus → Claude**: The Hephaestus prompt is tuned for autonomous deep work.
 - **Hephaestus → MiniMax**: MiniMax loses coherence on multi-step deep work. **Never do this.**
 - **Oracle → MiniMax**: Same reason. Oracle needs sustained reasoning; MiniMax drifts.
 - **Explore → Opus**: Massive cost waste. Explore needs speed, not intelligence.
@@ -575,9 +578,9 @@ Your explicit configuration always wins. If you set a specific model for an agen
 
 Variant and `reasoningEffort` overrides are normalized to model-supported values, so cross-provider overrides degrade gracefully instead of failing hard.
 
-Model capabilities are `models.dev`-backed, with a refreshable cache and capability diagnostics. Use `bunx oh-my-openagent refresh-model-capabilities` to update the cache, or configure `model_capabilities.auto_refresh_on_start` to refresh at startup.
+Model capabilities are `models.dev`-backed, with a refreshable cache and capability diagnostics. Use the local `hustler-opencode refresh-model-capabilities` entrypoint to update the cache, or configure `model_capabilities.auto_refresh_on_start` to refresh at startup.
 
-To see which models your agents will actually use, run `bunx oh-my-openagent doctor --verbose`. This shows effective model resolution based on your current authentication and config.
+To see which models your agents will actually use, run `./bin/hustler-opencode.js doctor --verbose`. This shows effective model resolution based on your current configuration.
 
 ```
 Agent Request → User Override (if configured) → Fallback Chain → System Default

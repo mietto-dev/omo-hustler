@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Harness-neutral model resolution core (`@oh-my-opencode/model-core`). Resolves which model an agent or category should use via a prioritized pipeline: override, category default, user fallback, hardcoded fallback chain, system default. Consumed by `omo-opencode` (Ultimate adapter shims), `delegate-core` (task delegation), `claude-code-compat-core` (Claude Code model normalization), `skills-loader-core` (model sanitization), and `prompts-core` (variant resolution). The `ProviderCache` interface is the dependency-injection seam for connected-provider and model-metadata lookups.
+Harness-neutral model resolution core (`@omo-hustler/model-core`). Resolves which model an agent or category should use via a prioritized pipeline: override, category default, user fallback, hardcoded fallback chain, system default. Consumed by `omo-opencode`, `delegate-core` (task delegation), `skills-loader-core` (model sanitization), and `prompts-core` (variant resolution). The `ProviderCache` interface is the dependency-injection seam for connected-provider and model-metadata lookups.
 
 ## KEY FILES
 

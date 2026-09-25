@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Two responsibilities: (1) parse LLM apply-patch edits into structured `CheckerEdit[]`, and (2) run the external `@code-yeongyu/comment-checker` binary to detect AI-slop comments in changed code. Spawn is dependency-injected (not `child_process.spawn`) so both editions can drive the same core. Package: `@oh-my-opencode/comment-checker-core`.
+Two responsibilities: (1) parse LLM apply-patch edits into structured `CheckerEdit[]`, and (2) run the external `@code-yeongyu/comment-checker` binary to detect AI-slop comments in changed code. Spawn is dependency-injected (not `child_process.spawn`) so the OpenCode adapter can drive the same core. Package: `@omo-hustler/comment-checker-core`.
 
 ## PUBLIC API (`src/index.ts`)
 
@@ -19,13 +19,13 @@ Two responsibilities: (1) parse LLM apply-patch edits into structured `CheckerEd
 
 ## DEPENDENCIES & CONSUMERS
 
-- **Depends on:** `@oh-my-opencode/utils` (`isRecord` from `utils/record-type-guard`).
-- **Consumed by BOTH editions:** `omo-opencode/src/hooks/comment-checker/{hook,types,cli}.ts` and `omo-codex/plugin/components/comment-checker/src/{core,core-values,apply-patch,request-extractor}.ts`.
+- **Depends on:** `@omo-hustler/utils` (`isRecord` from `utils/record-type-guard`).
+- **Consumed by:** `omo-opencode/src/hooks/comment-checker/{hook,types,cli}.ts`.
 
 ## NOTES
 
 - **Exit-code contract:** `0` = clean, `2` = has comments; any other code / error / timeout silently returns `{hasComments: false, message: ""}`.
 - **Spawn timeouts:** default 30s, 1s kill grace, SIGTERM→SIGKILL escalation.
 - **`SpawnProcess` is an injected interface** — `stdin.write/end`, `ReadableStream<Uint8Array>` stdout/stderr, `exited: Promise<number>` — never the Node `ChildProcess` type directly.
-- **`HookInput` mirrors OpenCode's `tool.execute.before` input schema** exactly, so the same parser serves the Codex `PreToolUse`/`PostToolUse` adapters.
+- **`HookInput` mirrors OpenCode's `tool.execute.before` input schema** exactly.
 - Parent: [`packages/AGENTS.md`](../AGENTS.md).

@@ -83,7 +83,7 @@ The prompt status area reports these states:
   for them explicitly.
 - Side conversations do not delegate work to subagents.
 
-OpenAI Codex can present its side thread inside the native Codex TUI. OpenCode's
+OpenCode can present its side thread inside the native TUI. OpenCode's
 plugin API does not expose that split presentation, so OMO uses retained
 session routes and a native picker while preserving the same transcript
 isolation.

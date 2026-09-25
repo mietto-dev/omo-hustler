@@ -12,8 +12,8 @@ Thanks for helping improve the OpenCode-only OMO Hustler project. Keep changes f
 ## Setup
 
 ```bash
-git clone https://github.com/code-yeongyu/oh-my-openagent.git
-cd oh-my-openagent
+git clone https://github.com/mietto-dev/omo-hustler.git
+cd omo-hustler
 bun install
 bun run build
 ```
@@ -34,7 +34,7 @@ git diff --check
 
 OpenCode behavior must be checked in an isolated environment. Use the repository OpenCode QA instructions and record reviewer-readable evidence under `.omo/evidence/`. Never use a real user database, credentials, or provider session for QA.
 
-The adapter registry is defined by `agentSources`, `tool-registry-factories`, and `createBuiltinMcps`, with `HookNameSchema` defining hook names and `@opencode-ai/sdk` providing the host types. Source plugin paths use the absolute `file:///` form. The legacy `test:codex` gate and `codex-qa` skill are not part of this OpenCode-only checkout; use the OpenCode source and script suites listed above. The `opencode-qa` skill documents isolated runtime checks.
+The adapter registry is defined by `agentSources`, `tool-registry-factories`, and `createBuiltinMcps`, with `HookNameSchema` defining hook names and `@opencode-ai/sdk` providing the host types. Source plugin paths use the absolute `file:///` form. The `opencode-qa` skill documents isolated runtime checks.
 
 ## Development Environment
 

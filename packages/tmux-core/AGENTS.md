@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Harness-neutral tmux primitives consumed by the OpenCode adapter (`omo-opencode`), team-mode visualization (`team-core`), OpenClaw injection (`openclaw-core`), and the `interactive_bash` tool. Every function is dependency-injected so adapters supply `getTmuxPath()`, `log`, and server-health checks. Package: `@oh-my-opencode/tmux-core`.
+Harness-neutral tmux primitives consumed by the OpenCode adapter (`omo-opencode`), team-mode visualization (`team-core`), OpenClaw injection (`openclaw-core`), and the `interactive_bash` tool. Every function is dependency-injected so adapters supply `getTmuxPath()`, `log`, and server-health checks. Package: `@omo-hustler/tmux-core`.
 
 ## CATEGORY MAP
 

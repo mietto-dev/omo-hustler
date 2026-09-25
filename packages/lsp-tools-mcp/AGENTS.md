@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Vendored, Node-targeted MCP-layer package (`@code-yeongyu/lsp-tools-mcp`). Serves LSP tools via stdio MCP, consuming [`lsp-core`](../lsp-core/AGENTS.md) for tool definitions and LSP runtime and [`mcp-stdio-core`](../mcp-stdio-core) for JSON-RPC framing. Registered as tier-1 MCP `lsp` in [`packages/omo-opencode/src/mcp/`](../omo-opencode/src/mcp/AGENTS.md) and used directly by the OpenCode edition.
+Vendored, Node-targeted MCP-layer package (`@code-yeongyu/lsp-tools-mcp`). Serves LSP tools via stdio MCP, consuming [`lsp-core`](../lsp-core/AGENTS.md) for tool definitions and [`mcp-stdio-core`](../mcp-stdio-core) for JSON-RPC framing. Registered as tier-1 MCP `lsp` in [`packages/omo-opencode/src/mcp/`](../omo-opencode/src/mcp/AGENTS.md) and used directly by OMO Hustler's OpenCode edition.
 
 ## TOOLS SERVED
 
@@ -22,10 +22,10 @@ Vendored, Node-targeted MCP-layer package (`@code-yeongyu/lsp-tools-mcp`). Serve
 | File | Role |
 |------|------|
 | `cli.ts` | Bin `omo-lsp`. `mcp` subcommand → `runMcpStdioServer()` |
-| `mcp.ts` | Re-exports `@oh-my-opencode/lsp-core/mcp` (stdio MCP server + JSON-RPC handler) |
-| `tools.ts` | Re-exports `@oh-my-opencode/lsp-core/tools` (tool definitions + runtime dispatch) |
-| `request-context.ts` | Re-exports `@oh-my-opencode/lsp-core/request-context` |
-| `lsp/manager.ts` | Re-exports `@oh-my-opencode/lsp-core/lsp/manager` |
+| `mcp.ts` | Re-exports `@omo-hustler/lsp-core/mcp` (stdio MCP server + JSON-RPC handler) |
+| `tools.ts` | Re-exports `@omo-hustler/lsp-core/tools` (tool definitions + runtime dispatch) |
+| `request-context.ts` | Re-exports `@omo-hustler/lsp-core/request-context` |
+| `lsp/manager.ts` | Re-exports `@omo-hustler/lsp-core/lsp/manager` |
 
 ## NOTES
 
