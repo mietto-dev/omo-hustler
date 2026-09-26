@@ -52,7 +52,7 @@ jobs:
         if: always()
         run: echo "## CI execution mode" >> "$GITHUB_STEP_SUMMARY"
 
-  block-master-pr:
+  block-main-pr:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     permissions:

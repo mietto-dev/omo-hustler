@@ -17,7 +17,7 @@ const workflowExpectations = [
     path: ".github/workflows/ci.yml",
     jobs: [
       "ci-mode",
-      "block-master-pr",
+       "block-main-pr",
       "test",
       "typecheck",
        "build",
