@@ -161,12 +161,12 @@ describe("CI fast-path workflow wiring", () => {
     }
   })
 
-  test("keeps schema generation on master", () => {
+  test("keeps schema generation on main", () => {
     const jobs = workflowJobs(ciWorkflowPath)
     const schema = jobs["auto-commit-schema"]
     if (!isRecord(schema)) throw new Error("CI schema job must exist")
 
-    expect(String(schema["if"])).toContain("refs/heads/master")
+    expect(String(schema["if"])).toContain("refs/heads/main")
     expect(String(schema["if"])).not.toContain("run_heavy")
   })
 

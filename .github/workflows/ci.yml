@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master, dev]
+    branches: [main, dev]
   pull_request:
-    branches: [master, dev]
+    branches: [main, dev]
     types: [opened, synchronize, reopened, labeled]
 
 concurrency:
@@ -65,7 +65,7 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
-          if [ "$BASE_REF" != "master" ]; then exit 0; fi
+          if [ "$BASE_REF" != "main" ]; then exit 0; fi
           gh pr comment "$PR_URL" --body "Hi @${PR_AUTHOR}, please retarget this pull request to \\`dev\\`."
           gh pr close "$PR_URL"
           exit 1
@@ -170,7 +170,7 @@ jobs:
   auto-commit-schema:
     runs-on: ubuntu-latest
     needs: [ci-mode, test, typecheck, build]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
     steps:
