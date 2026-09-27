@@ -2,14 +2,7 @@ import { describe, expect, test } from "bun:test"
 
 const RECOMMENDATION_FILES = [
   "README.md",
-  "README.ko.md",
-  "README.ja.md",
-  "README.ru.md",
-  "README.zh-cn.md",
-  "docs/guide/agent-model-matching.md",
-  "docs/guide/orchestration.md",
   "docs/guide/installation.md",
-  "docs/guide/overview.md",
   "docs/reference/configuration.md",
   "docs/reference/features.md",
   "docs/examples/coding-focused.jsonc",

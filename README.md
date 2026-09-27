@@ -25,12 +25,11 @@ The normal path is `PLAN -> BUILD -> TEST -> REVIEW`. Small tasks may skip plann
 
 ## Documentation
 
-- [Overview](docs/guide/overview.md)
-- [Orchestration](docs/guide/orchestration.md)
+- [Hustler design](HUSTLER.md)
+- [Roadmap](ROADMAP.md)
 - [Team Mode](docs/guide/team-mode.md)
 - [Configuration](docs/reference/configuration.md)
 - [Feature reference](docs/reference/features.md)
-- [Roadmap](ROADMAP.md)
 - [Current status](STATUS.md)
 - [Contribution guide](CONTRIBUTING.md)
 - Security and legal requirements are covered by the repository governance and attribution notices.

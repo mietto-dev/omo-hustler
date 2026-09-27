@@ -336,12 +336,10 @@ longer describes the legacy OMO topology.
 
 ## Documentation Drift
 
-[`docs/guide/orchestration.md`](docs/guide/orchestration.md) still contains
-legacy OMO descriptions such as the 11-agent inventory and Prometheus/Atlas
-execution path. Those descriptions are useful historical context while the
-migration is being understood, but they contradict the current standalone
-Hustler role model and must not be used as current product guidance. Updating
-that guide and related references is M0/M7 work.
+Historical orchestration descriptions were removed from the current user
+documentation because they contradict the standalone Hustler role model. Any
+remaining migration notes should be treated as M0/M7 work and must not be
+used as current product guidance.
 
 The proposed directory layout, exact model assignments, and compatibility
 aliases in [`HUSTLER.md`](HUSTLER.md) are design suggestions, not promises

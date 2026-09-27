@@ -6,9 +6,9 @@ The documentation describes the OpenCode-only OMO Hustler product. Keep guides a
 
 | Topic | Location |
 | --- | --- |
-| Product overview | [guide/overview.md](guide/overview.md) |
+| Product overview | [README](../README.md) and [ROADMAP](../ROADMAP.md) |
 | Installation | [guide/installation.md](guide/installation.md) |
-| Orchestration | [guide/orchestration.md](guide/orchestration.md) |
+| Workflow design | [HUSTLER](../HUSTLER.md) |
 | Team Mode | [guide/team-mode.md](guide/team-mode.md) |
 | Configuration | [reference/configuration.md](reference/configuration.md) |
 | Features | [reference/features.md](reference/features.md) |

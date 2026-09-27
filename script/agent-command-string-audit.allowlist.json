@@ -4,7 +4,6 @@
   "input-compat-preserve": [],
   "docs": [
     "AGENTS.md: omo doctor",
-    "changes.md: omo doctor x2",
     "packages/omo-opencode/src/cli/doctor/checks/tools.ts: omo doctor"
   ]
 }
