@@ -80,7 +80,7 @@ describe("cross-harness env wiring", () => {
 })
 
 describe("Docker QA harness", () => {
-  test("#given the QA image #when reading .devcontainer/qa.Dockerfile #then it layers latest opencode + codex on the dev image", () => {
+  test("#given the QA image #when reading .devcontainer/qa.Dockerfile #then it layers latest OpenCode on the dev image", () => {
     // given
     const path = join(REPO_ROOT, ".devcontainer", "qa.Dockerfile")
 
@@ -89,7 +89,6 @@ describe("Docker QA harness", () => {
     const raw = read(path)
     expect(raw).toContain("FROM omo-dev")
     expect(raw).toContain("opencode-ai")
-    expect(raw).toContain("@openai/codex")
   })
 
   test("#given the QA entrypoint #when reading .devcontainer/qa-entrypoint.sh #then it copies host config from a read-only mount", () => {
@@ -115,9 +114,6 @@ describe("Docker QA harness", () => {
     expect(raw.toLowerCase()).toContain("windows")
     expect(raw).toContain(".devcontainer/qa.Dockerfile")
     expect(raw).toContain("serve")
-    expect(raw).toContain("codex")
-    expect(raw).toContain("app-server")
-    expect(raw).toContain("--tui")
   })
 
   test("#given the OpenCode QA skill #when looking for the docker-qa reference #then it documents the Docker path", () => {
