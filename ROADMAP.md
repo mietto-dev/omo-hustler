@@ -164,8 +164,7 @@ Acceptance criteria:
 
 **Status:** `in_progress`
 **Evidence:** `unverified` for complete behavior; role registration and
-contract plumbing exist, but deeper behavior is still limited per
-[`STATUS.md`](STATUS.md).
+contract plumbing exist, but deeper behavior is still limited.
 
 Consolidate repository, documentation, ecosystem, and history reconnaissance
 under Librarian modes. Make Architect an exceptional, read-only escalation
@@ -190,7 +189,7 @@ Acceptance criteria:
 
 **Status:** `in_progress`
 **Evidence:** `verified` across adapter tests and isolated QA for the tested
-surfaces; see [`STATUS.md`](STATUS.md).
+surfaces; broader coverage remains part of M7.
 
 Preserve proven OMO infrastructure while changing workflow policy: model
 routing and fallback, categories, dynamic skills, background tasks, task
@@ -320,7 +319,7 @@ generated artifacts, QA evidence, and release checks.
 - OpenCode registration, model resolution, background execution, hooks,
   skills, MCPs, Tmux, LSP, configuration, and redacted TUI workflow state.
 - Focused tests and isolated QA paths described in
-  [`STATUS.md`](STATUS.md), [`README.md`](README.md), and
+  [`README.md`](README.md), and
   [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Partial and Unverified Areas
