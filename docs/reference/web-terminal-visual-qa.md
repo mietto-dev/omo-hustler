@@ -6,7 +6,16 @@ This reference covers visual QA for retained OpenCode terminal surfaces.
 
 Record the command, environment, and observed output in the task evidence
 directory. Attach screenshots such as `terminal.png` only when they are needed
-to explain a visual result; do not commit temporary images.
+to explain a visual result; do not commit temporary images. For GitHub PR
+attachments, follow the [GitHub attachment upload guidance](github-attachment-upload.md)
+in `docs/reference/github-attachment-upload.md`.
+
+## Driver
+
+Run `script/qa/web-terminal-visual-qa.mjs` to capture terminal evidence through
+the retained xterm.js browser path. Use `--redact` for literal secrets and
+`--redact-regex` for pattern-based secrets. The raw --command value is never
+written to metadata.
 
 ## Runtime requirements
 

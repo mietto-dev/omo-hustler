@@ -25,8 +25,8 @@ lead, bounded member sessions, a shared task list, mailbox acknowledgements,
 optional worktrees, and optional tmux layout support. It is enabled with
 `team_mode.enabled: true`.
 
-See the [Team Mode guide](../guide/team-mode.md) and
-[orchestration guide](../guide/orchestration.md).
+See the [Team Mode guide](../guide/team-mode.md) and the
+[Hustler workflow design](../../HUSTLER.md).
 
 ## Hooks and context
 

@@ -19,7 +19,7 @@ describe("shared skills package manifest", () => {
       version: "0.1.0",
       type: "module",
       private: true,
-      description: "Cross-harness SKILL.md files shared between OMO and Codex",
+      description: "OpenCode SKILL.md files bundled with OMO Hustler",
       exports: {
         ".": {
           types: "./index.d.ts",

@@ -61,7 +61,7 @@ Use the local entrypoint to inspect effective routing:
 
 Team definitions belong under `teams`. Background execution is configured in
 the `[opencode]` block. See the [team mode guide](../guide/team-mode.md) and
-[orchestration guide](../guide/orchestration.md) for operational examples.
+[Hustler workflow design](../../HUSTLER.md) for operational examples.
 
 ## Validation and QA
 

@@ -12,6 +12,10 @@ node_modules/
 dist/
 packages/omo-codex/plugin/skills/
 
+# Local generated workspaces
+--out-dir/
+graphify-out/
+
 # Platform binaries (built, not committed)
 packages/*/bin/oh-my-opencode
 packages/*/bin/oh-my-opencode.exe

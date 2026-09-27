@@ -62,7 +62,7 @@ describe("agent dev-environment scripts", () => {
   describe("qa-sandbox.sh", () => {
     const sandbox = join(AGENT_DIR, "qa-sandbox.sh")
 
-    test("#given the QA isolation helper #when inspected #then it isolates XDG + CODEX_HOME and injects creds", () => {
+    test("#given the QA isolation helper #when inspected #then it isolates XDG and injects creds", () => {
       expect(existsSync(sandbox), "script/agent/qa-sandbox.sh must exist").toBe(true)
       const body = readFileSync(sandbox, "utf8")
       expect(body.startsWith("#!/usr/bin/env bash")).toBe(true)
@@ -70,7 +70,6 @@ describe("agent dev-environment scripts", () => {
       for (const xdg of ["XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME"]) {
         expect(body, `must isolate ${xdg}`).toContain(xdg)
       }
-      expect(body).toContain("CODEX_HOME")
       expect(body).toContain("OPENCODE_DISABLE_AUTOUPDATE")
       expect(body).toContain("OPENCODE_DISABLE_MODELS_FETCH")
       expect(body).toContain(".env") // creds injection, set once

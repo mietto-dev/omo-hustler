@@ -32,7 +32,6 @@ const workflowExpectations = [
     { path: ".github/workflows/refresh-model-capabilities.yml", jobs: ["refresh"] },
     { path: ".github/workflows/windows-flake-soak.yml", jobs: ["soak"] },
     { path: ".github/workflows/hustler-package.yml", jobs: ["package"] },
-    { path: ".github/workflows/publish-hustler.yml", jobs: ["release-dry-run"] },
 ] as const satisfies readonly WorkflowExpectation[]
 
 function discoverWorkflowPaths(): readonly string[] {

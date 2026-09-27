@@ -47,16 +47,14 @@ describe("CONTRIBUTING.md accuracy", () => {
     }
   })
 
-  test("#given the contributor guide #when scanned for testing + QA discipline #then bun test, codex suite, and evidence rules are present", () => {
+  test("#given the contributor guide #when scanned for testing + QA discipline #then bun test and evidence rules are present", () => {
     // given
     const content = readContributing()
 
     // then
     expect(content).toContain("bun test")
-    expect(content).toContain("test:codex")
     expect(content).toContain(".omo/evidence")
     expect(content).toContain("opencode-qa")
-    expect(content).toContain("codex-qa")
   })
 
   test("#given the contributor guide #when scanned for the dev-environment sections #then cross-harness setup, credentials, and isolation are documented", () => {
