@@ -280,8 +280,14 @@ with the core of HUSTLER's Phases 1, 3, 4, 5, 6, 7, and 8.
 
 The fork is not yet at the conceptual definition of done. The largest gaps
 are complete Librarian/Architect behavior, representative end-to-end proof,
-workflow-specific token and latency benchmarks, and documentation that no
-longer describes the legacy OMO topology.
+workflow-specific token and latency benchmarks, and final evidence and release
+alignment.
+
+The repository cleanup wave is complete: obsolete publishing and compatibility
+surfaces were removed, stale legacy guides were deleted, and retained
+documentation references were aligned with the standalone OpenCode boundary.
+The remaining M0/M7 work is inventory completion plus synchronization of
+generated artifacts, QA evidence, and release checks.
 
 ## Milestone Status
 
@@ -337,9 +343,11 @@ longer describes the legacy OMO topology.
 ## Documentation Drift
 
 Historical orchestration descriptions were removed from the current user
-documentation because they contradict the standalone Hustler role model. Any
-remaining migration notes should be treated as M0/M7 work and must not be
-used as current product guidance.
+documentation because they contradict the standalone Hustler role model.
+Obsolete publishing, compatibility, and legacy troubleshooting surfaces were
+also removed during the repository cleanup. Any remaining migration notes
+should be treated as M0/M7 work and must not be used as current product
+guidance.
 
 The proposed directory layout, exact model assignments, and compatibility
 aliases in [`HUSTLER.md`](HUSTLER.md) are design suggestions, not promises
