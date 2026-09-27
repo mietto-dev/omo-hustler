@@ -1,6 +1,6 @@
-# FORK.md
+# OMO Hustler
 
-# Competency-Based Agent Fork — Implementation Blueprint
+_Competency-Based, Multi-Agent configuration plugin for Opencode_
 
 > A lean, deterministic, token-conscious fork of **Oh My OpenAgent (OMO)**.
 >
